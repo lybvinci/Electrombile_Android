@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Electrombile</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_login">LoginActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_register">RegisterActivity</string>
+
+    <string name="login_username_hint">user name</string>
+    <string name="login_password_hint">password</string>
+    <string name="login">Login</string>
+    <string name="not_have_account">No account？</string>
+    <string name="register_rightnow">Register &gt;</string>
+
+</resources>

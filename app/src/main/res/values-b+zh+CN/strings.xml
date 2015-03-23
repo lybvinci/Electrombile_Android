@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_username_hint">请输入用户名</string>
+    <string name="login_password_hint">请输入密码</string>
+    <string name="login">登录</string>
+    <string name="not_have_account">还没有账号？</string>
+    <string name="register_rightnow">立即注册 &gt;</string>
+</resources>
