@@ -12,5 +12,9 @@
     <string name="login">Login</string>
     <string name="not_have_account">No account？</string>
     <string name="register_rightnow">Register &gt;</string>
+    <string name="title_activity_validate">ValidateActivity</string>
+    <string name="title_activity_binding">BindingActivity</string>
+    <string name="title_activity_forget">ForgetActivity</string>
+    <string name="title_activity_main">MainActivity</string>
 
 </resources>
