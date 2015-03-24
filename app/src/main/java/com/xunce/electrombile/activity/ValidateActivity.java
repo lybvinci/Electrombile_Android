@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVMobilePhoneVerifyCallback;
-import com.avos.avoscloud.AVOSCloud;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogUtil;
 import com.avos.avoscloud.RequestMobileCodeCallback;
@@ -37,8 +36,8 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
     }
     private void initView(){
         validation = (EditText) findViewById(R.id.validation_edt);
-        get_validation = (Button) findViewById(R.id.validation_btn);
-        Ok = (Button) findViewById(R.id.Ok_btn);
+        get_validation = (Button) findViewById(R.id.sendValidation);
+        Ok = (Button) findViewById(R.id.validationOk);
         get_validation.setOnClickListener(this);
         Ok.setOnClickListener(this);
         Intent intent = getIntent();
@@ -69,7 +68,7 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
-    class TimeCount extends CountDownTimer{
+    private class TimeCount extends CountDownTimer{
 
         public TimeCount(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
@@ -90,7 +89,7 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch(view.getId()){
-            case R.id.validation_btn:
+            case R.id.sendValidation:
                 // do get validation
                 if(jishu == 0) {
                     jishu++;
@@ -137,7 +136,7 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
                     });
                 }
                 break;
-            case R.id.Ok_btn:
+            case R.id.validationOk:
                 // do register
                 String smsCode = validation.getText().toString();
                 if("".equals(smsCode)){

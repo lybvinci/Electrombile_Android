@@ -17,7 +17,7 @@
    <Button
        android:layout_width="100dp"
        android:layout_height="wrap_content"
-       android:id="@+id/validation_btn"
+       android:id="@+id/sendValidation"
        android:text="获取验证码"
        android:background="@drawable/common_btn"
        android:layout_marginLeft="5dp"
@@ -26,7 +26,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/Ok_btn"
+        android:id="@+id/validationOk"
         android:text="确定"
         android:textSize="30sp"
         android:clickable="false"
