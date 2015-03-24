@@ -1,6 +1,52 @@
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
+# Built application files
 /build
+ 
+# Crashlytics configuations
+com_crashlytics_export_strings.xml
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Gradle generated files
+.gradle/
+ 
+# Signing files
+.signing/
+
+# User-specific configurations
+.idea/libraries/
+.idea/workspace.xml
+.idea/tasks.xml
+
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Generic
+*~
+.swp
+
+# Android NDK
+*.o
+*.o.d
+*_g
+*.a
+*.so
+*.pinfo
+*.gcno
+*.bar
+gdbserver
+gdb.setup
+
+# Eclipse
+.project
+.classpath
+.settings
+# Eclipse NDK
+.cproject

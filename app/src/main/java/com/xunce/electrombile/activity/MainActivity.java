@@ -4,20 +4,15 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.avos.avoscloud.AVAnalytics;
-
 
 import com.xunce.electrombile.R;
 
-
-public class SplashActivity extends Activity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
-        AVAnalytics.trackAppOpened(getIntent());
-
+        setContentView(R.layout.activity_main);
     }
 
 
