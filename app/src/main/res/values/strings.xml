@@ -16,5 +16,6 @@
     <string name="title_activity_binding">BindingActivity</string>
     <string name="title_activity_forget">ForgetActivity</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_fragment">FragmentActivity</string>
 
 </resources>
