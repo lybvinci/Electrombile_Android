@@ -6,7 +6,64 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.xunce.electrombile.activity.RegisterActivity">
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/telnumber_edt"
+        android:hint="手机号"
+        android:phoneNumber="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="250dp"/>
+    <!--
+    <EditText
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/validation_edt"
+        android:hint="验证码"
+        android:layout_below="@id/telnumber_edt"
+        android:layout_alignStart="@id/telnumber_edt"
+        android:layout_alignLeft="@id/telnumber_edt"
+        android:layout_marginTop="20dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/validdation_btn"
+        android:text="获取验证码"
+        android:layout_toRightOf="@id/validation_edt"
+        android:layout_alignBaseline="@id/validation_edt"/>
+        -->
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/regi_password"
+        android:password="true"
+        android:layout_below="@id/telnumber_edt"
+        android:layout_alignStart="@id/telnumber_edt"
+        android:layout_alignLeft="@id/telnumber_edt"
+        android:layout_marginTop="20dp"
+        android:hint="密码"/>
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/regiOk_btn"
+        android:text="确定"
+        android:textSize="30sp"
+        android:background="@drawable/common_btn"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/regi_password"
+        android:layout_marginTop="30dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/login_regi"
+        android:text="直接登录"
+        android:textSize="18sp"
+        android:textColor="@color/textview_color"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"/>
+
 
 </RelativeLayout>
