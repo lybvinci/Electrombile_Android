@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +24,7 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
     private Button Ok;
     private String tel;
     private String pwd;
-    private int jishu = 0;
+    private int jiShu = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,28 +42,6 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
         tel = intent.getStringExtra("tel");
         pwd = intent.getStringExtra("pwd");
         LogUtil.log.i(tel + pwd);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_validate, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private class TimeCount extends CountDownTimer{
@@ -91,8 +67,8 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
         switch(view.getId()){
             case R.id.sendValidation:
                 // do get validation
-                if(jishu == 0) {
-                    jishu++;
+                if(jiShu == 0) {
+                    jiShu++;
                     AVUser user = new AVUser();
                     user.setUsername(tel);
                     user.setPassword(pwd);
@@ -130,7 +106,7 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
                                 time.start();
                             } else {
                                 LogUtil.log.i(e.toString());
-                                jishu = 0;
+                                jiShu = 0;
                             }
                         }
                     });
@@ -155,6 +131,9 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
                                         Toast.LENGTH_SHORT)
                                         .show();
                                 Ok.setClickable(false);
+                                Intent intent = new Intent(ValidateActivity.this,BindingActivity.class);
+                                startActivity(intent);
+                                ValidateActivity.this.finish();
                             }
                             else{
                                 Toast.makeText(getApplicationContext(),

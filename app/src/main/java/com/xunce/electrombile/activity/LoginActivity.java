@@ -3,8 +3,6 @@ package com.xunce.electrombile.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,11 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.avos.avoscloud.AVException;
-import com.avos.avoscloud.AVOSCloud;
-import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
-import com.avos.avoscloud.SaveCallback;
 import com.xunce.electrombile.R;
 
 
@@ -24,7 +19,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
     EditText username;
     EditText password;
-    TextView findpassword;
+    TextView findPassword;
     TextView register;
     Button login;
     @Override
@@ -32,39 +27,24 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initView();
-
+        Intent intent = getIntent();
+        if(intent != null) {
+            String tel = intent.getStringExtra("tel");
+            String pwd = intent.getStringExtra("pwd");
+            username.setText(tel);
+            password.setText(pwd);
+        }
     }
 
     private void initView(){
         username = (EditText) findViewById(R.id.et_username);
         password = (EditText) findViewById(R.id.et_password);
-        findpassword = (TextView) findViewById(R.id.btn_findpwd);
+        findPassword = (TextView) findViewById(R.id.btn_findpwd);
         register = (TextView) findViewById(R.id.btn_register);
         login = (Button) findViewById(R.id.btn_login);
         login.setOnClickListener(this);
-        findpassword.setOnClickListener(this);
+        findPassword.setOnClickListener(this);
         register.setOnClickListener(this);
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_login, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

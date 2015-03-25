@@ -11,16 +11,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.avos.avoscloud.AVOSCloud;
 import com.xunce.electrombile.R;
 
 
 public class RegisterActivity extends Activity implements View.OnClickListener {
 
-    private EditText telnumber;
+    private EditText telNumber;
     private EditText password;
-    private Button regiOk;
-    private TextView login_regi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,12 +27,12 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
     }
 
     private void initView(){
-        telnumber = (EditText) findViewById(R.id.telnumber_edt);
+        telNumber = (EditText) findViewById(R.id.telnumber_edt);
         password = (EditText) findViewById(R.id.regi_password);
-        regiOk = (Button) findViewById(R.id.regiOk_btn);
-        login_regi = (TextView) findViewById(R.id.login_regi);
-        regiOk.setOnClickListener(this);
-        login_regi.setOnClickListener(this);
+        Button registerOk = (Button) findViewById(R.id.regiOk_btn);
+        TextView login_register = (TextView) findViewById(R.id.login_regi);
+        registerOk.setOnClickListener(this);
+        login_register.setOnClickListener(this);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -64,7 +61,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
         switch(view.getId()){
             case R.id.regiOk_btn:
                 //do register sucess
-                String tel = telnumber.getText().toString();
+                String tel = telNumber.getText().toString();
                 String pwd = password.getText().toString();
                 if(tel.length() != 11){
                     Toast.makeText(getApplicationContext(),
@@ -90,6 +87,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                 //do login in
                 Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
                 startActivity(intent);
+                this.finish();
                 break;
             default:break;
         }

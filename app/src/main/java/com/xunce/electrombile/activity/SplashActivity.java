@@ -39,16 +39,6 @@ public class SplashActivity extends Activity {
                 }
             }
         }, 3000);
-//        if(currentUser != null){
-//            Intent intent = new Intent(SplashActivity.this,MainActivity.class);
-//            startActivity(intent);
-//            this.finish();
-//        }else{
-//            Intent intent = new Intent(SplashActivity.this,RegisterActivity.class);
-//            startActivity(intent);
-//            this.finish();
-//        }
-
     }
 
 
