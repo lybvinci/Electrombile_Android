@@ -7,7 +7,6 @@ import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVMobilePhoneVerifyCallback;
@@ -16,6 +15,7 @@ import com.avos.avoscloud.LogUtil;
 import com.avos.avoscloud.RequestMobileCodeCallback;
 import com.avos.avoscloud.SignUpCallback;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.UniversalTool.ToastUtil;
 
 public class ValidateActivity extends Activity implements View.OnClickListener {
 
@@ -78,20 +78,14 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
                         public void done(AVException e) {
                             if (e == null) {
                                 LogUtil.log.i("注册成功");
-                                Toast.makeText(getApplicationContext(),
-                                        "注册成功",
-                                        Toast.LENGTH_SHORT)
-                                        .show();
+                                ToastUtil.showToast(getApplicationContext(), "注册成功", 1000);
                                 Ok.setClickable(true);
                                 TimeCount time = new TimeCount(120000, 1000);
                                 time.start();
                             } else {
                                 LogUtil.log.i(e.toString());
                                 LogUtil.log.i("手机号已注册");
-                                Toast.makeText(getApplicationContext(),
-                                        "手机号已注册",
-                                        Toast.LENGTH_SHORT)
-                                        .show();
+                                ToastUtil.showToast(getApplicationContext(), "手机号已注册", 1000);
                             }
                         }
                     });
@@ -116,30 +110,21 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
                 // do register
                 String smsCode = validation.getText().toString();
                 if("".equals(smsCode)){
-                    Toast.makeText(getApplicationContext(),
-                            "验证码不能为空",
-                            Toast.LENGTH_SHORT)
-                            .show();
+                    ToastUtil.showToast(getApplicationContext(), "验证码不能为空", 1000);
                 }else{
                     AVUser.verifyMobilePhoneInBackground(smsCode,new AVMobilePhoneVerifyCallback() {
                         @Override
                         public void done(AVException e) {
                             if(e == null) {
                                 LogUtil.log.i("验证成功");
-                                Toast.makeText(getApplicationContext(),
-                                        "验证成功",
-                                        Toast.LENGTH_SHORT)
-                                        .show();
+                                ToastUtil.showToast(getApplicationContext(), "验证成功", 1000);
                                 Ok.setClickable(false);
                                 Intent intent = new Intent(ValidateActivity.this,BindingActivity.class);
                                 startActivity(intent);
                                 ValidateActivity.this.finish();
                             }
                             else{
-                                Toast.makeText(getApplicationContext(),
-                                        "验证码错误",
-                                        Toast.LENGTH_SHORT)
-                                        .show();
+                                ToastUtil.showToast(getApplicationContext(), "验证码错误", 1000);
                             }
                         }
                     });

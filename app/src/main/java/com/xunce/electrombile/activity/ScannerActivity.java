@@ -20,7 +20,7 @@ public class ScannerActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.scaner);
+		setContentView(R.layout.activity_scaner);
 		initView();
 	}
 
@@ -29,12 +29,6 @@ public class ScannerActivity extends Activity implements
 		scannerView.setOnDecodeListener(this);
 	}
 
-	/**
-	 * 扫描结果
-	 * @param barcodeFormat
-	 * @param barcode
-	 * @param bitmap
-	 */
 	@Override
 	public void onDecodeCompletion(String barcodeFormat, String barcode,
 			Bitmap bitmap) {

@@ -9,9 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.UniversalTool.ToastUtil;
 
 
 public class RegisterActivity extends Activity implements View.OnClickListener {
@@ -64,16 +63,10 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                 String tel = telNumber.getText().toString();
                 String pwd = password.getText().toString();
                 if(tel.length() != 11){
-                    Toast.makeText(getApplicationContext(),
-                            "手机号码格式错误",
-                            Toast.LENGTH_SHORT)
-                            .show();
+                    ToastUtil.showToast(getApplicationContext(),"手机号码格式错误",1000);
                 }
                 else if("".equals(tel) || "".equals(pwd)){
-                    Toast.makeText(getApplicationContext(),
-                            "用户名和密码不能为空",
-                            Toast.LENGTH_SHORT)
-                            .show();
+                    ToastUtil.showToast(getApplicationContext(),"用户名和密码不能为空",1000);
                 }else{
                     Intent intent = new Intent(RegisterActivity.this,ValidateActivity.class);
                     Bundle bundle = new Bundle();

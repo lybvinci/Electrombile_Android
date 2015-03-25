@@ -7,12 +7,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.UniversalTool.ToastUtil;
 
 
 public class LoginActivity extends Activity implements View.OnClickListener {
@@ -55,8 +55,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 String login_username = username.getText().toString();
                 String login_pwd = password.getText().toString();
                 if("".equals(login_username) || "".equals(login_pwd)){
-                    Toast.makeText(getApplicationContext(), "用户名密码不能为空",
-                            Toast.LENGTH_SHORT).show();
+                    ToastUtil.showToast(getApplicationContext(), "用户名密码不能为空", 1000);
                 }
                 else{
                     AVUser.logInInBackground(login_username, login_pwd, new LogInCallback<AVUser>() {
@@ -66,11 +65,9 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                                 Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                                 startActivity(intent);
                                 LoginActivity.this.finish();
-                                Toast.makeText(getApplicationContext(), "登陆成功",
-                                        Toast.LENGTH_SHORT).show();
+                                ToastUtil.showToast(getApplicationContext(), "登陆成功", 1000);
                             }else{
-                                Toast.makeText(getApplicationContext(), "用户名或密码错误",
-                                        Toast.LENGTH_SHORT).show();
+                                ToastUtil.showToast(getApplicationContext(), "用户名或密码错误", 1000);
                             }
                         }
                     });
