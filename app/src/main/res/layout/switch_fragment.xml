@@ -1,5 +1,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
+        <Button
+            android:layout_width="@dimen/switch_btn_width"
+            android:layout_height="@dimen/switch_btn_height"
+            android:text="@string/text_System_btn"
+            android:id="@+id/btn_SystemState"
+            android:layout_marginTop="80dp"
+            android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:layout_width="@dimen/switch_btn_width"
+            android:layout_height="@dimen/switch_btn_height"
+            android:text="@string/text_alarm_btn"
+            android:layout_below="@+id/btn_SystemState"
+            android:id="@+id/btRemoteAlarm"
+            android:layout_marginTop="80dp"
+            android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>
