@@ -26,10 +26,10 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
     }
 
     private void initView(){
-        telNumber = (EditText) findViewById(R.id.telnumber_edt);
-        password = (EditText) findViewById(R.id.regi_password);
-        Button registerOk = (Button) findViewById(R.id.regiOk_btn);
-        TextView login_register = (TextView) findViewById(R.id.login_regi);
+        telNumber = (EditText) findViewById(R.id.telNumber_edt);
+        password = (EditText) findViewById(R.id.register_password);
+        Button registerOk = (Button) findViewById(R.id.registerOk_btn);
+        TextView login_register = (TextView) findViewById(R.id.login_register);
         registerOk.setOnClickListener(this);
         login_register.setOnClickListener(this);
     }
@@ -58,7 +58,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch(view.getId()){
-            case R.id.regiOk_btn:
+            case R.id.registerOk_btn:
                 //do register sucess
                 String tel = telNumber.getText().toString();
                 String pwd = password.getText().toString();
@@ -76,7 +76,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                     startActivity(intent);
                 }
                 break;
-            case R.id.login_regi:
+            case R.id.login_register:
                 //do login in
                 Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
                 startActivity(intent);

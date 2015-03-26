@@ -4,59 +4,52 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@drawable/register_background"
     tools:context="com.xunce.electrombile.activity.RegisterActivity">
 
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:src="@drawable/register_register_img"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"/>
     <EditText
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/telnumber_edt"
+        android:layout_width="230dp"
+        android:layout_height="40dp"
+        android:id="@+id/telNumber_edt"
         android:hint="手机号"
         android:phoneNumber="true"
+        android:background="@drawable/register_tel_password_bg"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="250dp"/>
-    <!--
+        android:layout_marginTop="150dp"/>
+
     <EditText
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/validation_edt"
-        android:hint="验证码"
-        android:layout_below="@id/telnumber_edt"
-        android:layout_alignStart="@id/telnumber_edt"
-        android:layout_alignLeft="@id/telnumber_edt"
-        android:layout_marginTop="20dp"/>
+        android:layout_width="230dp"
+        android:layout_height="40dp"
+        android:id="@+id/register_password"
+        android:password="true"
+        android:hint="密码"
+        android:background="@drawable/register_tel_password_bg"
+        android:layout_below="@id/telNumber_edt"
+        android:layout_alignStart="@id/telNumber_edt"
+        android:layout_alignLeft="@id/telNumber_edt"
+        android:layout_marginTop="30dp"/>
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/validdation_btn"
-        android:text="获取验证码"
-        android:layout_toRightOf="@id/validation_edt"
-        android:layout_alignBaseline="@id/validation_edt"/>
-        -->
-    <EditText
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:id="@+id/regi_password"
-        android:password="true"
-        android:layout_below="@id/telnumber_edt"
-        android:layout_alignStart="@id/telnumber_edt"
-        android:layout_alignLeft="@id/telnumber_edt"
-        android:layout_marginTop="20dp"
-        android:hint="密码"/>
-    <Button
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/regiOk_btn"
-        android:text="确定"
+        android:id="@+id/registerOk_btn"
+        android:text="立即注册"
         android:textSize="30sp"
+        android:textColor="@color/base_color_text_white"
         android:background="@drawable/common_btn"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/regi_password"
-        android:layout_marginTop="30dp"/>
+        android:layout_below="@id/register_password"
+        android:layout_marginTop="130dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/login_regi"
+        android:id="@+id/login_register"
         android:text="直接登录"
         android:textSize="18sp"
         android:textColor="@color/textview_color"
