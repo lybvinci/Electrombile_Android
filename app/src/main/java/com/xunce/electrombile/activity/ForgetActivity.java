@@ -66,7 +66,6 @@ public class ForgetActivity extends Activity implements View.OnClickListener {
                                 bundle.putString("tel",telNum);
                                 bundle.putString("pwd",newPassword);
                                 intent.putExtras(bundle);
-                                //startActivity(intent);
                                 ForgetActivity.this.finish();
                             }else{
                                 ToastUtil.showToast(getApplicationContext(), "验证码错误", 1000);
