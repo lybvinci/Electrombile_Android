@@ -74,6 +74,24 @@
         android:layout_width="fill_parent"
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="50dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btn_findpwd"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:text="忘记密码？"
+            android:textColor="@color/textview_color"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="20dp"
         android:gravity="center"
         android:orientation="horizontal">
@@ -83,7 +101,6 @@
             android:layout_height="fill_parent"
             android:gravity="center_vertical"
             android:text="@string/not_have_account"
-            android:textColor="@color/base_color_text_gray"
             android:textSize="20sp" />
 
         <TextView
@@ -93,7 +110,7 @@
             android:layout_marginLeft="5dp"
             android:gravity="center_vertical"
             android:text="@string/register_rightnow"
-            android:textColor="@color/blue"
+            android:textColor="@color/textview_color"
             android:textSize="20sp" />
     </LinearLayout>
 
