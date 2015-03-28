@@ -19,7 +19,7 @@ public class BindingActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("绑定设备");
+        setTitle(getString(R.string.bindEquipment));
         setContentView(R.layout.activity_binding);
         initView();
     }
@@ -89,7 +89,7 @@ public class BindingActivity extends Activity implements View.OnClickListener {
                 bindSuccess.setVisibility(View.VISIBLE);
             }
         }else{
-            equipment_info.setText("扫描失败");
+            equipment_info.setText(getString(R.string.scannerFailed));
         }
     }
 }

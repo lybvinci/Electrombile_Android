@@ -63,10 +63,10 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                 String tel = telNumber.getText().toString();
                 String pwd = password.getText().toString();
                 if(tel.length() != 11){
-                    ToastUtil.showToast(getApplicationContext(),"手机号码格式错误",1000);
+                    ToastUtil.showToast(getApplicationContext(),getString(R.string.phoneNumberError),1000);
                 }
                 else if("".equals(tel) || "".equals(pwd)){
-                    ToastUtil.showToast(getApplicationContext(),"用户名和密码不能为空",1000);
+                    ToastUtil.showToast(getApplicationContext(),getString(R.string.userNameEmpty),1000);
                 }else{
                     Intent intent = new Intent(RegisterActivity.this,ValidateActivity.class);
                     Bundle bundle = new Bundle();
