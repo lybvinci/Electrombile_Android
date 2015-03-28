@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
+import com.avos.avoscloud.LogUtil;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.UniversalTool.ToastUtil;
 
@@ -61,17 +62,23 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                     AVUser.logInInBackground(login_username, login_pwd, new LogInCallback<AVUser>() {
                         @Override
                         public void done(AVUser avUser, AVException e) {
-                            if (AVException.CONNECTION_FAILED != e.getCode()) {
+                            if (e != null){
+                                LogUtil.log.i(e.toString());
+                                if (AVException.CONNECTION_FAILED != e.getCode()) {
+
+                                } else {
+                                    ToastUtil.showToast(getApplicationContext(), getString(R.string.networkError), 1000);
+                                }
+                        }else{
                                 if (avUser != null) {
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                     startActivity(intent);
                                     LoginActivity.this.finish();
                                     ToastUtil.showToast(getApplicationContext(), getString(R.string.loginSuccess), 1000);
-                                } else {
+                                }
+                                else {
                                     ToastUtil.showToast(getApplicationContext(), getString(R.string.userNamePasswordError), 1000);
                                 }
-                            }else{
-                                ToastUtil.showToast(getApplicationContext(), getString(R.string.networkError), 1000);
                             }
                         }
                     });
