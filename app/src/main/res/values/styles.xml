@@ -4,6 +4,9 @@
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <!-- Customize your theme here. -->
     </style>
+    <style name="AppTheme2">
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
     <style name="footbar">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">fill_parent</item>

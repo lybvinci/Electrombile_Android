@@ -17,7 +17,9 @@
     <string name="title_activity_forget">ForgetActivity</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_fragment">FragmentActivity</string>
+    <!-- switch tab-->
     <string name="text_System_btn">Open safety system</string>
     <string name="text_alarm_btn">Open remote alarm</string>
+
 
 </resources>

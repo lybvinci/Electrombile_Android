@@ -67,7 +67,7 @@
             android:gravity="center"
             android:text="@string/login"
             android:textColor="@color/base_color_text_white"
-            android:textSize="@dimen/text_size_large" />
+            android:textSize="@dimen/text_size_large"/>
     </LinearLayout>
 
     <LinearLayout

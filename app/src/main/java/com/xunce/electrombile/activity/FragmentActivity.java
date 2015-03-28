@@ -3,6 +3,7 @@ package com.xunce.electrombile.activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 
 import com.xunce.electrombile.R;
@@ -15,11 +16,13 @@ import com.xunce.electrombile.fragment.SwitchFragment;
  */
 public class FragmentActivity extends android.support.v4.app.FragmentActivity {
     private static FragmentManager m_FMer;
+    private SwitchFragment switchFragment;
+    private MaptabFragment maptabFragment;
+    private SettingsFragment settingsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_fragment);
 
         m_FMer = getSupportFragmentManager();
@@ -33,9 +36,20 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
      */
     private void initFragment(){
         FragmentTransaction ft = m_FMer.beginTransaction();
-        SwitchFragment switchFragment = new SwitchFragment();
+        switchFragment = new SwitchFragment();
         ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
         ft.addToBackStack("switchFragment");
+
+        maptabFragment = new MaptabFragment();
+        ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
+        ft.hide(maptabFragment);
+        ft.addToBackStack("mapFragment");
+
+        settingsFragment = new SettingsFragment();
+        ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
+        ft.hide(settingsFragment);
+        ft.addToBackStack("settingsFragment");
+
         ft.commit();
 
     }
@@ -47,9 +61,17 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
         findViewById(R.id.rbSwitch).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(m_FMer.findFragmentByTag("switchFragment") != null && m_FMer.findFragmentByTag("switchFragment").isVisible()){
+                if(m_FMer.findFragmentByTag("switchFragment") != null &&
+                        m_FMer.findFragmentByTag("switchFragment").isVisible()){
                     return;
                 }
+                FragmentTransaction ft = m_FMer.beginTransaction();
+                ft.show(switchFragment);
+                ft.setTransition(FragmentTransaction.TRANSIT_ENTER_MASK);
+                ft.hide(settingsFragment);
+                ft.hide(maptabFragment);
+                ft.commit();
+                Log.i("Fragment size:", m_FMer.getBackStackEntryCount() + "");
                 popAllFragmentsExceptTheBottomOne();
             }
         });
@@ -57,11 +79,17 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
         findViewById(R.id.rbMap).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(m_FMer.findFragmentByTag("mapFragment").isVisible()){
+                    Log.e("", "map clicked");
+                    return;
+                }
+                Log.i("Fragment size:", m_FMer.getBackStackEntryCount() + "");
                 popAllFragmentsExceptTheBottomOne();
+                Log.i("after pop ,size:", m_FMer.getBackStackEntryCount() + "");
                 FragmentTransaction ft = m_FMer.beginTransaction();
-                ft.hide(m_FMer.findFragmentByTag("switchFragment"));
-                MaptabFragment mf = new MaptabFragment();
-                ft.add(R.id.fragmentRoot, mf, "mapFragment");
+                ft.hide(switchFragment);
+                ft.hide(settingsFragment);
+                ft.show(maptabFragment);
                 ft.addToBackStack("mapFragment");
                 ft.commit();
             }
@@ -70,11 +98,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
         findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
+                    Log.e("", "set clicked");
+                    return;
+                }
                 popAllFragmentsExceptTheBottomOne();
                 FragmentTransaction ft = m_FMer.beginTransaction();
-                ft.hide(m_FMer.findFragmentByTag("switchFragment"));
-                SettingsFragment mf = new SettingsFragment();
-                ft.add(R.id.fragmentRoot, mf, "settingsFragment");
+                ft.hide(switchFragment);
+                ft.show(settingsFragment);
+                ft.hide(maptabFragment);
                 ft.addToBackStack("settingsFragment");
                 ft.commit();
             }
@@ -95,7 +127,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
      */
     @Override
     public void onBackPressed() {
-        if(m_FMer.findFragmentByTag("weiXinFragment")!=null && m_FMer.findFragmentByTag("weiXinFragment").isVisible()) {
+        if(m_FMer.findFragmentByTag("switchFragment")!=null && m_FMer.findFragmentByTag("switchFragment").isVisible()) {
             FragmentActivity.this.finish();
         } else {
             super.onBackPressed();
@@ -103,13 +135,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
     }
     @Override
     protected void onPause() {
-
+        if(MaptabFragment.mMapView != null)
+            MaptabFragment.mMapView.setVisibility(View.INVISIBLE);
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-
+        if(MaptabFragment.mMapView != null)
+            MaptabFragment.mMapView.setVisibility(View.VISIBLE);
         super.onResume();
     }
 
