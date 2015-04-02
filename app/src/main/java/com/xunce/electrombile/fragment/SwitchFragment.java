@@ -15,7 +15,13 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVInstallation;
+import com.avos.avoscloud.AVPush;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.SendCallback;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.FragmentActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -49,6 +55,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
 
     private Button btnAlarm;
     private Button btnSystem;
+    private Button btnTest;
 
     @Override
     public void onCreate(Bundle saveInstanceState){
@@ -60,8 +67,10 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.btn_SystemState).setOnClickListener(this);
         view.findViewById(R.id.btn_RemoteAlarm).setOnClickListener(this);
+        view.findViewById(R.id.btn_test).setOnClickListener(this);
         btnAlarm = (Button)getActivity().findViewById(R.id.btn_RemoteAlarm);
         btnSystem = (Button)getActivity().findViewById(R.id.btn_SystemState);
+        btnTest = (Button)getActivity().findViewById(R.id.btn_test);
     }
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,6 +89,8 @@ public class SwitchFragment extends Fragment implements OnClickListener {
             case R.id.btn_RemoteAlarm:
                 remoteAlarmClicked();
                 break;
+            case R.id.btn_test:
+                testBtnClicked();
             default:
                 break;
         }
@@ -128,6 +139,53 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         }).start();
     }
 
+    public void testBtnClicked(){
+//        AVPush push = new AVPush();
+//        JSONObject data =
+//                null;
+//        try {
+//            data = new JSONObject(
+//                    "{\"action\": \"com.xunce.electrombile.UPDATE_STATUS\", \"name\": \"Vaughn\", \"newsItem\": \"Man bites dog\"  }");
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        push.setData(data);
+//        //String installationId = AVInstallation.getCurrentInstallation().getInstallationId();
+//        push.setCloudQuery("select * from _Installation where installationId ='" + FragmentActivity.THE_INSTALLATION_ID
+//                + "'");
+//        push.sendInBackground(new SendCallback() {
+//
+//            @Override
+//            public void done(AVException e) {
+//                Log.i(TAG, "push completed" + FragmentActivity.THE_INSTALLATION_ID);
+//            }
+//        });
+        AVPush push = new AVPush();
+
+        AVQuery<AVInstallation> query = AVInstallation.getQuery();
+        query.whereEqualTo("installationId", AVInstallation.getCurrentInstallation()
+                .getInstallationId());
+        push.setQuery(query);
+        String channel = new String("publicheyukun");
+        //push.setChannel(channel.trim());
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("action", "com.pushdemo.action");
+            jsonObject.put("alert", channel.trim());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        push.setData(jsonObject);
+        push.setPushToAndroid(true);
+        push.sendInBackground(new SendCallback() {
+            @Override
+            public void done(AVException e) {
+                //Toast.makeText(getApplicationContext(), "send successfully", Toast.LENGTH_SHORT);
+            }
+        });
+    }
     public void   requestHttp(final String url,final String[] key, final int[] value) {
         int status = 0;
         DefaultHttpClient mHttpClient = new DefaultHttpClient();

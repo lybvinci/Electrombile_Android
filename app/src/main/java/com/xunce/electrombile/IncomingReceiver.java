@@ -37,7 +37,7 @@ public class IncomingReceiver extends BroadcastReceiver {
                     }
                 }, 100);
                 break;
-            case TelephonyManager.CALL_STATE_IDLE:// �Ҷϵ绰
+            case TelephonyManager.CALL_STATE_IDLE:
                 closeWindow(context);
                 break;
         }

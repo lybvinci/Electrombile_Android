@@ -6,6 +6,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVInstallation;
+import com.avos.avoscloud.PushService;
+import com.avos.avoscloud.SaveCallback;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
@@ -15,10 +19,12 @@ import com.xunce.electrombile.fragment.SwitchFragment;
  * Created by heyukun on 2015/3/24.
  */
 public class FragmentActivity extends android.support.v4.app.FragmentActivity {
+    private static String TAG = "FragmentActivity:";
     private static FragmentManager m_FMer;
     private SwitchFragment switchFragment;
     private MaptabFragment maptabFragment;
     private SettingsFragment settingsFragment;
+    public static String THE_INSTALLATION_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +35,30 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
         initFragment();
 
         dealBottomButtonsClickEvent();
+
+        initLeanCloud();
     }
 
+    /**
+     * leancloue注册
+     */
+    private void initLeanCloud(){
+        PushService.setDefaultPushCallback(this, FragmentActivity.class);
+        // 订阅频道，当该频道消息到来的时候，打开对应的 Activity
+        //PushService.subscribe(this, "publicheyukun", FragmentActivity.class);
+        AVInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+            public void done(AVException e) {
+                if (e == null) {
+                    // 保存成功
+                    THE_INSTALLATION_ID = AVInstallation.getCurrentInstallation().getInstallationId();
+                    Log.i(TAG, "installationId:" + THE_INSTALLATION_ID);
+                    // 关联  installationId 到用户表等操作……
+                } else {
+                    // 保存失败，输出错误信息
+                }
+            }
+        });
+    }
     /**
      * 初始化首个Fragment
      */

@@ -1,6 +1,7 @@
 package com.xunce.electrombile.Base;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.avos.avoscloud.AVObject;
 import com.baidu.mapapi.SDKInitializer;
@@ -20,8 +21,9 @@ public class App extends Application {
         initBaiduSDK();
 
         //initial LeanCloud SDK
-        AVOSCloud.initialize(this, "5wk8ccseci7lnss55xfxdgj9xn77hxg3rppsu16o83fydjjn", "yovqy5zy16og43zwew8i6qmtkp2y6r9b18zerha0fqi5dqsw");
-
+        AVOSCloud.initialize(this, "gqd0m4ytyttvluk1tnn0unlvmdg8h4gxsa2ga159nwp85fks",
+                "7gd2zom3ht3vx6jkcmaamm1p2pkrn8hdye2pn4qjcwux1hl1");
+        Log.e("", "has application");
     }
 
     private void initBaiduSDK() {

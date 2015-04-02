@@ -62,7 +62,7 @@ public class OverlayView{
     }
 
     /**
-     * ¹Ò¶Ïµç»°
+     * æŒ‚æ–­ç”µè¯
      */
     static public void hide(Context ctx){
         if (mOverlay != null) {
@@ -83,17 +83,17 @@ public class OverlayView{
         }
     }
     /**
-     * »ñÈ¡ÏÔÊ¾²ÎÊı
+     * è·å–æ˜¾ç¤ºå‚æ•°
      *
      * @return
      */
     private static WindowManager.LayoutParams getShowingParams() {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams();
         params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
-        // TYPE_TOAST TYPE_SYSTEM_OVERLAY ÔÚÆäËûÓ¦ÓÃÉÏ²ã ÔÚÍ¨ÖªÀ¸ÏÂ²ã Î»ÖÃ²»ÄÜ¶¯Äñ
-        // TYPE_PHONE ÔÚÆäËûÓ¦ÓÃÉÏ²ã ÔÚÍ¨ÖªÀ¸ÏÂ²ã
-        // TYPE_PRIORITY_PHONE TYPE_SYSTEM_ALERT ÔÚÆäËûÓ¦ÓÃÉÏ²ã ÔÚÍ¨ÖªÀ¸ÉÏ²ã Ã»ÊÔ³öÀ´Çø±ğÊÇÉ¶
-        // TYPE_SYSTEM_ERROR ×î¶¥²ã(Í¨¹ı¶Ô±È360ºÍÌìÌì¶¯Ìı¸è´ÊµÃ³ö)
+        // TYPE_TOAST TYPE_SYSTEM_OVERLAY åœ¨å…¶ä»–åº”ç”¨ä¸Šå±‚ åœ¨é€šçŸ¥æ ä¸‹å±‚ ä½ç½®ä¸èƒ½åŠ¨é¸Ÿ
+        // TYPE_PHONE åœ¨å…¶ä»–åº”ç”¨ä¸Šå±‚ åœ¨é€šçŸ¥æ ä¸‹å±‚
+        // TYPE_PRIORITY_PHONE TYPE_SYSTEM_ALERT åœ¨å…¶ä»–åº”ç”¨ä¸Šå±‚ åœ¨é€šçŸ¥æ ä¸Šå±‚ æ²¡è¯•å‡ºæ¥åŒºåˆ«æ˜¯å•¥
+        // TYPE_SYSTEM_ERROR æœ€é¡¶å±‚(é€šè¿‡å¯¹æ¯”360å’Œå¤©å¤©åŠ¨å¬æ­Œè¯å¾—å‡º)
         params.width = WindowManager.LayoutParams.MATCH_PARENT;
         params.height = 400;
         params.x = 0;
