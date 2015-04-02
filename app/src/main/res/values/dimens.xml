@@ -6,4 +6,7 @@
     <dimen name="text_size_large">18sp</dimen>
     <dimen name="switch_btn_width">300dp</dimen>
     <dimen name="switch_btn_height">80dp</dimen>
+    <dimen name="text_size_warning">35sp</dimen>
+    <dimen name="btn_width_warning">200dp</dimen>
+    <dimen name="btn_height_warning">60dp</dimen>
 </resources>

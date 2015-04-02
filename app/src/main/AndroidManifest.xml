@@ -41,6 +41,11 @@
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
+    <!--读取来电号码-->
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+    <!-- 显示悬浮窗的权限-->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
 
     <application
         android:allowBackup="true"
@@ -91,7 +96,8 @@
         </activity>
         <activity
             android:name=".activity.FragmentActivity"
-            android:label="@string/title_activity_fragment">
+            android:label="@string/title_activity_fragment"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -107,6 +113,12 @@
             android:enabled="true"
             android:process=":remote">
         </service>
+        <receiver android:name=".IncomingReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE"/>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

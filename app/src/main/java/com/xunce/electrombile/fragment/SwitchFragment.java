@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
 import java.util.PriorityQueue;
+import java.util.Vector;
 
 
 public class SwitchFragment extends Fragment implements OnClickListener {
@@ -102,6 +103,8 @@ public class SwitchFragment extends Fragment implements OnClickListener {
                 requestHttp("http://electrombile.huakexunce.com/config", key, finalValue);
             }
         }).start();
+
+
     }
 
     public void remoteAlarmClicked(){

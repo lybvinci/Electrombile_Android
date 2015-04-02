@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/title_color_blue">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="安全宝提醒"
+                android:textSize="@dimen/text_size_warning"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="您的电动车正在被盗"
+                android:textSize="@dimen/text_size_warning"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="请速确认情况!"
+                android:textSize="@dimen/text_size_warning"/>
+
+
+        </LinearLayout>
+        <!--
+        <Button
+            android:id="@+id/butn_warning_confirm"
+            android:layout_width="@dimen/btn_width_warning"
+            android:layout_height="@dimen/btn_height_warning"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="450dp"
+            android:text="确定"
+            android:textSize="@dimen/text_size_warning"
+            android:background="#ffff1017"/> -->
+    </FrameLayout>
+</RelativeLayout>
