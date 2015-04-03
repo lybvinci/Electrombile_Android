@@ -140,38 +140,19 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     }
 
     public void testBtnClicked(){
-//        AVPush push = new AVPush();
-//        JSONObject data =
-//                null;
-//        try {
-//            data = new JSONObject(
-//                    "{\"action\": \"com.xunce.electrombile.UPDATE_STATUS\", \"name\": \"Vaughn\", \"newsItem\": \"Man bites dog\"  }");
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        push.setData(data);
-//        //String installationId = AVInstallation.getCurrentInstallation().getInstallationId();
-//        push.setCloudQuery("select * from _Installation where installationId ='" + FragmentActivity.THE_INSTALLATION_ID
-//                + "'");
-//        push.sendInBackground(new SendCallback() {
-//
-//            @Override
-//            public void done(AVException e) {
-//                Log.i(TAG, "push completed" + FragmentActivity.THE_INSTALLATION_ID);
-//            }
-//        });
         AVPush push = new AVPush();
 
         AVQuery<AVInstallation> query = AVInstallation.getQuery();
         query.whereEqualTo("installationId", AVInstallation.getCurrentInstallation()
                 .getInstallationId());
         push.setQuery(query);
+        String message = new String("您的电动车正在被盗!");
         String channel = new String("publicheyukun");
-        //push.setChannel(channel.trim());
+        push.setChannel(channel.trim());
 
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("action", "com.pushdemo.action");
+            jsonObject.put("action", "com.xunce.electrombile.push.action");
             jsonObject.put("alert", channel.trim());
         } catch (JSONException e) {
             e.printStackTrace();

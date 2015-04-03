@@ -21,8 +21,8 @@ public class App extends Application {
         initBaiduSDK();
 
         //initial LeanCloud SDK
-        AVOSCloud.initialize(this, "gqd0m4ytyttvluk1tnn0unlvmdg8h4gxsa2ga159nwp85fks",
-                "7gd2zom3ht3vx6jkcmaamm1p2pkrn8hdye2pn4qjcwux1hl1");
+        AVOSCloud.initialize(this, "5wk8ccseci7lnss55xfxdgj9xn77hxg3rppsu16o83fydjjn",
+                "yovqy5zy16og43zwew8i6qmtkp2y6r9b18zerha0fqi5dqsw");
         Log.e("", "has application");
     }
 

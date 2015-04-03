@@ -104,14 +104,14 @@ public class MaptabFragment extends Fragment {
             //定义Maker坐标点
             LatLng point = getLatestLocation(getHttp("http://electrombile.huakexunce.com/position"));
             Log.e(point.latitude + "", point.longitude + "");
-//构建Marker图标
+            //构建Marker图标
             BitmapDescriptor bitmap = BitmapDescriptorFactory
                     .fromResource(R.drawable.icon_gcoding);
-//构建MarkerOption，用于在地图上添加Marker
+            //构建MarkerOption，用于在地图上添加Marker
             OverlayOptions option2 = new MarkerOptions()
                     .position(point)
                     .icon(bitmap);
-//在地图上添加Marker，并显示
+            //在地图上添加Marker，并显示
             mBaiduMap.addOverlay(option2);
         }
     }
@@ -202,11 +202,13 @@ public class MaptabFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
-        mMapView.onDestroy();
+        // 退出时销毁定位
+        mLocationClient.stop();
         // 关闭定位图层
         mBaiduMap.setMyLocationEnabled(false);
+        mMapView.onDestroy();
+        mMapView = null;
+        super.onDestroy();
     }
     @Override
     public void onResume() {
