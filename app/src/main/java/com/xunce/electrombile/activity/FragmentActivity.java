@@ -1,5 +1,6 @@
 package com.xunce.electrombile.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +14,7 @@ import android.widget.ImageButton;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVInstallation;
+import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.PushService;
 import com.avos.avoscloud.SaveCallback;
 import com.xunce.electrombile.R;
@@ -23,12 +25,19 @@ import com.xunce.electrombile.widget.ActionItem;
 import com.xunce.electrombile.widget.TitlePopup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RadioButton;
-
+import com.xunce.electrombile.widget.TitlePopup.OnItemOnClickListener;
 /**
  * Created by heyukun on 2015/3/24.
  */
-public class FragmentActivity extends android.support.v4.app.FragmentActivity {
+public class FragmentActivity extends android.support.v4.app.FragmentActivity{
     private static String TAG = "FragmentActivity:";
+    public static boolean ISSTARTED = false;
+    //设置菜单条目
+    final private  int SETTINGS_ITEM1 = 0;
+    final private  int SETTINGS_ITEM2 = 1;
+    final private  int SETTINGS_ITEM3 = 2;
+    final private  int SETTINGS_ITEM4 = 3;
+
     private static FragmentManager m_FMer;
     private SwitchFragment switchFragment;
     private MaptabFragment maptabFragment;
@@ -48,10 +57,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
 
         initView();
         initData();
+        initLeanCloud();
 
         dealBottomButtonsClickEvent();
-
-        initLeanCloud();
     }
 
     /**
@@ -84,6 +92,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
 
         //实例化标题栏弹窗
         titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+        //设置按钮监听函数
         btnSettings = (ImageButton)findViewById(R.id.title_btn);
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,6 +102,35 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
             }
         });
 
+        titlePopup.setItemOnClickListener(new OnItemOnClickListener() {
+            @Override
+            public void onItemClick(ActionItem item, int position) {
+                switch(position){
+                    case SETTINGS_ITEM1:
+                        Log.i(TAG, "clicked item 1");
+                        break;
+                    case SETTINGS_ITEM2:
+                        Log.i(TAG, "clicked item 2");
+                        Intent intentStartBinding = new Intent(FragmentActivity.this,BindingActivity.class);
+                        startActivity(intentStartBinding);
+                        break;
+                    case SETTINGS_ITEM3:
+                        Log.i(TAG, "clicked item 3");
+                        break;
+                    case SETTINGS_ITEM4:
+                        Log.i(TAG, "clicked item 4");
+                        AVUser.logOut();             //清除缓存用户对象
+                        //启动登陆activity
+                        Intent intentStartLogin = new Intent(FragmentActivity.this,LoginActivity.class);
+                        startActivity(intentStartLogin);
+                        //关闭当前activity
+                        FragmentActivity.this.finish();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
     }
 
     /**
@@ -112,17 +151,17 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
         FragmentTransaction ft = m_FMer.beginTransaction();
         switchFragment = new SwitchFragment();
         ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
-        ft.addToBackStack("switchFragment");
+        //ft.addToBackStack("switchFragment");
 
         maptabFragment = new MaptabFragment();
         ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
         ft.hide(maptabFragment);
-        ft.addToBackStack("mapFragment");
+        //ft.addToBackStack("mapFragment");
 
         settingsFragment = new SettingsFragment();
         ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
         ft.hide(settingsFragment);
-        ft.addToBackStack("settingsFragment");
+        //ft.addToBackStack("settingsFragment");
 
         ft.commit();
 
@@ -140,18 +179,25 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
                     return;
                 }
 
+                //界面切换
                 rbSwitch.setChecked(true);
                 rbMap.setChecked(false);
                 rbSwitch.setTextColor(getResources().getColor(R.color.blue));
                 rbMap.setTextColor(Color.BLACK);
+
+
+                //从backstack中弹出
+                //popAllFragmentsExceptTheBottomOne();
+
                 FragmentTransaction ft = m_FMer.beginTransaction();
                 ft.show(switchFragment);
                 ft.setTransition(FragmentTransaction.TRANSIT_ENTER_MASK);
-                ft.hide(settingsFragment);
+                //ft.hide(settingsFragment);
                 ft.hide(maptabFragment);
                 ft.commit();
-                Log.i("Fragment size:", m_FMer.getBackStackEntryCount() + "");
-                popAllFragmentsExceptTheBottomOne();
+
+                //停止更新位置信息
+                maptabFragment.pauseMapUpdate();
             }
         });
 
@@ -166,15 +212,19 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
                 rbMap.setTextColor(getResources().getColor(R.color.blue));
                 rbSwitch.setChecked(false);
                 rbSwitch.setTextColor(Color.BLACK);
-                Log.i("Fragment size:", m_FMer.getBackStackEntryCount() + "");
-                popAllFragmentsExceptTheBottomOne();
-                Log.i("after pop ,size:", m_FMer.getBackStackEntryCount() + "");
+
+                //从backstack中弹出
+                //popAllFragmentsExceptTheBottomOne();
+
                 FragmentTransaction ft = m_FMer.beginTransaction();
                 ft.hide(switchFragment);
-                ft.hide(settingsFragment);
+                //ft.hide(settingsFragment);
                 ft.show(maptabFragment);
-                ft.addToBackStack("mapFragment");
+                //ft.addToBackStack("mapFragment");
                 ft.commit();
+
+                //开始更新位置信息
+                maptabFragment.resumeMapUpdate();
             }
         });
 
@@ -226,21 +276,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
 
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        Log.e("", "fadf");
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Log.e("", "fadf");
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     protected void onPause() {
@@ -249,11 +284,13 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
 
     @Override
     protected void onResume() {
+        ISSTARTED = true;
         super.onResume();
     }
 
     @Override
     protected void onDestroy() {
+        ISSTARTED = false;
         super.onDestroy();
     }
 

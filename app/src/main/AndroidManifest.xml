@@ -7,10 +7,8 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <!-- 这个权限用于应用间广播-->
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
@@ -72,7 +70,6 @@
             android:name=".activity.LoginActivity"
             android:label="@string/title_activity_login"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
-
         </activity>
         <activity
             android:name=".activity.RegisterActivity"
@@ -118,12 +115,14 @@
             android:enabled="true"
             android:process=":remote">
         </service>
+        <!--来电悬浮窗暂关闭
         <receiver android:name=".IncomingReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE"/>
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
             </intent-filter>
         </receiver>
+        -->
         <!--leancloud push service-->
         <service android:name="com.avos.avoscloud.PushService"/>
         <receiver android:name="com.avos.avoscloud.AVBroadcastReceiver">

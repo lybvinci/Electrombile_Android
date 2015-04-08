@@ -99,7 +99,6 @@ public class MaptabFragment extends Fragment {
             option.setCoorType("bd09ll"); // 设置坐标类型
             option.setScanSpan(1000);
             mLocationClient.setLocOption(option);
-            mLocationClient.start();
 
             //定义Maker坐标点
             LatLng point = getLatestLocation(getHttp("http://electrombile.huakexunce.com/position"));
@@ -137,6 +136,17 @@ public class MaptabFragment extends Fragment {
         }
     }
 
+    //暂停更新地图
+    public void pauseMapUpdate(){
+        if(mLocationClient == null) return;
+        mLocationClient.stop();
+    }
+
+    //恢复更新地图
+    public void resumeMapUpdate(){
+        if(mLocationClient == null) return;
+        mLocationClient.start();
+    }
     public JSONArray getHttp(final String httpBase){
         FutureTask<JSONArray> task = new FutureTask<JSONArray>(
                 new Callable<JSONArray>() {

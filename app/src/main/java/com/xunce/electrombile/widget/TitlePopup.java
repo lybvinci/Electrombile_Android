@@ -209,10 +209,9 @@ public class TitlePopup extends PopupWindow {
     }
 
     /**
-     * @author yangyu
      *	功能描述：弹窗子类项按钮监听事件
      */
-    public static interface OnItemOnClickListener{
+    public  interface OnItemOnClickListener{
         public void onItemClick(ActionItem item , int position);
     }
 }

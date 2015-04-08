@@ -36,17 +36,11 @@ public class AlarmActivity extends Activity{
         btnWarmComfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AlarmActivity.this, FragmentActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(AlarmActivity.this, FragmentActivity.class);
+                //startActivity(intent);
         //stop alarm
         mPlayer.stop();
-//                NotificationManager mgr = (NotificationManager) getApplicationContext()
-//                        .getSystemService(Context.NOTIFICATION_SERVICE);
-//                Notification nt = new Notification();
-//                nt.defaults = Notification.DEFAULT_SOUND;
-//                int soundId = new Random(System.currentTimeMillis())
-//                        .nextInt(Integer.MAX_VALUE);
-//                mgr.notify(soundId, nt);
+        AlarmActivity.this.finish();
             }
         });
     }

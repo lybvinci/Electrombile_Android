@@ -30,13 +30,13 @@ public class IncomingReceiver extends BroadcastReceiver {
             case TelephonyManager.CALL_STATE_RINGING:
                 incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
                 Log.e(TAG, incomingNumber);
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        // TODO Auto-generated method stub
-//                        showWindow(context, incomingNumber, R.layout.receiver_income);
-//                    }
-//                }, 100);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        showWindow(context, incomingNumber, R.layout.receiver_income);
+                    }
+                }, 100);
                 break;
             case TelephonyManager.CALL_STATE_IDLE:
                 closeWindow(context);

@@ -28,37 +28,7 @@ public class OverlayView{
         LayoutInflater inflater = (LayoutInflater)context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mOverlay = (ViewGroup)inflater.inflate(layout, null);
-        //mOverlay = overlay;
-        //mOverlay = overlay;
         wm.addView(mOverlay, params);
-        final WindowManager wm2 = wm;
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                // TODO Auto-generated method stub
-//                //WindowManager wm2 = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
-//                wm2.removeView(mOverlay);
-//                mOverlay.isAttachedToWindow();
-//            }
-//        }, 2000);
-//        btn = (Button)mOverlay.findViewById(R.id.);
-//        btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (mOverlay != null) {
-//                    try {
-//                        // Remove view from WindowManager
-//                        Log.e("", "fuckkkk");
-//                        wm.removeView(mOverlay);
-//
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                    mOverlay = null;
-//                }
-//            }
-//        });
-
     }
 
     /**
@@ -68,10 +38,6 @@ public class OverlayView{
         if (mOverlay != null) {
                 WindowManager wm = (WindowManager)ctx
                         .getSystemService(Context.WINDOW_SERVICE);
-                // Remove view from WindowManager
-                //Log.e("", mOverlay.isAttachedToWindow() + "");
-               // wm.removeViewImmediate(mOverlay);
-                //wm.removeViewImmediate(mOverlay);
             LayoutInflater inflater = (LayoutInflater)ctx
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             ViewGroup mOverlay2 = (ViewGroup)inflater.inflate(R.layout.receiver_income, null);

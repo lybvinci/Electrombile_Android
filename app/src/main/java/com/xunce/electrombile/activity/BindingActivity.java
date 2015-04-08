@@ -1,6 +1,8 @@
 package com.xunce.electrombile.activity;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,6 +12,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.xunce.electrombile.R;
+
+import java.util.List;
 
 public class BindingActivity extends Activity implements View.OnClickListener {
     private Button bind_btn;
@@ -63,8 +67,11 @@ public class BindingActivity extends Activity implements View.OnClickListener {
                 startActivityForResult(intent1, 0x01);
                 break;
             case R.id.jump_bind:
-                Intent intent2 = new Intent(BindingActivity.this,MainActivity.class);
-                startActivity(intent2);
+                //第一次登陆
+                if(FragmentActivity.ISSTARTED == false) {
+                    Intent intent2 = new Intent(BindingActivity.this, FragmentActivity.class);
+                    startActivity(intent2);
+                }
                 this.finish();
                 break;
             case R.id.bindSuccess:

@@ -62,7 +62,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                         @Override
                         public void done(AVUser avUser, AVException e) {
                             if(avUser != null){
-                                Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                                Intent intent = new Intent(LoginActivity.this,FragmentActivity.class);
                                 startActivity(intent);
                                 LoginActivity.this.finish();
                                 ToastUtil.showToast(getApplicationContext(), "登陆成功", 1000);
