@@ -1,12 +1,10 @@
-package com.xunce.electrombile.Base;
+package com.xunce.electrombile.base;
 
 import android.app.Application;
 import android.util.Log;
 
-import com.avos.avoscloud.AVObject;
 import com.baidu.mapapi.SDKInitializer;
 import com.avos.avoscloud.AVOSCloud;
-import com.avos.avoscloud.AVAnalytics;
 
 
 /**

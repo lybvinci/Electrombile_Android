@@ -1,4 +1,4 @@
-package com.xunce.electrombile;
+package com.xunce.electrombile.receiver;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.widget.OverlayView;
 

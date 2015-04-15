@@ -18,7 +18,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.UniversalTool.ViewUtil;
+import com.xunce.electrombile.universalTool.ViewUtil;
 
 /**
  *	功能描述：标题按钮上的弹窗（继承自PopupWindow）

@@ -19,6 +19,7 @@ import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
@@ -27,6 +28,7 @@ import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.nplatform.comapi.map.MapController;
 import com.xunce.electrombile.R;
 import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 
@@ -54,6 +56,7 @@ public class MaptabFragment extends Fragment {
     private BaiduMap mBaiduMap;
     public LocationClient mLocationClient = null;
     public BDLocationListener myListener = new MyLocationListener();
+    private MapController mapController;
     BitmapDescriptor mCurrentMarker;
     Button btnChengeMode = null;
 
@@ -80,7 +83,7 @@ public class MaptabFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     int res = mLocationClient.requestLocation();
-                    Log.e("", "aaa:" + res);
+                    Log.e("", "request location result:" + res);
                 }
             });
         }
@@ -90,6 +93,9 @@ public class MaptabFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         if(mLocationClient == null){
+            /**
+             * map init
+             */
             // 开启定位图层
             mBaiduMap.setMyLocationEnabled(true);
             mLocationClient = new LocationClient(getActivity().getApplicationContext());     //声明LocationClient类
@@ -100,6 +106,12 @@ public class MaptabFragment extends Fragment {
             option.setScanSpan(1000);
             mLocationClient.setLocOption(option);
 
+            //设置我当前位置的模式
+            mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(LocationMode.NORMAL, true, null));
+
+            /**
+             * 显示车的位置
+             */
             //定义Maker坐标点
             LatLng point = getLatestLocation(getHttp("http://electrombile.huakexunce.com/position"));
             Log.e(point.latitude + "", point.longitude + "");
@@ -112,6 +124,19 @@ public class MaptabFragment extends Fragment {
                     .icon(bitmap);
             //在地图上添加Marker，并显示
             mBaiduMap.addOverlay(option2);
+
+            /**
+             *设定中心点坐标
+             */
+            //定义地图状态
+            MapStatus mMapStatus = new MapStatus.Builder()
+                    .target(point)
+                    .zoom(18)
+                    .build();
+            //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
+            MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
+            //改变地图状态
+            mBaiduMap.setMapStatus(mMapStatusUpdate);
         }
     }
 	@Override
@@ -124,7 +149,6 @@ public class MaptabFragment extends Fragment {
     public class MyLocationListener implements BDLocationListener {
         @Override
         public void onReceiveLocation(BDLocation location) {
-            Log.e("", "fffffk");
             MyLocationData locData = new MyLocationData.Builder()
                     .accuracy(location.getRadius())
                             // 此处设置开发者获取到的方向信息，顺时针0-360
@@ -132,7 +156,6 @@ public class MaptabFragment extends Fragment {
                     .longitude(location.getLongitude()).build();
             mBaiduMap.setMyLocationData(locData);
             Log.e(locData.latitude + "", locData.longitude + "");
-            mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(LocationMode.FOLLOWING, true, null));
         }
     }
 

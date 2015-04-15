@@ -15,7 +15,7 @@ import com.avos.avoscloud.LogUtil;
 import com.avos.avoscloud.RequestMobileCodeCallback;
 import com.avos.avoscloud.UpdatePasswordCallback;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.UniversalTool.ToastUtil;
+import com.xunce.electrombile.universalTool.ToastUtil;
 
 public class ForgetActivity extends Activity implements View.OnClickListener {
     private EditText validation_edt;

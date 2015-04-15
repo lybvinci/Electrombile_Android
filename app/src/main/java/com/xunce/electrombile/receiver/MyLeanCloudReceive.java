@@ -1,4 +1,4 @@
-package com.xunce.electrombile;
+package com.xunce.electrombile.receiver;
 
 import android.app.FragmentManager;
 import android.app.NotificationManager;

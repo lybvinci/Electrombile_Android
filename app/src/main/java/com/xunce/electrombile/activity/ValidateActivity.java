@@ -15,7 +15,7 @@ import com.avos.avoscloud.LogUtil;
 import com.avos.avoscloud.RequestMobileCodeCallback;
 import com.avos.avoscloud.SignUpCallback;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.UniversalTool.ToastUtil;
+import com.xunce.electrombile.universalTool.ToastUtil;
 
 public class ValidateActivity extends Activity implements View.OnClickListener {
 

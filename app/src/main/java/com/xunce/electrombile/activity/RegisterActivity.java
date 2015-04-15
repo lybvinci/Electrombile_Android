@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.UniversalTool.ToastUtil;
+import com.xunce.electrombile.universalTool.ToastUtil;
 
 
 public class RegisterActivity extends Activity implements View.OnClickListener {

@@ -1,4 +1,4 @@
-package com.xunce.electrombile.UniversalTool;
+package com.xunce.electrombile.universalTool;
 
 import android.content.Context;
 
