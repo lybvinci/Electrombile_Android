@@ -62,6 +62,10 @@
             android:name=".activity.ScannerActivity"
             android:label="Scanner" >
         </activity>
+        <activity
+            android:name=".activity.UserInfoActivity"
+            android:label="userInfo" >
+        </activity>
     </application>
 
 </manifest>

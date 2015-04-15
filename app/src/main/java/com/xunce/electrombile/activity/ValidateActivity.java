@@ -28,7 +28,7 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("验证");
+        setTitle(getString(R.string.validation));
         setContentView(R.layout.activity_validate);
         initView();
     }
@@ -53,12 +53,12 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
         @Override
         public void onTick(long l) {  //计时过程显示
             get_validation.setClickable(false);
-            get_validation.setText(l/1000+"秒");
+            get_validation.setText(l/1000+getString(R.string.second));
         }
 
         @Override
         public void onFinish() {
-            get_validation.setText("重新验证");
+            get_validation.setText(getString(R.string.reValidated));
             get_validation.setClickable(true);
         }
     }
@@ -77,15 +77,15 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
                         @Override
                         public void done(AVException e) {
                             if (e == null) {
-                                LogUtil.log.i("注册成功");
-                                ToastUtil.showToast(getApplicationContext(), "注册成功", 1000);
+                                LogUtil.log.i(getString(R.string.registerSuccess));
+                                ToastUtil.showToast(getApplicationContext(), getString(R.string.registerSuccess), 1000);
                                 Ok.setClickable(true);
                                 TimeCount time = new TimeCount(120000, 1000);
                                 time.start();
                             } else {
                                 LogUtil.log.i(e.toString());
-                                LogUtil.log.i("手机号已注册");
-                                ToastUtil.showToast(getApplicationContext(), "手机号已注册", 1000);
+                                LogUtil.log.i(getString(R.string.phoneNumberIsRegistered));
+                                ToastUtil.showToast(getApplicationContext(), getString(R.string.phoneNumberIsRegistered), 1000);
                             }
                         }
                     });
@@ -94,7 +94,7 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
                         @Override
                         public void done(AVException e) {
                             if (e == null) {
-                                LogUtil.log.i("第二次发送");
+                                LogUtil.log.i(getString(R.string.sendAgain));
                                 Ok.setClickable(true);
                                 TimeCount time = new TimeCount(120000, 1000);
                                 time.start();
@@ -110,21 +110,23 @@ public class ValidateActivity extends Activity implements View.OnClickListener {
                 // do register
                 String smsCode = validation.getText().toString();
                 if("".equals(smsCode)){
-                    ToastUtil.showToast(getApplicationContext(), "验证码不能为空", 1000);
+                    ToastUtil.showToast(getApplicationContext(), getString(R.string.validateCodeNull), 1000);
                 }else{
                     AVUser.verifyMobilePhoneInBackground(smsCode,new AVMobilePhoneVerifyCallback() {
                         @Override
                         public void done(AVException e) {
                             if(e == null) {
-                                LogUtil.log.i("验证成功");
-                                ToastUtil.showToast(getApplicationContext(), "验证成功", 1000);
+                                LogUtil.log.i(getString(R.string.validateSuccess));
+                                ToastUtil.showToast(getApplicationContext(), getString(R.string.validateSuccess), 1000);
                                 Ok.setClickable(false);
                                 Intent intent = new Intent(ValidateActivity.this,BindingActivity.class);
                                 startActivity(intent);
                                 ValidateActivity.this.finish();
+                            }else if(AVException.CONNECTION_FAILED == e.getCode()){
+                                ToastUtil.showToast(getApplicationContext(), getString(R.string.networkError), 1000);
                             }
                             else{
-                                ToastUtil.showToast(getApplicationContext(), "验证码错误", 1000);
+                                ToastUtil.showToast(getApplicationContext(), getString(R.string.validatedFailed), 1000);
                             }
                         }
                     });

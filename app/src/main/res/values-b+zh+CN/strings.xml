@@ -5,4 +5,27 @@
     <string name="login">登录</string>
     <string name="not_have_account">还没有账号？</string>
     <string name="register_rightnow">立即注册 &gt;</string>
+    <string name="userNameEmpty">用户名密码不能为空</string>
+    <string name="loginSuccess">登陆成功</string>
+    <string name="userNamePasswordError">用户名或密码错误</string>
+    <string name="bindEquipment">绑定设备</string>
+    <string name="scannerFailed">扫描失败</string>
+    <string name="pleaseReview">请仔细检查</string>
+    <string name="passwordChangeSuccess">密码更改成功</string>
+    <string name="validatedFailed">验证码错误</string>
+    <string name="phoneError">电话填写错误</string>
+    <string name="sendSuccess">发送成功</string>
+    <string name="second">秒</string>
+    <string name="reValidated">重新验证</string>
+    <string name="phoneNumberError">手机号码格式错误</string>
+    <string name="validation">验证</string>
+    <string name="registerSuccess">注册成功</string>
+    <string name="sendAgain">第二次发送</string>
+    <string name="validateCodeNull">验证码不能为空</string>
+    <string name="validateSuccess">验证成功</string>
+    <string name="networkError">网络无连接</string>
+    <string name="networkErrorSet">网络连接不可用，是否进行设置？</string>
+    <string name="networkSet">网络设置提示</string>
+    <string name="networkSettings">设置</string>
+    <string name="skip">跳过</string>
 </resources>
