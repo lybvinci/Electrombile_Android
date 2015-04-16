@@ -13,7 +13,7 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
 import com.avos.avoscloud.LogUtil;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.universalTool.ToastUtil;
+import com.xunce.electrombile.UniversalTool.ToastUtil;
 
 
 public class LoginActivity extends Activity implements View.OnClickListener {
