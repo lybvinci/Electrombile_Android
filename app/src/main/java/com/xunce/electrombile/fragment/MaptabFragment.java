@@ -55,10 +55,8 @@ public class MaptabFragment extends Fragment {
     public static MapView mMapView = null;
     private BaiduMap mBaiduMap;
     public LocationClient mLocationClient = null;
-    public BDLocationListener myListener = new MyLocationListener();
-    private MapController mapController;
-    BitmapDescriptor mCurrentMarker;
     Button btnChengeMode = null;
+    public BDLocationListener myListener = new MyLocationListener();
 
     @Override
     public void onCreate (Bundle savedInstanceState){
