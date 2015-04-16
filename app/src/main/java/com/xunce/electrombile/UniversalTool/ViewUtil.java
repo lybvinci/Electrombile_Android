@@ -37,4 +37,3 @@ public class ViewUtil {
         return (int) (px * scale + 0.5);
     }
 }
-
