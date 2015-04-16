@@ -91,7 +91,7 @@ public class SplashActivity extends Activity {
                 @Override
                 public void run() {
                     if (currentUser != null) {
-                        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                        Intent intent = new Intent(SplashActivity.this, FragmentActivity.class);
                         startActivity(intent);
                         SplashActivity.this.finish();
                     } else {

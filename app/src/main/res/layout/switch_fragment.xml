@@ -1,0 +1,37 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SwitchFragment">
+        <Button
+            android:layout_width="@dimen/switch_btn_width"
+            android:layout_height="@dimen/switch_btn_height"
+            android:text="@string/text_System_btn"
+            android:id="@+id/btn_SystemState"
+            android:layout_marginTop="80dp"
+            android:layout_centerHorizontal="true"
+            android:onClick="systemBtnClicked"
+            android:background="@drawable/common_btn_normal"/>
+
+        <Button
+            android:layout_width="@dimen/switch_btn_width"
+            android:layout_height="@dimen/switch_btn_height"
+            android:text="@string/text_alarm_btn"
+            android:layout_below="@+id/btn_SystemState"
+            android:id="@+id/btn_RemoteAlarm"
+            android:layout_marginTop="80dp"
+            android:layout_centerHorizontal="true"
+            android:onClick="remoteAlarmClicked"
+            android:background="@drawable/common_btn_normal"/>
+    <Button
+        android:layout_width="@dimen/switch_btn_width"
+        android:layout_height="@dimen/switch_btn_height"
+        android:text="偷车"
+        android:layout_below="@+id/btn_RemoteAlarm"
+        android:id="@+id/btn_test"
+        android:layout_marginTop="80dp"
+        android:layout_centerHorizontal="true"
+        android:onClick="testClicked"
+        android:background="@drawable/common_btn_normal"/>
+
+</RelativeLayout>
