@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
+import com.avos.avoscloud.LogUtil;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.universalTool.ToastUtil;
 
@@ -55,19 +56,29 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 String login_username = username.getText().toString();
                 String login_pwd = password.getText().toString();
                 if("".equals(login_username) || "".equals(login_pwd)){
-                    ToastUtil.showToast(getApplicationContext(), "用户名密码不能为空", 1000);
+                    ToastUtil.showToast(getApplicationContext(), getString(R.string.userNameEmpty), 1000);
                 }
                 else{
                     AVUser.logInInBackground(login_username, login_pwd, new LogInCallback<AVUser>() {
                         @Override
                         public void done(AVUser avUser, AVException e) {
-                            if(avUser != null){
-                                Intent intent = new Intent(LoginActivity.this,FragmentActivity.class);
-                                startActivity(intent);
-                                LoginActivity.this.finish();
-                                ToastUtil.showToast(getApplicationContext(), "登陆成功", 1000);
-                            }else{
-                                ToastUtil.showToast(getApplicationContext(), "用户名或密码错误", 1000);
+                            if (e != null){
+                                LogUtil.log.i(e.toString());
+                                if (AVException.CONNECTION_FAILED != e.getCode()) {
+
+                                } else {
+                                    ToastUtil.showToast(getApplicationContext(), getString(R.string.networkError), 1000);
+                                }
+                        }else{
+                                if (avUser != null) {
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                    LoginActivity.this.finish();
+                                    ToastUtil.showToast(getApplicationContext(), getString(R.string.loginSuccess), 1000);
+                                }
+                                else {
+                                    ToastUtil.showToast(getApplicationContext(), getString(R.string.userNamePasswordError), 1000);
+                                }
                             }
                         }
                     });

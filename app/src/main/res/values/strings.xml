@@ -10,7 +10,7 @@
     <string name="login_username_hint">user name</string>
     <string name="login_password_hint">password</string>
     <string name="login">Login</string>
-    <string name="not_have_account">No account？</string>
+    <string name="not_have_account">No account?</string>
     <string name="register_rightnow">Register &gt;</string>
     <string name="title_activity_validate">ValidateActivity</string>
     <string name="title_activity_binding">BindingActivity</string>
@@ -20,6 +20,29 @@
     <!-- switch tab-->
     <string name="text_System_btn">Safety System</string>
     <string name="text_alarm_btn">Remote Alarm</string>
-
+    <string name="userNameEmpty">user name can not be empty!</string>
+    <string name="loginSuccess">login success!</string>
+    <string name="userNamePasswordError">username or password is error!</string>
+    <string name="bindEquipment">bind equipment</string>
+    <string name="scannerFailed">scanner failed</string>
+    <string name="pleaseReview">please check</string>
+    <string name="passwordChangeSuccess">password changed success</string>
+    <string name="validatedFailed">validated failed</string>
+    <string name="phoneError">phone number is error</string>
+    <string name="sendSuccess">send success</string>
+    <string name="second">second</string>
+    <string name="reValidated">to verify again</string>
+    <string name="phoneNumberError">phone number is error</string>
+    <string name="validation">validation</string>
+    <string name="registerSuccess">register success</string>
+    <string name="phoneNumberIsRegistered">phone is verified</string>
+    <string name="sendAgain">send again</string>
+    <string name="validateCodeNull">validation code can not be null</string>
+    <string name="validateSuccess">validated success</string>
+    <string name="networkError">network is not connected</string>
+    <string name="networkErrorSet">network is not available,please set</string>
+    <string name="networkSet">network setting</string>
+    <string name="networkSettings">settings</string>
+    <string name="skip">skip</string>
 
 </resources>

@@ -54,13 +54,13 @@ public class ForgetActivity extends Activity implements View.OnClickListener {
                         "".equals(validationCode)
                         ||telNum.length() != 11
                         ||"".equals(newPassword)){
-                    ToastUtil.showToast(getApplicationContext(), "请仔细检查", 1000);
+                    ToastUtil.showToast(getApplicationContext(), getString(R.string.pleaseReview), 1000);
                 }else{
                     AVUser.resetPasswordBySmsCodeInBackground(validationCode,newPassword,new UpdatePasswordCallback() {
                         @Override
                         public void done(AVException e) {
                             if( e == null){
-                                ToastUtil.showToast(getApplicationContext(), "密码更改成功", 1000);
+                                ToastUtil.showToast(getApplicationContext(), getString(R.string.passwordChangeSuccess), 1000);
                                 Intent intent = new Intent(ForgetActivity.this,LoginActivity.class);
                                 Bundle bundle = new Bundle();
                                 bundle.putString("tel",telNum);
@@ -68,7 +68,7 @@ public class ForgetActivity extends Activity implements View.OnClickListener {
                                 intent.putExtras(bundle);
                                 ForgetActivity.this.finish();
                             }else{
-                                ToastUtil.showToast(getApplicationContext(), "验证码错误", 1000);
+                                ToastUtil.showToast(getApplicationContext(), getString(R.string.validatedFailed), 1000);
                                 LogUtil.log.i(e.toString());
                             }
                         }
@@ -78,13 +78,13 @@ public class ForgetActivity extends Activity implements View.OnClickListener {
             case R.id.validation_send:
                 telNum = phoneNum.getText().toString();
                 if("".equals(telNum) || telNum.length() != 11){
-                    ToastUtil.showToast(getApplicationContext(), "电话填写错误", 1000);
+                    ToastUtil.showToast(getApplicationContext(), getString(R.string.phoneError), 1000);
                 }else{
                     AVUser.requestPasswordResetBySmsCodeInBackground(telNum,new RequestMobileCodeCallback() {
                         @Override
                         public void done(AVException e) {
                             if(e == null) {
-                                LogUtil.log.i("发送成功");
+                                LogUtil.log.i(getString(R.string.sendSuccess));
                                 TimeCount time = new TimeCount(120000, 1000);
                                 time.start();
                             }else{
@@ -107,12 +107,12 @@ public class ForgetActivity extends Activity implements View.OnClickListener {
         @Override
         public void onTick(long l) {  //计时过程显示
             sendValidation.setClickable(false);
-            sendValidation.setText(l/1000+"秒");
+            sendValidation.setText(l/1000+getString(R.string.second));
         }
 
         @Override
         public void onFinish() {
-            sendValidation.setText("重新验证");
+            sendValidation.setText(getString(R.string.reValidated));
             sendValidation.setClickable(true);
         }
     }

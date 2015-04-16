@@ -107,6 +107,10 @@
             android:label="Scanner" >
         </activity>
         <activity
+            android:name=".activity.UserInfoActivity"
+            android:label="userInfo" >
+        </activity>
+        <activity
             android:name=".activity.AlarmActivity"
             android:label="Alarm" >
         </activity>
