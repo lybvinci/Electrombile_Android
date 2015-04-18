@@ -14,12 +14,6 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
-
-import com.avos.avoscloud.AVException;
-import com.avos.avoscloud.AVInstallation;
-import com.avos.avoscloud.AVPush;
-import com.avos.avoscloud.AVQuery;
-import com.avos.avoscloud.SendCallback;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.FragmentActivity;
 
@@ -140,32 +134,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     }
 
     public void testBtnClicked(){
-        AVPush push = new AVPush();
 
-        AVQuery<AVInstallation> query = AVInstallation.getQuery();
-        query.whereEqualTo("installationId", AVInstallation.getCurrentInstallation()
-                .getInstallationId());
-        push.setQuery(query);
-        String message = new String("您的电动车正在被盗!");
-        String channel = new String("publicheyukun");
-        push.setChannel(channel.trim());
-
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("action", "com.xunce.electrombile.push.action");
-            jsonObject.put("alert", channel.trim());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        push.setData(jsonObject);
-        push.setPushToAndroid(true);
-        push.sendInBackground(new SendCallback() {
-            @Override
-            public void done(AVException e) {
-                //Toast.makeText(getApplicationContext(), "send successfully", Toast.LENGTH_SHORT);
-            }
-        });
     }
     public void   requestHttp(final String url,final String[] key, final int[] value) {
         int status = 0;

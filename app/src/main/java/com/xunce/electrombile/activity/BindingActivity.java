@@ -75,7 +75,7 @@ public class BindingActivity extends Activity implements View.OnClickListener {
                 this.finish();
                 break;
             case R.id.bindSuccess:
-                Intent intent3 = new Intent(BindingActivity.this,MainActivity.class);
+                Intent intent3 = new Intent(BindingActivity.this,FragmentActivity.class);
                 startActivity(intent3);
                 this.finish();
                 break;
