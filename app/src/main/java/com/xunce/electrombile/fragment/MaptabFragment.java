@@ -1,8 +1,10 @@
 package com.xunce.electrombile.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -27,10 +30,14 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.map.PolygonOptions;
+import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.nplatform.comapi.map.MapController;
+import com.baidu.navisdk.model.RoutePlanModel;
+import com.baidu.navisdk.model.datastruct.RoutePlanResultItem;
 import com.xunce.electrombile.R;
 import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
+import com.xunce.electrombile.activity.RecordActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -41,6 +48,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -52,19 +61,46 @@ import java.util.concurrent.TimeoutException;
 public class MaptabFragment extends Fragment {
 
     private static String TAG = "MaptabFragment:";
-    public static MapView mMapView = null;
+    //获取位置信息的http接口
+    private final String httpBase= "http://electrombile.huakexunce.com/position";
+    public static MapView mMapView;
     private BaiduMap mBaiduMap;
-    public LocationClient mLocationClient = null;
-    Button btnChengeMode = null;
-    public BDLocationListener myListener = new MyLocationListener();
+    public LocationClient mLocationClient;
+    Button btnChengeMode;
+    Button btnLocation;
+    Button btnRecord;
+    Button btnPause;
+    public BDLocationListener myListener;
+
+    //maptabFragment 维护一组坐标数据
+    private List<LatLng> dataList;
+
+    private List<LatLng> resultLine;
+    PlayRecordThread m_threadnew;
+
+    private boolean isPlaying = false;
+    //
+    //int i = 0
+
 
     @Override
     public void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+
         Log.i(TAG, "onCreate called!");
         //在使用SDK各组件之前初始化context信息，传入ApplicationContext
         //注意该方法要再setContentView方法之前实现
         SDKInitializer.initialize(this.getActivity().getApplicationContext());
+
+        myListener = new MyLocationListener();
+
+        dataList = new ArrayList<LatLng>();
+        dataList.add(new LatLng(30.5171, 114.4392));
+        dataList.add(new LatLng(30.5272, 114.4493));
+        dataList.add(new LatLng(30.5173, 114.4394));
+        dataList.add(new LatLng(30.5174, 114.4395));
+        dataList.add(new LatLng(30.5175, 114.4396));
+
     }
 
 	@Override
@@ -74,17 +110,45 @@ public class MaptabFragment extends Fragment {
 		View view = inflater.inflate(R.layout.map_fragment, container, false);
         mMapView = (MapView) view.findViewById(R.id.bmapView);
         mBaiduMap = mMapView.getMap();
-        if(mLocationClient != null)mLocationClient.requestLocation();
-        if(btnChengeMode == null){
-            btnChengeMode = (Button)view.findViewById(R.id.btn_changeMode);
-            btnChengeMode.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int res = mLocationClient.requestLocation();
-                    Log.e("", "request location result:" + res);
+
+        btnChengeMode = (Button)view.findViewById(R.id.btn_changeMode);
+        btnChengeMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //int res = mLocationClient.requestLocation();
+                //Log.e("", "request location result:" + res);
+                drawLine();
+            }
+        });
+
+        btnPause = (Button)view.findViewById(R.id.btn_pause);
+        btnPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pausePlay();
+            }
+        });
+
+        btnLocation = (Button)view.findViewById(R.id.btn_location);
+        btnLocation.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if(mBaiduMap != null){
+                    LatLng point = getLatestLocation();
+                    locateMobile(point);
                 }
-            });
-        }
+            }
+        });
+
+        btnRecord = (Button)view.findViewById(R.id.btn_record);
+        btnRecord.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity().getApplicationContext(),RecordActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return view;
     }
 
@@ -111,7 +175,8 @@ public class MaptabFragment extends Fragment {
              * 显示车的位置
              */
             //定义Maker坐标点
-            LatLng point = getLatestLocation(getHttp("http://electrombile.huakexunce.com/position"));
+            //leacloud服务器清空，暂时自定义数据代替
+            LatLng point = new LatLng(30.5171, 114.4392);
             Log.e(point.latitude + "", point.longitude + "");
             //构建Marker图标
             BitmapDescriptor bitmap = BitmapDescriptorFactory
@@ -123,18 +188,8 @@ public class MaptabFragment extends Fragment {
             //在地图上添加Marker，并显示
             mBaiduMap.addOverlay(option2);
 
-            /**
-             *设定中心点坐标
-             */
-            //定义地图状态
-            MapStatus mMapStatus = new MapStatus.Builder()
-                    .target(point)
-                    .zoom(18)
-                    .build();
-            //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
-            MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
-            //改变地图状态
-            mBaiduMap.setMapStatus(mMapStatusUpdate);
+            //设置电动车所在位置为地图中心
+            locateMobile(point);
         }
     }
 	@Override
@@ -157,6 +212,42 @@ public class MaptabFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.i(TAG, "onDestroyView called!");
+    }
+
+    @Override
+    public void onDestroy() {
+        // 退出时销毁定位
+        mLocationClient.stop();
+        // 关闭定位图层
+        mBaiduMap.setMyLocationEnabled(false);
+        mMapView.onDestroy();
+        mMapView = null;
+        super.onDestroy();
+    }
+    @Override
+    public void onResume() {
+
+        //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
+        Log.i(TAG, "onResume called!");
+        mMapView.setVisibility(View.VISIBLE);
+        mMapView.onResume();
+        super.onResume();
+        //BNMapController.getInstance().onResume();
+
+    }
+    @Override
+    public void onPause() {
+        //在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
+        Log.i(TAG, "onPause called!");
+        //mMapView.setVisibility(View.INVISIBLE);
+        mMapView.onPause();
+        super.onPause();
+    }
+
     //暂停更新地图
     public void pauseMapUpdate(){
         if(mLocationClient == null) return;
@@ -168,6 +259,23 @@ public class MaptabFragment extends Fragment {
         if(mLocationClient == null) return;
         mLocationClient.start();
     }
+
+    //将地图中心移到某点
+    private void locateMobile(LatLng point){
+        /**
+         *设定中心点坐标
+         */
+        //定义地图状态
+        MapStatus mMapStatus = new MapStatus.Builder()
+                .target(point)
+                .zoom(18)
+                .build();
+        //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
+        MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
+        //改变地图状态
+        mBaiduMap.setMapStatus(mMapStatusUpdate);
+    }
+
     public JSONArray getHttp(final String httpBase){
         FutureTask<JSONArray> task = new FutureTask<JSONArray>(
                 new Callable<JSONArray>() {
@@ -206,9 +314,10 @@ public class MaptabFragment extends Fragment {
     }
 
     //return longitude and latitude data,if no data, returns null
-    public LatLng getLatestLocation(JSONArray m_JSONArray){
+    public LatLng getLatestLocation(){
         LatLng location;
         JSONObject jsonObject;
+        JSONArray m_JSONArray = getHttp(httpBase);
         if(m_JSONArray == null){
             Log.e("","m_JSONArray is null" );
             return null;
@@ -225,44 +334,76 @@ public class MaptabFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.i(TAG, "onDestroyView called!");
+    private void drawLine(){
+        //定义多边形的五个顶点
+        List<LatLng> dts = new ArrayList<LatLng>();
+        dts.add(new LatLng(30.5171, 114.4392));
+        dts.add(new LatLng(30.1272, 114.5493));
+        dts.add(new LatLng(30.6373, 114.6394));
+        dts.add(new LatLng(30.0474, 114.7395));
+        dts.add(new LatLng(30.7575, 114.8396));
+        //构建用户绘制多边形的Option对象
+        OverlayOptions polygonOption = new PolygonOptions()
+                .points(dts)
+                .stroke(new Stroke(5, 0xAA00FF00))
+                .fillColor(0);
+        //在地图上添加多边形Option，用于显示
+        mBaiduMap.addOverlay(polygonOption);
+
+        //TODO::只是点击轨迹后才会画轨迹，不是每次点击按钮就画
+        if(!isPlaying) {
+            isPlaying = true;
+            m_threadnew = new PlayRecordThread(1000);
+            m_threadnew.setPoints(dts);
+            m_threadnew.start();
+        }
     }
 
-    @Override
-    public void onDestroy() {
-        // 退出时销毁定位
-        mLocationClient.stop();
-        // 关闭定位图层
-        mBaiduMap.setMyLocationEnabled(false);
-        mMapView.onDestroy();
-        mMapView = null;
-        super.onDestroy();
-    }
-    @Override
-    public void onResume() {
+    private class PlayRecordThread extends Thread{
+        public  boolean pauseFlag = false;
+        int periodMilli = 1000;
+        List<LatLng> m_points;
+        public void setPoints(List<LatLng> points){
+            m_points = points;
+        }
 
-        //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
-        Log.i(TAG, "onResume called!");
-        mMapView.setVisibility(View.VISIBLE);
-        mMapView.onResume();
-        super.onResume();
-//        Timer timer = new Timer();// 实例化Timer类
-//        timer.schedule(new TimerTask() {
-//            public void run() {
-//                mMapView.setVisibility(View.VISIBLE);
-//            }
-//        }, 1000);// 这里百毫秒
+        public PlayRecordThread(int period){
+            periodMilli = period;
+        }
+        @Override
+        public void run() {
+            super.run();
+            for(LatLng pt:m_points){
+                synchronized (PlayRecordThread.class){
+                    while(pauseFlag);
+                };
+                Message msg = Message.obtain();
+                msg.obj = pt;
+                playHandler.sendMessage(msg);
 
+                try {
+                    //TODO::periodMilli可变，更改速度
+                    synchronized(PlayRecordThread.class){
+                        sleep(periodMilli);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
-    @Override
-    public void onPause() {
-        //在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
-        Log.i(TAG, "onPause called!");
-        //mMapView.setVisibility(View.INVISIBLE);
-        mMapView.onPause();
-        super.onPause();
-    }
+
+    private Handler playHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            locateMobile((LatLng) msg.obj);
+        }
+    };
+
+    private void pausePlay(){
+        if(!m_threadnew.pauseFlag)
+            m_threadnew.pauseFlag = true;
+        else
+            m_threadnew.pauseFlag = false;
+    };
 }

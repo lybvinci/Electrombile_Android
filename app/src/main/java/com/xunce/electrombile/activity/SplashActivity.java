@@ -78,7 +78,7 @@ public class SplashActivity extends Activity {
                     .setNegativeButton(getString(R.string.skip), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                            Intent intent = new Intent(SplashActivity.this, FragmentActivity.class);
                             context.startActivity(intent);
                             SplashActivity.this.finish();
                         }

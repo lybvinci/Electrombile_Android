@@ -71,7 +71,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                                 }
                         }else{
                                 if (avUser != null) {
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    Intent intent = new Intent(LoginActivity.this, FragmentActivity.class);
                                     startActivity(intent);
                                     LoginActivity.this.finish();
                                     ToastUtil.showToast(getApplicationContext(), getString(R.string.loginSuccess), 1000);

@@ -114,6 +114,10 @@
             android:name=".activity.AlarmActivity"
             android:label="Alarm" >
         </activity>
+        <activity
+            android:name=".activity.RecordActivity"
+            android:label="Record" >
+        </activity>
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
