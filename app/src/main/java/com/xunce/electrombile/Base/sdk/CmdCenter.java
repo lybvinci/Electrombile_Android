@@ -18,8 +18,10 @@
 package com.xunce.electrombile.Base.sdk;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.util.Log;
 
+import com.xtremeprog.xpgconnect.XPGWifiBinary;
 import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.config.JsonKeys;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
@@ -28,6 +30,17 @@ import com.xtremeprog.xpgconnect.XPGWifiSDK.XPGWifiConfigureMode;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.xunce.electrombile.xpg.common.useful.ByteUtils.HexString2Bytes;
+import static com.xunce.electrombile.xpg.common.useful.ByteUtils.judgeLength;
+import static com.xunce.electrombile.xpg.common.useful.ByteUtils.toByteArray;
 
 
 /**
@@ -285,13 +298,13 @@ public class CmdCenter {
 	public void cWrite(XPGWifiDevice xpgWifiDevice, String key, Object value) {
 
 		try {
-			final JSONObject jsonsend = new JSONObject();
-			JSONObject jsonparam = new JSONObject();
-			jsonsend.put("cmd", 1);
-			jsonparam.put(key, value);
-			jsonsend.put(JsonKeys.KEY_ACTION, jsonparam);
-			Log.i("sendjson", jsonsend.toString());
-			xpgWifiDevice.write(jsonsend.toString());
+			final JSONObject jsonSend = new JSONObject();
+			JSONObject jsonParam = new JSONObject();
+			jsonSend.put("cmd", 1);
+			jsonParam.put(key, value);
+			jsonSend.put(JsonKeys.KEY_ACTION, jsonParam);
+			Log.i("sendjson", jsonSend.toString());
+			xpgWifiDevice.write(jsonSend.toString());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -312,6 +325,23 @@ public class CmdCenter {
 		}
 		xpgWifiDevice.write(json.toString());
 	}
+
+    private String packetOrder(String order,String remarks){
+        order = order + remarks;
+        char[] frameHead = {0x0000,0x0003};
+        byte[] flags = {0x00};
+        char[] cmd = {0x0090};
+        byte[] orderByte = HexString2Bytes(order);
+        int length = flags.length + cmd.length + orderByte.length;
+        byte[] len = judgeLength(length);
+        String orderData1 = new String(frameHead);
+        String orderData2 = new String(len);
+        String orderData3 = new String(flags);
+        String orderData4 = new String(cmd);
+        String orderData = orderData1 + orderData2 + orderData3 + orderData4 + order;
+        Log.i("OrderData:::",orderData);
+        return orderData;
+    }
 
 	/**
 	 * 断开连接.
@@ -358,6 +388,161 @@ public class CmdCenter {
 			String passCode, String remark) {
 		xpgWifiGCC.bindDevice(uid, token, did, passCode, remark);
 	}
+
+    //安全宝相关
+
+    //3 、GPRS 定时发送设置
+    public void cGprsSend(XPGWifiDevice xpgWifiDevice){
+        String data = packetOrder(JsonKeys.GPRS_SEND,"");
+        xpgWifiDevice.write(data);
+    }
+
+    //6 、设置 SOS 管理员
+    public void cSOSManagerAdd(XPGWifiDevice xpgWifiDevice, String phoneNumber){
+        phoneNumber = phoneNumber + "#";
+        String data = packetOrder(JsonKeys.SOS_ADD,phoneNumber);
+        xpgWifiDevice.write(data);
+    }
+
+    //7 、删除 SOS  管理员
+    public void cSOSManagerDelete(XPGWifiDevice xpgWifiDevice, String phoneNumber){
+        phoneNumber = phoneNumber + "#";
+        String data = packetOrder(JsonKeys.SOS_DELETE,phoneNumber);
+        xpgWifiDevice.write(data);
+    }
+
+    //10 工作模式设置
+     /*
+    *  0# 追踪模式：GPS 一直开启；
+    *  1# 智能省电：设备静止时 GPS 关闭，运动或被查询位置时，GPS 会开启； （有些设备有传感器检测自身运动状态）
+    *  2# 睡眠模式：被查询位置时，GPS 会开启；
+    *  3# 冬眠模式：GPS 一直关闭；
+    *  若设置成功，设备会回复：SET SAVING OK
+    */
+    //模式一
+    public void cModeSet0(XPGWifiDevice xpgWifiDevice){
+        String data = packetOrder(JsonKeys.MODE_SET_0,"");
+        xpgWifiDevice.write(data);
+    }
+    //模式二
+    public void cModeSet1(XPGWifiDevice xpgWifiDevice){
+        String data = packetOrder(JsonKeys.MODE_SET_1,"");
+        xpgWifiDevice.write(data);
+    }
+    //模式三
+    public void cModeSet2(XPGWifiDevice xpgWifiDevice){
+        String data = packetOrder(JsonKeys.MODE_SET_2,"");
+        xpgWifiDevice.write(data);
+    }
+    //模式四
+    public void cModeSet3(XPGWifiDevice xpgWifiDevice){
+        String data = packetOrder(JsonKeys.MODE_SET_3,"");
+        xpgWifiDevice.write(data);
+    }
+
+    //13 添加电子围栏
+    public void cFenceAdd(XPGWifiDevice xpgWifiDevice){
+        String data = packetOrder(JsonKeys.FENCE_SET_1,"");
+        xpgWifiDevice.write(data);
+    }
+
+    //14删除电子围栏
+    public void cFenceDelete(XPGWifiDevice xpgWifiDevice){
+        String data = packetOrder(JsonKeys.FENCE_DELETE,"");
+        xpgWifiDevice.write(data);
+    }
+
+    //21 重启设备
+    public void cResetDevice(XPGWifiDevice xpgWifiDevice){
+        String data = packetOrder(JsonKeys.RESET,"");
+        xpgWifiDevice.write(data);
+    }
+
+    //25 查询经纬度
+    public void cWhere(XPGWifiDevice xpgWifiDevice){
+        String data = packetOrder(JsonKeys.WHERE,"");
+        xpgWifiDevice.write(data);
+    }
+
+
+    //解析收到的字符串 分解成命令
+    public String cParseString(String binary) {
+        if (binary.contains("SET TIMER OK")) {
+            return "SET_TIMER_OK";
+        }
+        if (binary.contains("SET SOS OK")) {
+            return "SET_SOS_OK";
+        }
+        if (binary.contains("DEL SOS OK")) {
+            return "DEL_SOS_OK";
+        }
+        if (binary.contains("SET SAVING OK")) {
+            return "SET_SAVING_OK";
+        }
+        if (binary.contains("RESET OK")) {
+            return "RESET_OK";
+        }
+        if(binary.contains("Lat:")) {
+            Pattern p = Pattern.compile("Lat:.*");
+            Matcher m = p.matcher(binary);
+            if (m.find()) {
+                String data = m.group();
+                Log.i("gpsData...",data);
+                return data;
+            }
+        }
+        return null;
+    }
+
+    //解析gps数据
+    public HashMap<String, String> parseGps(String data){
+        String Lat = null;
+        String Lon = null;
+        String Course = null;
+        String Speed = null;
+        String DateTime = null;
+        Pattern pLat = Pattern.compile("(Lat:)(\\.*)(,)");
+        Pattern pLon = Pattern.compile("(Lon:)(\\.*)(,)");
+        Pattern pCourse = Pattern.compile("(Course:)(\\.*)(,)");
+        Pattern pSpeed = Pattern.compile("(Speed:)(\\.*)(,)");
+        Pattern pDateTime = Pattern.compile("(DateTime:)(\\.*)");
+        Matcher m = pLat.matcher(data);
+        if(m.find()){
+            Lat = m.group(2);
+        }
+        m = pLon.matcher(data);
+        if(m.find()){
+            Lon = m.group(2);
+        }
+        m = pCourse.matcher(data);
+        if(m.find()){
+            Course = m.group(2);
+        }
+        m = pSpeed.matcher(data);
+        if(m.find()){
+            Speed = m.group(2);
+        }
+        m = pDateTime.matcher(data);
+        if(m.find()){
+            DateTime = m.group(2);
+        }
+        if(Lat != null
+                && Lon != null
+                && Course != null
+                && Speed != null
+                && DateTime != null) {
+            HashMap<String, String> hm = new HashMap<String, String>();
+            hm.put("Lat", Lat);
+            hm.put("Lon", Lon);
+            hm.put("Course",Course);
+            hm.put("Speed",Speed);
+            hm.put("DateTime", DateTime);
+            return hm;
+        }
+        else{
+            return null;
+        }
+    }
 
 	// =================================================================
 	//

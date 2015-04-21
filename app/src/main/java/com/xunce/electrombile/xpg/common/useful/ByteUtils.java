@@ -26,7 +26,35 @@ public class ByteUtils {
 		}
 		return ret;
 	}
+    //代码转自：java int 与 byte转换
+    public static byte[] toByteArray(int iSource, int iArrayLen) {
+        byte[] bLocalArr = new byte[iArrayLen];
+        for (int i = 0; (i < 4) && (i < iArrayLen); i++) {
+            bLocalArr[i] = (byte) (iSource >> 8 * i & 0xFF);
+        }
+        return bLocalArr;
+    }
 
+    //判断int大小从而转化成byte[];
+    public static byte[] judgeLength(int length){
+        if(length <= 127){
+            byte[] len = toByteArray(length, 1);
+            return len;
+        }
+        if(length >= 128 && length <= 16383){
+            byte[] len= toByteArray(length,2);
+            return len;
+        }
+        if(length >= 16384 && length <= 2097151){
+            byte[] len = toByteArray(length,3);
+            return len;
+        }
+        if(length >= 2097152 && length <= 268435455){
+            byte[] len = toByteArray(length,4);
+            return len;
+        }
+        return null;
+    }
 	/**
 	 * 将两个ASCII字符合成一个字节； 如："EF" to 0xEF
 	 * 

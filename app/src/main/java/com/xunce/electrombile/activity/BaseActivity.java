@@ -55,7 +55,7 @@ public class BaseActivity extends Activity {
 	protected static List<XPGWifiDevice> devicesList = new ArrayList<XPGWifiDevice>();
 
 	/** 绑定列表 */
-	protected static List<XPGWifiDevice> bindList = new ArrayList<XPGWifiDevice>();
+	public static List<XPGWifiDevice> bindList = new ArrayList<XPGWifiDevice>();
 
 	/**
 	 * 指令管理器.
@@ -68,7 +68,7 @@ public class BaseActivity extends Activity {
 	protected SettingManager setManager;
 
 	/** 当前操作的设备 */
-	protected static XPGWifiDevice mXpgWifiDevice;
+	public static XPGWifiDevice mXpgWifiDevice;
 
 	/** The handler. */
 	private Handler handler = new Handler() {

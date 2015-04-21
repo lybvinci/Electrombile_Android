@@ -1,6 +1,5 @@
 package com.xunce.electrombile.fragment;
 
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,8 +13,14 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.xtremeprog.xpgconnect.XPGWifiDevice;
+import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
+import com.xunce.electrombile.Base.sdk.CmdCenter;
+import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.activity.FragmentActivity;
+import com.xunce.electrombile.activity.BaseActivity;
+import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -31,8 +36,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
-import java.util.PriorityQueue;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.xunce.electrombile.Base.utils.SystemResource.getApplicationContext;
 
 
 public class SwitchFragment extends Fragment implements OnClickListener {
@@ -51,9 +58,20 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     private Button btnSystem;
     private Button btnTest;
 
+    private CmdCenter mCenter;
+    private XPGWifiDevice mXpgWifiDevice;
+    private ConcurrentHashMap<String, Object> deviceDataMap;
+  //  public static XPGWifiDevice mXpgWifiDevice;
+
     @Override
     public void onCreate(Bundle saveInstanceState){
         super.onCreate(saveInstanceState);
+ //       setManager = new SettingManager(getApplicationContext());
+        mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
+        // 每次返回activity都要注册一次sdk监听器，保证sdk状态能正确回调
+        mXpgWifiDevice = BaseActivity.mXpgWifiDevice;
+        if(mXpgWifiDevice != null)
+            mXpgWifiDevice.setListener(deviceListener);
 
     }
     @Override
@@ -90,24 +108,161 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         }
     }
 
-    public void systemBtnClicked(){
-        final String key[] = {SWITCHKEY[0]};
-        int value[] = {0};
+    //handler 处理事件
+    private enum handler_key {
 
-        if(systemState == false){
-            value[0] = 1;
-            btnSystem.setBackgroundResource(R.drawable.common_btn_pressed);
-        }else{
-            value[0] = 0;
-            btnSystem.setBackgroundResource(R.drawable.common_btn_pressed);
-        }
-        final int finalValue[] = value;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                requestHttp("http://electrombile.huakexunce.com/config", key, finalValue);
+        /** 更新UI界面 */
+        UPDATE_UI,
+
+        /** 显示警告*/
+        ALARM,
+
+        /** 设备断开连接 */
+        DISCONNECTED,
+
+        /** 接收到设备的数据 */
+        RECEIVED,
+
+        /** 获取设备状态 */
+        GET_STATUE,
+    }
+
+    private HashMap<String, String> GPS_Data;
+    private Handler fragmentHandler = new Handler(){
+        public void handMessage(Message msg){
+            super.handleMessage(msg);
+            handler_key key= handler_key.values()[msg.what];
+            switch (key){
+                case RECEIVED:
+                    if (deviceDataMap.get("data") != null) {
+                        Log.i("info", (String) deviceDataMap.get("data"));
+                    }
+                    if (deviceDataMap.get("alters") != null) {
+                        Log.i("info", (String) deviceDataMap.get("alters"));
+                        // 返回主线程处理报警数据刷新
+                    }
+                    if (deviceDataMap.get("faults") != null) {
+                        Log.i("info", (String) deviceDataMap.get("faults"));
+                        // 返回主线程处理错误数据刷新
+                    }
+                    if(deviceDataMap.get("binary") != null){
+                        String binary = (String) deviceDataMap.get("binary");
+                        Log.i("info", binary);
+                        String ChuanTouData = mCenter.cParseString(binary);
+                        if(ChuanTouData == "SET_TIMER_OK"){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"GPS定时发送设置成功");
+                        }
+                        else if(ChuanTouData == "SET_SOS_OK"){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"管理员设置成功");
+                        }
+                        else if(ChuanTouData == "DEL_SOS_OK"){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"删除管理员成功");
+                        }
+                        else if(ChuanTouData == "SET_SAVING_OK"){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"模式设置成功");
+                        }
+                        else if(ChuanTouData == "RESET_OK"){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"重启设备成功");
+                        }
+                        else{
+                            GPS_Data = new HashMap<String, String>();
+                            GPS_Data = mCenter.parseGps(ChuanTouData);
+                        }
+
+                    }
+                    break;
+                case GET_STATUE:
+                    break;
+                case UPDATE_UI:
+                    break;
+                case ALARM:
+                    break;
+                case DISCONNECTED:
+                    break;
             }
-        }).start();
+        }
+    };
+    /**
+     * XPGWifiDeviceListener
+     * <p/>
+     * 设备属性监听器。 设备连接断开、获取绑定参数、获取设备信息、控制和接受设备信息相关.
+     */
+    protected XPGWifiDeviceListener deviceListener = new XPGWifiDeviceListener() {
+
+        @Override
+        public void didDeviceOnline(XPGWifiDevice device, boolean isOnline) {
+            this.didDeviceOnline(device, isOnline);
+        }
+
+        @Override
+        public void didDisconnected(XPGWifiDevice device) {
+            this.didDisconnected(device);
+        }
+
+        @Override
+        public void didReceiveData(XPGWifiDevice device,
+                                   ConcurrentHashMap<String, Object> dataMap, int result) {
+            this.didReceiveData(device, dataMap, result);
+        }
+
+    };
+    /**
+     * 接收指令回调
+     * <p/>
+     * sdk接收到模块传入的数据回调该接口.
+     *
+     * @param device
+     *            设备对象
+     * @param dataMap
+     *            json数据表
+     * @param result
+     *            状态代码
+     */
+    protected void didReceiveData(XPGWifiDevice device,
+                                  ConcurrentHashMap<String, Object> dataMap, int result) {
+        this.deviceDataMap = dataMap;
+        fragmentHandler.sendEmptyMessage(handler_key.RECEIVED.ordinal());
+    }
+    /**
+     * 设备上下线通知.
+     *
+     * @param device
+     *            设备对象
+     * @param isOnline
+     *            上下线状态
+     */
+    protected void didDeviceOnline(XPGWifiDevice device, boolean isOnline) {
+
+    }
+    /**
+     * 断开连接回调接口.
+     *
+     * @param device
+     *            设备对象
+     */
+    protected void didDisconnected(XPGWifiDevice device) {
+
+    }
+
+    public void systemBtnClicked(){
+//        final String key[] = {SWITCHKEY[0]};
+//        int value[] = {0};
+//
+//        if(systemState == false){
+//            value[0] = 1;
+//            btnSystem.setBackgroundResource(R.drawable.common_btn_pressed);
+//        }else{
+//            value[0] = 0;
+//            btnSystem.setBackgroundResource(R.drawable.common_btn_pressed);
+//        }
+//        final int finalValue[] = value;
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                requestHttp("http://electrombile.huakexunce.com/config", key, finalValue);
+//            }
+//        }).start();
+
 
 
     }
@@ -256,5 +411,12 @@ public class SwitchFragment extends Fragment implements OnClickListener {
             Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
             btnAlarm.setBackgroundResource(R.drawable.common_btn_normal);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(mXpgWifiDevice != null)
+            mXpgWifiDevice.setListener(deviceListener);
     }
 }

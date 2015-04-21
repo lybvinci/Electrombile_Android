@@ -11,9 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.xunce.electrombile.Base.utils.Historys;
@@ -29,6 +27,8 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.xunce.electrombile.widget.TitlePopup.OnItemOnClickListener;
+
+
 /**
  * Created by heyukun on 2015/3/24.
  */
@@ -69,6 +69,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity{
         showNotification();
         Historys.put(this);
     }
+
 
 
     /**

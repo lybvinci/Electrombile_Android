@@ -33,6 +33,42 @@ public class JsonKeys {
 	/** 实体字段名，代表对应的项目. */
 	public final static String KEY_ACTION = "entity0";
 
+    //GPRS 定时发送设置
+    public final static String GPRS_SEND = "TIMER,30#";
+
+    // 设置 SOS  管理员  增加号码需要在打包函数的remarks里面设置电话号码，以#结束
+    public final static String SOS_ADD = "SOS,A,";
+
+    //7 、删除 SOS  管理员  删除号码需要在打包函数的remarks里面设置电话号码，以#结束
+    public final static String SOS_DELETE = "SOS,D,";
+
+    //10 、工作模式设置
+    /*
+    *  0# 追踪模式：GPS 一直开启；
+    *  1# 智能省电：设备静止时 GPS 关闭，运动或被查询位置时，GPS 会开启； （有些设备有传感器检测自身运动状态）
+    *  2# 睡眠模式：被查询位置时，GPS 会开启；
+    *  3# 冬眠模式：GPS 一直关闭；
+    *  若设置成功，设备会回复：SET SAVING OK
+    */
+    public final static String MODE_SET_0 = "SAVING,0#";
+    public final static String MODE_SET_1 = "SAVING,1#";
+    public final static String MODE_SET_2 ="SAVING,2#";
+    public final static String MODE_SET_3 = "SAVING,3#";
+
+    //13 、添加电子围栏FENCE,< 围栏编号 >,< 围栏标记 >,<围栏参数 1>,< 围栏参数 2>,< 围栏参数3>,< 围栏参数 4>#
+    //设定 1 号圆形围栏，OR 报警方式：出围栏报警；以当前点为圆心，半径 500 米。
+    public final static String FENCE_SET_1 = "FENCE,1,OR,,,500#";
+
+    //14 、删除电子围栏
+    public final static String FENCE_DELETE = "FENCE,0#";
+
+    //21 、重启设备    设置成功，设备会回复：RESET OK
+    public final static String RESET = "RESET#";
+
+    //25 、查询经纬度  设备会回复：Lat:N22.55787,Lon:E113.93509,Course:0.00,Speed:0.00km/h,DateTime:2014-12-12 07:32:133426
+    public final static String WHERE = "WHERE#";
+
+
 	/** 开关. */
 	public final static String ON_OFF = "switch";
 

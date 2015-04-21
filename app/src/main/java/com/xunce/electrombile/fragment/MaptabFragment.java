@@ -112,29 +112,33 @@ public class MaptabFragment extends Fragment {
              */
             //定义Maker坐标点
             LatLng point = getLatestLocation(getHttp("http://electrombile.huakexunce.com/position"));
-            Log.e(point.latitude + "", point.longitude + "");
-            //构建Marker图标
-            BitmapDescriptor bitmap = BitmapDescriptorFactory
-                    .fromResource(R.drawable.icon_gcoding);
-            //构建MarkerOption，用于在地图上添加Marker
-            OverlayOptions option2 = new MarkerOptions()
-                    .position(point)
-                    .icon(bitmap);
-            //在地图上添加Marker，并显示
-            mBaiduMap.addOverlay(option2);
+            if(point == null)
+                Log.e("空","空");
+            else {
+                Log.e(point.latitude + "", point.longitude + "");
+                //构建Marker图标
+                BitmapDescriptor bitmap = BitmapDescriptorFactory
+                        .fromResource(R.drawable.icon_gcoding);
+                //构建MarkerOption，用于在地图上添加Marker
+                OverlayOptions option2 = new MarkerOptions()
+                        .position(point)
+                        .icon(bitmap);
+                //在地图上添加Marker，并显示
+                mBaiduMap.addOverlay(option2);
 
-            /**
-             *设定中心点坐标
-             */
-            //定义地图状态
-            MapStatus mMapStatus = new MapStatus.Builder()
-                    .target(point)
-                    .zoom(18)
-                    .build();
-            //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
-            MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
-            //改变地图状态
-            mBaiduMap.setMapStatus(mMapStatusUpdate);
+                /**
+                 *设定中心点坐标
+                 */
+                //定义地图状态
+                MapStatus mMapStatus = new MapStatus.Builder()
+                        .target(point)
+                        .zoom(18)
+                        .build();
+                //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
+                MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
+                //改变地图状态
+                mBaiduMap.setMapStatus(mMapStatusUpdate);
+            }
         }
     }
 	@Override
