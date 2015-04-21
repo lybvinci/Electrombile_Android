@@ -5,4 +5,110 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
 
+    <RelativeLayout
+        android:id="@+id/title"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:background="#ff1d252c"
+        android:gravity="center_vertical" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="历史记录"
+            android:textColor="#ffffff"
+            android:textSize="20sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/buttonList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/title"
+        android:layout_marginTop="10dp">
+        <Button
+            android:id="@+id/btn_oneday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="最近一天"
+            android:layout_marginRight="@dimen/btn_padding"/>
+        <Button
+            android:id="@+id/btn_twoday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="最近两天"
+            android:layout_marginRight="@dimen/btn_padding"/>
+        <Button
+            android:id="@+id/btn_custom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="自定义"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="#FF909090"
+        android:layout_marginTop="10dip"
+        android:layout_below="@+id/buttonList"/>
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listview"
+        android:layout_below="@+id/line"
+        />
+
+    <RelativeLayout
+        android:id="@+id/begin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/buttonList">
+        <Button
+            android:id="@+id/btn_begin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="开始"/>
+        <DatePicker
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/datePicker_begin"
+            android:layout_toRightOf="@+id/btn_begin"
+            android:calendarViewShown="false"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/begin">
+        <Button
+            android:id="@+id/btn_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="结束"/>
+        <DatePicker
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/datePicker_end"
+            android:layout_toRightOf="@+id/btn_end"
+            android:calendarViewShown="false"/>
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/btn_OK"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="确定"
+        android:textSize="20dp"
+        android:layout_below="@+id/end"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

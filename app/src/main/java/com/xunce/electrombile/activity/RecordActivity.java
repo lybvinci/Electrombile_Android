@@ -3,150 +3,162 @@ package com.xunce.electrombile.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.view.View.OnCreateContextMenuListener;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.Toast;
 
 import com.xunce.electrombile.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
  * Created by heyukun on 2015/4/18.
  */
 public class RecordActivity extends Activity{
-    private ExpandableListView expandableListView;
-    private List<String> group_list;
-    private List<List<String>> item_list;
-    private List<List<Integer>> item_list2;
+
+    Button btnCuston;
+    Button btnBegin;
+    Button btnEnd;
+    Button btnOK;
+    Button btnOneDay;
+    Button btnTwoDay;
+    DatePicker dpBegin;
+    DatePicker dpEnd;
+    ListView m_listview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
+        initView();
+        setCustonViewVisibility(false);
+        m_listview.setVisibility(View.INVISIBLE);
 
-        //随便一堆测试数据
-        group_list = new ArrayList<String>();
-        group_list.add("A");
-        group_list.add("B");
-        group_list.add("C");
-        group_list.add("D");
-        group_list.add("E");
-
-        item_list = new ArrayList<List<String>>();
-        item_list.add(group_list);
-        item_list.add(group_list);
-        item_list.add(group_list);
-        item_list.add(group_list);
-        item_list.add(group_list);
-
-        expandableListView = (ExpandableListView) findViewById(R.id.list_days);
-        expandableListView.setAdapter(new MyExpandableListViewAdapter(this));
     }
 
-    //用过ListView的人一定很熟悉，只不过这里是BaseExpandableListAdapter
-    class MyExpandableListViewAdapter extends BaseExpandableListAdapter {
-
-        private Context context;
-
-        public MyExpandableListViewAdapter(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        public int getGroupCount() {
-            return group_list.size();
-        }
-
-        @Override
-        public int getChildrenCount(int groupPosition) {
-            return item_list.get(groupPosition).size();
-        }
-
-        @Override
-        public Object getGroup(int groupPosition) {
-            return group_list.get(groupPosition);
-        }
-
-        @Override
-        public Object getChild(int groupPosition, int childPosition) {
-            return item_list.get(groupPosition).get(childPosition);
-        }
-
-        @Override
-        public long getGroupId(int groupPosition) {
-            return groupPosition;
-        }
-
-        @Override
-        public long getChildId(int groupPosition, int childPosition) {
-            return childPosition;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return true;
-        }
-
-        @Override
-        public View getGroupView(int groupPosition, boolean isExpanded,
-                                 View convertView, ViewGroup parent) {
-            GroupHolder groupHolder = null;
-            if (convertView == null) {
-                convertView = (View) getLayoutInflater().from(context).inflate(
-                        R.layout.list_head, null);
-                groupHolder = new GroupHolder();
-                groupHolder.txt = (TextView) convertView.findViewById(R.id.txt);
-                groupHolder.txt.setPadding(60, 0, 0, 0);
-                // groupHolder.img = (ImageView) convertView
-                // .findViewById(R.id.img);
-                convertView.setTag(groupHolder);
-            } else {
-                groupHolder = (GroupHolder) convertView.getTag();
+    private void initView(){
+        btnCuston = (Button)findViewById(R.id.btn_custom);
+        btnCuston.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!btnBegin.isShown()) {
+                    setCustonViewVisibility(true);
+                    m_listview.setVisibility(View.INVISIBLE);
+                }
+                else {
+                }
             }
-            groupHolder.txt.setText(group_list.get(groupPosition));
-            groupHolder.txt.setTextSize(20);
-            return convertView;
-        }
-
-        @Override
-        public View getChildView(int groupPosition, int childPosition,
-                                 boolean isLastChild, View convertView, ViewGroup parent) {
-            ItemHolder itemHolder = null;
-            if (convertView == null) {
-                convertView = (View) getLayoutInflater().from(context).inflate(
-                        R.layout.list_child, null);
-                itemHolder = new ItemHolder();
-                itemHolder.txt = (TextView) convertView.findViewById(R.id.txt);
-                itemHolder.img = (ImageView) convertView.findViewById(R.id.img);
-                convertView.setTag(itemHolder);
-            } else {
-                itemHolder = (ItemHolder) convertView.getTag();
+        });
+        btnOneDay = (Button)findViewById(R.id.btn_oneday);
+        btnOneDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                m_listview.setVisibility(View.VISIBLE);
+                setCustonViewVisibility(false);
             }
-            itemHolder.txt.setText(item_list.get(groupPosition).get(
-                    childPosition));
-            itemHolder.img.setBackgroundResource(R.drawable.btn_record);
-            return convertView;
+        });
+        btnTwoDay = (Button)findViewById(R.id.btn_twoday);
+        btnBegin = (Button)findViewById(R.id.btn_begin);
+        btnEnd = (Button)findViewById(R.id.btn_end);
+        dpBegin = (DatePicker)findViewById(R.id.datePicker_begin);
+        dpEnd = (DatePicker)findViewById(R.id.datePicker_end);
+        btnOK = (Button)findViewById(R.id.btn_OK);
+        btnOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                    setCustonViewVisibility(false);
+                    m_listview.setVisibility(View.VISIBLE);
+            }
+        });
+
+        initListView();
+    }
+
+    private void initListView(){
+        //绑定Layout里面的ListView
+        m_listview = (ListView) findViewById(R.id.listview);
+
+        //生成动态数组，加入数据
+        ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
+        for(int i=0;i<10;i++)
+        {
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("ItemTitle", "Level "+i);
+            map.put("ItemText", "Finished in 1 Min 54 Secs, 70 Moves! ");
+            listItem.add(map);
         }
 
-        @Override
-        public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return true;
+        //生成适配器的Item和动态数组对应的元素
+        SimpleAdapter listItemAdapter = new SimpleAdapter(this,listItem,//数据源
+                R.layout.listview_item,//ListItem的XML实现
+                //动态数组与ImageItem对应的子项
+                new String[] {"ItemTitle", "ItemText"},
+                //ImageItem的XML文件里面的一个ImageView,两个TextView ID
+                new int[] {R.id.ItemTitle,R.id.ItemText}
+        );
+
+        //添加并且显示
+        m_listview.setAdapter(listItemAdapter);
+
+        //添加点击
+        m_listview.setOnItemClickListener(new OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+                                    long arg3) {
+                Toast.makeText(getApplicationContext(), "点击第" + arg2 + "个项目", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+
+        //添加长按点击
+        m_listview.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+
+            @Override
+            public void onCreateContextMenu(ContextMenu menu, View v,
+                                            ContextMenuInfo menuInfo) {
+                menu.setHeaderTitle("长按菜单-ContextMenu");
+                menu.add(0, 0, 0, "弹出长按菜单0");
+                menu.add(0, 1, 0, "弹出长按菜单1");
+            }
+        });
+    }
+
+
+    /**
+     * 设置自定义选择界面是否可见
+     * @param visible-是否可见
+     */
+private void setCustonViewVisibility(Boolean visible){
+        if(visible){
+            btnBegin.setVisibility(View.VISIBLE);
+            btnEnd.setVisibility(View.VISIBLE);
+            dpBegin.setVisibility(View.VISIBLE);
+            dpEnd.setVisibility(View.VISIBLE);
+            btnOK.setVisibility(View.VISIBLE);
         }
-
+        else{
+            btnBegin.setVisibility(View.INVISIBLE);
+            btnEnd.setVisibility(View.INVISIBLE);
+            dpBegin.setVisibility(View.INVISIBLE);
+            dpEnd.setVisibility(View.INVISIBLE);
+            btnOK.setVisibility(View.INVISIBLE);
+        }
     }
 
-    class GroupHolder {
-        public TextView txt;
-        public ImageView img;
-    }
-
-    class ItemHolder {
-        public ImageView img;
-        public TextView txt;
-    }
 }

@@ -26,9 +26,11 @@ import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolygonOptions;
 import com.baidu.mapapi.map.Stroke;
@@ -70,13 +72,17 @@ public class MaptabFragment extends Fragment {
     Button btnLocation;
     Button btnRecord;
     Button btnPause;
-    public BDLocationListener myListener;
+    //public BDLocationListener myListener;
 
     //maptabFragment 维护一组坐标数据
     private List<LatLng> dataList;
 
     private List<LatLng> resultLine;
     PlayRecordThread m_threadnew;
+
+    //电动车标志
+    Marker markerMobile;
+    MarkerOptions option2;
 
     private boolean isPlaying = false;
     //
@@ -92,7 +98,7 @@ public class MaptabFragment extends Fragment {
         //注意该方法要再setContentView方法之前实现
         SDKInitializer.initialize(this.getActivity().getApplicationContext());
 
-        myListener = new MyLocationListener();
+        //myListener = new MyLocationListener();
 
         dataList = new ArrayList<LatLng>();
         dataList.add(new LatLng(30.5171, 114.4392));
@@ -159,17 +165,17 @@ public class MaptabFragment extends Fragment {
              * map init
              */
             // 开启定位图层
-            mBaiduMap.setMyLocationEnabled(true);
-            mLocationClient = new LocationClient(getActivity().getApplicationContext());     //声明LocationClient类
-            mLocationClient.registerLocationListener( myListener );    //注册监听函数
-            LocationClientOption option = new LocationClientOption();
-            option.setOpenGps(true);// 打开gps
-            option.setCoorType("bd09ll"); // 设置坐标类型
-            option.setScanSpan(1000);
-            mLocationClient.setLocOption(option);
+           // mBaiduMap.setMyLocationEnabled(true);
+           // mLocationClient = new LocationClient(getActivity().getApplicationContext());     //声明LocationClient类
+            //mLocationClient.registerLocationListener( myListener );    //注册监听函数
+            //LocationClientOption option = new LocationClientOption();
+            //option.setOpenGps(true);// 打开gps
+            //option.setCoorType("bd09ll"); // 设置坐标类型
+            //option.setScanSpan(1000);
+            //mLocationClient.setLocOption(option);
 
             //设置我当前位置的模式
-            mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(LocationMode.NORMAL, true, null));
+            //mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(LocationMode.NORMAL, true, null));
 
             /**
              * 显示车的位置
@@ -178,15 +184,27 @@ public class MaptabFragment extends Fragment {
             //leacloud服务器清空，暂时自定义数据代替
             LatLng point = new LatLng(30.5171, 114.4392);
             Log.e(point.latitude + "", point.longitude + "");
+
             //构建Marker图标
             BitmapDescriptor bitmap = BitmapDescriptorFactory
                     .fromResource(R.drawable.icon_gcoding);
             //构建MarkerOption，用于在地图上添加Marker
-            OverlayOptions option2 = new MarkerOptions()
+            option2 = new MarkerOptions()
                     .position(point)
-                    .icon(bitmap);
+                    .icon(bitmap)
+                    .draggable(true);  //设置手势拖拽;
             //在地图上添加Marker，并显示
-            mBaiduMap.addOverlay(option2);
+            //option2.setPosition(point);
+            markerMobile = (Marker)mBaiduMap.addOverlay(option2);
+            //markerMobile.
+
+            //mMapView.refresh();
+           // markerMobile.setPosition(point);
+            //markerMobile.setDraggable(true);
+            //markerMobile.setToTop();
+            //ma
+            //overlay.u
+            //option2.
 
             //设置电动车所在位置为地图中心
             locateMobile(point);
@@ -198,19 +216,19 @@ public class MaptabFragment extends Fragment {
 		super.onActivityCreated(savedInstanceState);
 		((TextView)getView().findViewById(R.id.tvTop)).setText("地图");
 	}
-
-    public class MyLocationListener implements BDLocationListener {
-        @Override
-        public void onReceiveLocation(BDLocation location) {
-            MyLocationData locData = new MyLocationData.Builder()
-                    .accuracy(location.getRadius())
-                            // 此处设置开发者获取到的方向信息，顺时针0-360
-                    .direction(100).latitude(location.getLatitude())
-                    .longitude(location.getLongitude()).build();
-            mBaiduMap.setMyLocationData(locData);
-            Log.e(locData.latitude + "", locData.longitude + "");
-        }
-    }
+//
+//    public class MyLocationListener implements BDLocationListener {
+//        @Override
+//        public void onReceiveLocation(BDLocation location) {
+//            MyLocationData locData = new MyLocationData.Builder()
+//                    .accuracy(location.getRadius())
+//                            // 此处设置开发者获取到的方向信息，顺时针0-360
+//                    .direction(100).latitude(location.getLatitude())
+//                    .longitude(location.getLongitude()).build();
+//            //mBaiduMap.setMyLocationData(locData);
+//            Log.e(locData.latitude + "", locData.longitude + "");
+//        }
+//    }
 
     @Override
     public void onDestroyView() {
@@ -268,12 +286,15 @@ public class MaptabFragment extends Fragment {
         //定义地图状态
         MapStatus mMapStatus = new MapStatus.Builder()
                 .target(point)
-                .zoom(18)
+                .zoom(mBaiduMap.getMapStatus().zoom)
                 .build();
+        //float a = mBaiduMap.getMapStatus().zoom;
         //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
         MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
         //改变地图状态
         mBaiduMap.setMapStatus(mMapStatusUpdate);
+        markerMobile.setPosition(point);
+        mBaiduMap.addOverlay(option2);
     }
 
     public JSONArray getHttp(final String httpBase){
