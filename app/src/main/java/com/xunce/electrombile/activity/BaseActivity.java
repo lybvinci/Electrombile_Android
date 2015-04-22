@@ -186,6 +186,7 @@ public class BaseActivity extends Activity {
 		mCenter = CmdCenter.getInstance(getApplicationContext());
 		// 每次返回activity都要注册一次sdk监听器，保证sdk状态能正确回调
 		mCenter.getXPGWifiSDK().setListener(sdkListener);
+
 		// 把activity推入历史栈，退出app后清除历史栈，避免造成内存溢出
 		Historys.put(this);
 	}
