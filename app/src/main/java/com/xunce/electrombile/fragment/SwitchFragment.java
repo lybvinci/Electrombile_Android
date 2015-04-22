@@ -307,7 +307,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
      */
     public void changeNotificaton(){
         manager =(NotificationManager) getActivity().getSystemService(Activity.NOTIFICATION_SERVICE);
-        Notification notification=new Notification(R.drawable.icon_1,"防盗系统已启动",System.currentTimeMillis());
+        Notification notification=new Notification(R.drawable.logo,"防盗系统已启动",System.currentTimeMillis());
         Intent intent=new Intent(getActivity().getApplicationContext(),FragmentActivity.class);
         PendingIntent pi=PendingIntent.getActivity(getActivity().getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         notification.setLatestEventInfo(getActivity().getApplicationContext(),"安全宝","防盗系统已启动",pi);
@@ -316,7 +316,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     }
     public void initNotificaton(){
         manager =(NotificationManager) getActivity().getSystemService(Activity.NOTIFICATION_SERVICE);
-        Notification notification=new Notification(R.drawable.icon_1,"防盗系统已关闭",System.currentTimeMillis());
+        Notification notification=new Notification(R.drawable.logo,"防盗系统已关闭",System.currentTimeMillis());
         Intent intent=new Intent(getActivity().getApplicationContext(),FragmentActivity.class);
         PendingIntent pi=PendingIntent.getActivity(getActivity().getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         notification.setLatestEventInfo(getActivity().getApplicationContext(),"安全宝","危险，防盗系统未启动",pi);
