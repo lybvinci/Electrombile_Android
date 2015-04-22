@@ -191,23 +191,19 @@ public class MaptabFragment extends Fragment {
             //构建MarkerOption，用于在地图上添加Marker
             option2 = new MarkerOptions()
                     .position(point)
-                    .icon(bitmap)
-                    .draggable(true);  //设置手势拖拽;
+                    .icon(bitmap);
             //在地图上添加Marker，并显示
-            //option2.setPosition(point);
             markerMobile = (Marker)mBaiduMap.addOverlay(option2);
-            //markerMobile.
 
-            //mMapView.refresh();
-           // markerMobile.setPosition(point);
-            //markerMobile.setDraggable(true);
-            //markerMobile.setToTop();
-            //ma
-            //overlay.u
-            //option2.
-
-            //设置电动车所在位置为地图中心
-            locateMobile(point);
+            //将电动车位置移至中心
+            MapStatus mMapStatus = new MapStatus.Builder()
+                    .target(point)
+                    .zoom(mBaiduMap.getMapStatus().zoom)
+                    .build();
+            //float a = mBaiduMap.getMapStatus().zoom;
+            //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
+            MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
+            mBaiduMap.setMapStatus(mMapStatusUpdate);
         }
     }
 	@Override
@@ -294,7 +290,7 @@ public class MaptabFragment extends Fragment {
         //改变地图状态
         mBaiduMap.setMapStatus(mMapStatusUpdate);
         markerMobile.setPosition(point);
-        mBaiduMap.addOverlay(option2);
+        //mBaiduMap.addOverlay(option2);
     }
 
     public JSONArray getHttp(final String httpBase){
@@ -372,12 +368,12 @@ public class MaptabFragment extends Fragment {
         mBaiduMap.addOverlay(polygonOption);
 
         //TODO::只是点击轨迹后才会画轨迹，不是每次点击按钮就画
-        if(!isPlaying) {
-            isPlaying = true;
+        //if(!isPlaying) {
+            //isPlaying = true;
             m_threadnew = new PlayRecordThread(1000);
             m_threadnew.setPoints(dts);
             m_threadnew.start();
-        }
+        //}
     }
 
     private class PlayRecordThread extends Thread{
@@ -391,10 +387,12 @@ public class MaptabFragment extends Fragment {
         public PlayRecordThread(int period){
             periodMilli = period;
         }
+
         @Override
         public void run() {
             super.run();
             for(LatLng pt:m_points){
+                //暂停播放
                 synchronized (PlayRecordThread.class){
                     while(pauseFlag);
                 };
