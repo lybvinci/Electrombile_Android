@@ -14,10 +14,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
@@ -35,10 +31,7 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolygonOptions;
 import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.navisdk.model.RoutePlanModel;
-import com.baidu.navisdk.model.datastruct.RoutePlanResultItem;
 import com.xunce.electrombile.R;
-import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 import com.xunce.electrombile.activity.RecordActivity;
 
 import org.apache.http.HttpResponse;
@@ -67,7 +60,6 @@ public class MaptabFragment extends Fragment {
     private final String httpBase= "http://electrombile.huakexunce.com/position";
     public static MapView mMapView;
     private BaiduMap mBaiduMap;
-    public LocationClient mLocationClient;
     Button btnChengeMode;
     Button btnLocation;
     Button btnRecord;
@@ -108,7 +100,6 @@ public class MaptabFragment extends Fragment {
         dataList.add(new LatLng(30.5175, 114.4396));
 
     }
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -116,6 +107,7 @@ public class MaptabFragment extends Fragment {
 		View view = inflater.inflate(R.layout.map_fragment, container, false);
         mMapView = (MapView) view.findViewById(R.id.bmapView);
         mBaiduMap = mMapView.getMap();
+        //mMapView.getCont
 
         btnChengeMode = (Button)view.findViewById(R.id.btn_changeMode);
         btnChengeMode.setOnClickListener(new View.OnClickListener() {
@@ -140,8 +132,8 @@ public class MaptabFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if(mBaiduMap != null){
-                    LatLng point = getLatestLocation();
-                    locateMobile(point);
+                    //LatLng point = getLatestLocation();
+                    //locateMobile(point);
                 }
             }
         });
@@ -160,7 +152,7 @@ public class MaptabFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
-        if(mLocationClient == null){
+        //if(mLocationClient == null){
             /**
              * map init
              */
@@ -198,14 +190,14 @@ public class MaptabFragment extends Fragment {
             //将电动车位置移至中心
             MapStatus mMapStatus = new MapStatus.Builder()
                     .target(point)
-                    .zoom(mBaiduMap.getMapStatus().zoom)
+                    .zoom(mBaiduMap.getMapStatus().zoom / (float)1.3)
                     .build();
             //float a = mBaiduMap.getMapStatus().zoom;
             //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
             MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
             mBaiduMap.setMapStatus(mMapStatusUpdate);
         }
-    }
+    //}
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -235,7 +227,7 @@ public class MaptabFragment extends Fragment {
     @Override
     public void onDestroy() {
         // 退出时销毁定位
-        mLocationClient.stop();
+        //mLocationClient.stop();
         // 关闭定位图层
         mBaiduMap.setMyLocationEnabled(false);
         mMapView.onDestroy();
@@ -264,14 +256,14 @@ public class MaptabFragment extends Fragment {
 
     //暂停更新地图
     public void pauseMapUpdate(){
-        if(mLocationClient == null) return;
-        mLocationClient.stop();
+//        if(mLocationClient == null) return;
+//        mLocationClient.stop();
     }
 
     //恢复更新地图
     public void resumeMapUpdate(){
-        if(mLocationClient == null) return;
-        mLocationClient.start();
+//        if(mLocationClient == null) return;
+//        mLocationClient.start();
     }
 
     //将地图中心移到某点
@@ -288,7 +280,7 @@ public class MaptabFragment extends Fragment {
         //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
         MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
         //改变地图状态
-        mBaiduMap.setMapStatus(mMapStatusUpdate);
+        mBaiduMap.animateMapStatus(mMapStatusUpdate);
         markerMobile.setPosition(point);
         //mBaiduMap.addOverlay(option2);
     }

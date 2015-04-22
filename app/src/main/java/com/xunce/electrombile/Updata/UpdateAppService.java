@@ -66,7 +66,7 @@ public class UpdateAppService extends Service{
         Intent intent = new Intent(context,FragmentActivity.class);
         pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         //创建一个通知
-        notification = new Notification(R.drawable.icon_1, "开始下载~~", System.currentTimeMillis());
+        notification = new Notification(R.drawable.logo, "开始下载~~", System.currentTimeMillis());
         notification.setLatestEventInfo(context, "正在下载传安全宝", "点击查看详细内容", pendingIntent);
 
         //用NotificationManager的notify方法通知用户生成标题栏消息通知

@@ -11,50 +11,31 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.avos.avoscloud.AVAnalytics;
 
-
-import com.avos.avoscloud.AVOSCloud;
-import com.avos.avoscloud.AVUser;
-import com.avos.avoscloud.LogUtil;
+import com.xunce.electrombile.Base.utils.StringUtils;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.account.LoginActivity;
+import com.xunce.electrombile.xpg.common.system.IntentUtils;
 
 import android.os.Handler;
 
 
-public class SplashActivity extends Activity {
+public class SplashActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AVOSCloud.initialize(this,
-                "5wk8ccseci7lnss55xfxdgj9xn77hxg3rppsu16o83fydjjn",
-                "yovqy5zy16og43zwew8i6qmtkp2y6r9b18zerha0fqi5dqsw");
         setContentView(R.layout.activity_splash);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         final Context context = this;
-        LogUtil.log.i(""+isNetWorkAvailable(this));
+        Log.i("","" + isNetWorkAvailable(this));
         if(!isNetWorkAvailable(this)){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(getString(R.string.networkErrorSet))
@@ -83,30 +64,25 @@ public class SplashActivity extends Activity {
                             SplashActivity.this.finish();
                         }
                     }).show();
-            // ToastUtil.showToast(this,getString(R.string.networkError),1000);
         }else {
-            AVAnalytics.trackAppOpened(getIntent());
-            final AVUser currentUser = AVUser.getCurrentUser();
+
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (currentUser != null) {
-                        Intent intent = new Intent(SplashActivity.this, FragmentActivity.class);
-                        startActivity(intent);
+                    //判断是否有账号登陆
+                    if (StringUtils.isEmpty(setManager.getToken())) {
+                        //未有账号登陆
+                        IntentUtils.getInstance().startActivity(SplashActivity.this,LoginActivity.class);
                         SplashActivity.this.finish();
                     } else {
-                        Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                        //有账号登陆
+                        Intent intent = new Intent(SplashActivity.this, FragmentActivity.class);
                         startActivity(intent);
                         SplashActivity.this.finish();
                     }
                 }
-            }, 2000);
+            }, 1000);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -140,8 +116,6 @@ public class SplashActivity extends Activity {
             NetworkInfo[] networkInfo = connectivityManager.getAllNetworkInfo();
             if(networkInfo != null && networkInfo.length > 0){
                 for(int i=0;i < networkInfo.length;i++){
-                    LogUtil.log.i(networkInfo[i].getState().toString());
-                    LogUtil.log.i(networkInfo[i].getTypeName());
                     if(networkInfo[i].getState() == NetworkInfo.State.CONNECTED)
                         return true;
                 }

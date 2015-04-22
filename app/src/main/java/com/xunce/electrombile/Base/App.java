@@ -4,7 +4,8 @@ import android.app.Application;
 import android.util.Log;
 
 import com.baidu.mapapi.SDKInitializer;
-import com.avos.avoscloud.AVOSCloud;
+import com.xtremeprog.xpgconnect.XPGWifiSDK;
+import com.xunce.electrombile.Base.config.Configs;
 
 
 /**
@@ -17,11 +18,12 @@ public class App extends Application {
 
         //initial the Baidu map SDK
         initBaiduSDK();
+        XPGWifiSDK.sharedInstance().startWithAppID(getApplicationContext(),
+                Configs.APPID);
+        // 设定日志打印级别,日志保存文件名，是否在后台打印数据.
+        XPGWifiSDK.sharedInstance().setLogLevel(Configs.LOG_LEVEL,
+                "BassApp.log", Configs.DEBUG);
 
-        //initial LeanCloud SDK
-        AVOSCloud.initialize(this, "5wk8ccseci7lnss55xfxdgj9xn77hxg3rppsu16o83fydjjn",
-                "yovqy5zy16og43zwew8i6qmtkp2y6r9b18zerha0fqi5dqsw");
-        Log.e("", "has application");
     }
 
     private void initBaiduSDK() {

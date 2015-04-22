@@ -6,6 +6,9 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -18,16 +21,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 
-import com.avos.avoscloud.AVException;
-import com.avos.avoscloud.AVInstallation;
-import com.avos.avoscloud.AVUser;
-import com.avos.avoscloud.PushService;
-import com.avos.avoscloud.SaveCallback;
+import com.xunce.electrombile.Base.utils.Historys;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.Updata.UpdateAppService;
+import com.xunce.electrombile.activity.account.LoginActivity;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
@@ -35,8 +34,9 @@ import com.xunce.electrombile.widget.ActionItem;
 import com.xunce.electrombile.widget.TitlePopup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RadioButton;
-import com.xunce.electrombile.widget.TitlePopup.OnItemOnClickListener;
+import android.widget.Toast;
 
+import com.xunce.electrombile.widget.TitlePopup.OnItemOnClickListener;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -51,6 +51,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+
 
 /**
  * Created by heyukun on 2015/3/24.
@@ -76,6 +77,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
     RadioButton rbSwitch;
     RadioButton rbMap;
     boolean isupde;int a=0;
+    //退出使用
+    private boolean isExit = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,36 +97,18 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
                     updata();isupde=false;
                 }
             }
-        };Checkversion();
+        };
+        Checkversion();
         initNotificaton();
         initView();
         initData();
-        initLeanCloud();
 
         dealBottomButtonsClickEvent();
-    }
 
-    /**
-     * leancloue注册
-     */
-    private void initLeanCloud() {
-        PushService.setDefaultPushCallback(this, FragmentActivity.class);
-        // 订阅频道，当该频道消息到来的时候，打开对应的 Activity
-        PushService.subscribe(this, "publicheyukun", FragmentActivity.class);
-        AVInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
-            public void done(AVException e) {
-                if (e == null) {
-                    // 保存成功
-                    THE_INSTALLATION_ID = AVInstallation.getCurrentInstallation().getInstallationId();
-                    Log.i(TAG, "installationId:" + THE_INSTALLATION_ID);
-                    // 关联  installationId 到用户表等操作……
-                } else {
-                    // 保存失败，输出错误信息
-                }
-            }
-        });
-    }
 
+        //showNotification();
+        Historys.put(this);
+    }
     /**
      * 界面初始化
      */
@@ -161,7 +146,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
                         break;
                     case SETTINGS_ITEM4:
                         Log.i(TAG, "clicked item 4");
-                        AVUser.logOut();             //清除缓存用户对象
+                     //   AVUser.logOut();             //清除缓存用户对象
                         //启动登陆activity
                         Intent intentStartLogin = new Intent(FragmentActivity.this, LoginActivity.class);
                         startActivity(intentStartLogin);
@@ -327,11 +312,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
      */
     @Override
     public void onBackPressed() {
-        if (m_FMer.findFragmentByTag("switchFragment") != null && m_FMer.findFragmentByTag("switchFragment").isVisible()) {
-            FragmentActivity.this.finish();
-        } else {
-            super.onBackPressed();
-        }
+        exit();
     }
 
     @Override
@@ -363,12 +344,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
 
     public void initNotificaton() {
         manager = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
-        Notification notification = new Notification(R.drawable.icon_1, "防盗系统已经启动", System.currentTimeMillis());
-        Intent intent = new Intent(this, FragmentActivity.class);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        notification.setLatestEventInfo(this, "安全宝", "危险，防盗系统未启动", pi);
-        notification.flags = Notification.FLAG_NO_CLEAR;
-        manager.notify(1, notification);
     }
 
     public void Checkversion() {
@@ -440,5 +415,49 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity {
             }
         }).start();
     }
+
+    //显示常驻通知栏
+    void showNotification(){
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Notification notification = new Notification(R.drawable.icon,"安全宝",System.currentTimeMillis());
+        //下面这句用来自定义通知栏
+        //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
+        Intent intent = new Intent(this,FragmentActivity.class);
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
+        PendingIntent contextIntent = PendingIntent.getActivity(this,0,intent,0);
+        notification.setLatestEventInfo(getApplicationContext(),"安全宝","正在保护您的电动车",contextIntent);
+        notificationManager.notify(R.string.app_name, notification);
+    }
+    //取消显示常驻通知栏
+    void cancelNotification(){
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(R.string.app_name);
+    }
+
+    /**
+     * 重复按下返回键退出app方法
+     */
+    public void exit() {
+        if (!isExit) {
+            isExit = true;
+            Toast.makeText(getApplicationContext(),
+                    "退出程序", Toast.LENGTH_SHORT).show();
+            exitHandler.sendEmptyMessageDelayed(0, 2000);
+        } else {
+
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(intent);
+            Historys.exit();
+        }
+    }
+
+    /** The handler. to process exit()*/
+    private Handler exitHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            isExit = false;
+        };
+    };
 
 }
