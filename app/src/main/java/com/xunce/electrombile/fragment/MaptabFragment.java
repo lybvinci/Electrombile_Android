@@ -29,6 +29,7 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolygonOptions;
+import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.R;
@@ -56,6 +57,11 @@ import java.util.concurrent.TimeoutException;
 public class MaptabFragment extends Fragment {
 
     private static String TAG = "MaptabFragment:";
+
+    //播放线程消息类型
+    private final int CHANGEPOINT = 1;
+    private final int PAUSEPLAY = 2;
+
     //获取位置信息的http接口
     private final String httpBase= "http://electrombile.huakexunce.com/position";
     public static MapView mMapView;
@@ -116,13 +122,20 @@ public class MaptabFragment extends Fragment {
                 //int res = mLocationClient.requestLocation();
                 //Log.e("", "request location result:" + res);
                 drawLine();
+                pausePlay();
             }
         });
 
         btnPause = (Button)view.findViewById(R.id.btn_pause);
         btnPause.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
+                if(m_threadnew == null) return;
+                if(btnPause.getText().equals("暂停"))
+                    btnPause.setText("开始");
+                else
+                    btnPause.setText("暂停");
                 pausePlay();
             }
         });
@@ -352,20 +365,20 @@ public class MaptabFragment extends Fragment {
         dts.add(new LatLng(30.0474, 114.7395));
         dts.add(new LatLng(30.7575, 114.8396));
         //构建用户绘制多边形的Option对象
-        OverlayOptions polygonOption = new PolygonOptions()
+        OverlayOptions polylineOption = new PolylineOptions()
                 .points(dts)
-                .stroke(new Stroke(5, 0xAA00FF00))
-                .fillColor(0);
+                .width(5)
+                .color(0xAA00FF00);
         //在地图上添加多边形Option，用于显示
-        mBaiduMap.addOverlay(polygonOption);
+        mBaiduMap.addOverlay(polylineOption);
 
         //TODO::只是点击轨迹后才会画轨迹，不是每次点击按钮就画
-        //if(!isPlaying) {
-            //isPlaying = true;
+        if(!isPlaying) {
+            isPlaying = true;
             m_threadnew = new PlayRecordThread(1000);
             m_threadnew.setPoints(dts);
             m_threadnew.start();
-        //}
+        }
     }
 
     private class PlayRecordThread extends Thread{
@@ -383,23 +396,32 @@ public class MaptabFragment extends Fragment {
         @Override
         public void run() {
             super.run();
-            for(LatLng pt:m_points){
-                //暂停播放
-                synchronized (PlayRecordThread.class){
-                    while(pauseFlag);
-                };
-                Message msg = Message.obtain();
-                msg.obj = pt;
-                playHandler.sendMessage(msg);
-
-                try {
-                    //TODO::periodMilli可变，更改速度
-                    synchronized(PlayRecordThread.class){
-                        sleep(periodMilli);
+            while(true) {
+                for (LatLng pt : m_points) {
+                    //暂停播放
+                    synchronized (PlayRecordThread.class) {
+                        while (pauseFlag) ;
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    ;
+                    Message msg = Message.obtain();
+                    msg.what = CHANGEPOINT;
+                    msg.obj = pt;
+                    playHandler.sendMessage(msg);
+
+                    try {
+                        //TODO::periodMilli可变，更改速度
+                        synchronized (PlayRecordThread.class) {
+                            sleep(periodMilli);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
+                //isPlaying = false;
+
+                Message msg = Message.obtain();
+                msg.what = PAUSEPLAY;
+                playHandler.sendMessage(msg);
             }
         }
     }
@@ -407,7 +429,15 @@ public class MaptabFragment extends Fragment {
     private Handler playHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            locateMobile((LatLng) msg.obj);
+            switch(msg.what){
+                case CHANGEPOINT:
+                    locateMobile((LatLng) msg.obj);
+                    break;
+                case PAUSEPLAY:
+                    pausePlay();
+                    btnPause.setText("开始");
+                    break;
+            }
         }
     };
 
