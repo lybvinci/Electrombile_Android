@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.xunce.electrombile.xpg.common.useful.ByteUtils.Bytes2HexString;
 import static com.xunce.electrombile.xpg.common.useful.ByteUtils.HexString2Bytes;
 import static com.xunce.electrombile.xpg.common.useful.ByteUtils.judgeLength;
 import static com.xunce.electrombile.xpg.common.useful.ByteUtils.toByteArray;
@@ -466,25 +467,33 @@ public class CmdCenter {
 
 
     //解析收到的字符串 分解成命令
-    public String cParseString(String binary) {
-        if (binary.contains("SET TIMER OK")) {
+    public String cParseString(byte[] binary) {
+        String str1 = Bytes2HexString(binary);
+        Log.i("CmdCenter.....",str1);
+        String s = str1.replaceAll(" ", "");
+        Log.i("CmdCenter.....",s);
+        byte[] buf1 = HexString2Bytes(s);
+        Log.i("CmdCenter2.....",buf1.toString());
+        String parseString = new String(String.valueOf(buf1));
+        Log.i("CmdCenter.....",parseString);
+        if (parseString.contains("SET TIMER OK")) {
             return "SET_TIMER_OK";
         }
-        if (binary.contains("SET SOS OK")) {
+        if (parseString.contains("SET SOS OK")) {
             return "SET_SOS_OK";
         }
-        if (binary.contains("DEL SOS OK")) {
+        if (parseString.contains("DEL SOS OK")) {
             return "DEL_SOS_OK";
         }
-        if (binary.contains("SET SAVING OK")) {
+        if (parseString.contains("SET SAVING OK")) {
             return "SET_SAVING_OK";
         }
-        if (binary.contains("RESET OK")) {
+        if (parseString.contains("RESET OK")) {
             return "RESET_OK";
         }
-        if(binary.contains("Lat:")) {
+        if(parseString.contains("Lat:")) {
             Pattern p = Pattern.compile("Lat:.*");
-            Matcher m = p.matcher(binary);
+            Matcher m = p.matcher(parseString);
             if (m.find()) {
                 String data = m.group();
                 Log.i("gpsData...",data);

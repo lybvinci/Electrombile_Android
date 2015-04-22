@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -14,6 +15,11 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.xtremeprog.xpgconnect.XPGWifiDevice;
+import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
+import com.xtremeprog.xpgconnect.XPGWifiSDKListener;
+import com.xtremeprog.xpgconnect.XPGWifiSSID;
+import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.utils.Historys;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.account.LoginActivity;
@@ -27,6 +33,11 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.xunce.electrombile.widget.TitlePopup.OnItemOnClickListener;
+import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -54,10 +65,24 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity{
     //退出使用
     private boolean isExit = false;
 
+    //SDK 机制云相关
+    private CmdCenter mCenter;
+    private XPGWifiDevice mXpgWifiDevice;
+    private ConcurrentHashMap<String, Object> deviceDataMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fragment);
+
+        //mCenter = CmdCenter.getInstance(this.getApplicationContext());
+        mCenter = CmdCenter.getInstance(getApplicationContext());
+        // 每次返回activity都要注册一次sdk监听器，保证sdk状态能正确回调
+        mCenter.getXPGWifiSDK().setListener(sdkListener);
+        // 每次返回activity都要注册一次sdk监听器，保证sdk状态能正确回调
+        mXpgWifiDevice = BaseActivity.mXpgWifiDevice;
+        if(mXpgWifiDevice != null)
+            mXpgWifiDevice.setListener(deviceListener);
 
         m_FMer = getSupportFragmentManager();
 
@@ -70,7 +95,235 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity{
         Historys.put(this);
     }
 
+    /**
+     * XPGWifiSDKListener
+     * <p/>
+     * sdk监听器。 配置设备上线、注册登录用户、搜索发现设备、用户绑定和解绑设备相关.
+     */
+    private XPGWifiSDKListener sdkListener = new XPGWifiSDKListener() {
 
+        @Override
+        public void didBindDevice(int error, String errorMessage, String did) {
+            FragmentActivity.this.didBindDevice(error, errorMessage, did);
+        }
+
+        @Override
+        public void didChangeUserEmail(int error, String errorMessage) {
+            FragmentActivity.this.didChangeUserEmail(error, errorMessage);
+        }
+
+        @Override
+        public void didChangeUserPassword(int error, String errorMessage) {
+            FragmentActivity.this.didChangeUserPassword(error, errorMessage);
+        }
+
+        @Override
+        public void didChangeUserPhone(int error, String errorMessage) {
+            FragmentActivity.this.didChangeUserPhone(error, errorMessage);
+        }
+
+        @Override
+        public void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
+
+            FragmentActivity.this.didDiscovered(error, devicesList);
+        }
+
+        @Override
+        public void didGetSSIDList(int error, List<XPGWifiSSID> ssidInfoList) {
+            FragmentActivity.this.didGetSSIDList(error, ssidInfoList);
+        }
+
+        @Override
+        public void didRegisterUser(int error, String errorMessage, String uid,
+                                    String token) {
+            FragmentActivity.this.didRegisterUser(error, errorMessage, uid, token);
+        }
+
+        @Override
+        public void didRequestSendVerifyCode(int error, String errorMessage) {
+            FragmentActivity.this.didRequestSendVerifyCode(error, errorMessage);
+        }
+
+        @Override
+        public void didSetDeviceWifi(int error, XPGWifiDevice device) {
+            FragmentActivity.this.didSetDeviceWifi(error, device);
+        }
+
+        @Override
+        public void didUnbindDevice(int error, String errorMessage, String did) {
+            FragmentActivity.this.didUnbindDevice(error, errorMessage, did);
+        }
+
+        @Override
+        public void didUserLogin(int error, String errorMessage, String uid,
+                                 String token) {
+            FragmentActivity.this.didUserLogin(error, errorMessage, uid, token);
+        }
+
+        @Override
+        public void didUserLogout(int error, String errorMessage) {
+            FragmentActivity.this.didUserLogout(error, errorMessage);
+        }
+
+    };
+    /**
+     * 用户登出回调借口.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     */
+    protected void didUserLogout(int error, String errorMessage) {
+
+    }
+
+    /**
+     * 用户登陆回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     * @param uid
+     *            用户id
+     * @param token
+     *            授权令牌
+     */
+    protected void didUserLogin(int error, String errorMessage, String uid,
+                                String token) {
+
+    }
+
+    /**
+     * 设备解除绑定回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     * @param did
+     *            设备注册id
+     */
+    protected void didUnbindDevice(int error, String errorMessage, String did) {
+
+    }
+
+    /**
+     * 设备配置结果回调.
+     *
+     * @param error
+     *            结果代码
+     * @param device
+     *            设备对象
+     */
+    protected void didSetDeviceWifi(int error, XPGWifiDevice device) {
+
+    }
+
+    /**
+     * 请求手机验证码回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     */
+    protected void didRequestSendVerifyCode(int error, String errorMessage) {
+
+    }
+
+    /**
+     * 注册用户结果回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     * @param uid
+     *            the 用户id
+     * @param token
+     *            the 授权令牌
+     */
+    protected void didRegisterUser(int error, String errorMessage, String uid,
+                                   String token) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * 获取ssid列表回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param ssidInfoList
+     *            ssid列表
+     */
+    protected void didGetSSIDList(int error, List<XPGWifiSSID> ssidInfoList) {
+
+    }
+
+    /**
+     * 搜索设备回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param devicesList
+     *            设备列表
+     */
+    protected void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
+
+    }
+
+    /**
+     * 更换注册手机号码回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     */
+    protected void didChangeUserPhone(int error, String errorMessage) {
+
+    }
+
+    /**
+     * 更换密码回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     */
+    protected void didChangeUserPassword(int error, String errorMessage) {
+
+    }
+
+    /**
+     * 更换注册邮箱.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     */
+    protected void didChangeUserEmail(int error, String errorMessage) {
+
+    }
+
+    /**
+     * 绑定设备结果回调.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     * @param did
+     *            设备注册id
+     */
+    protected void didBindDevice(int error, String errorMessage, String did) {
+
+    }
 
     /**
      * 界面初始化
@@ -272,6 +525,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity{
     protected void onResume() {
         ISSTARTED = true;
         super.onResume();
+        if(mXpgWifiDevice != null)
+            mXpgWifiDevice.setListener(deviceListener);
+        mCenter.getXPGWifiSDK().setListener(sdkListener);
     }
 
     @Override
@@ -323,5 +579,146 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity{
             isExit = false;
         };
     };
+
+    //handler 处理事件
+    private enum handler_key {
+
+        /** 更新UI界面 */
+        UPDATE_UI,
+
+        /** 显示警告*/
+        ALARM,
+
+        /** 设备断开连接 */
+        DISCONNECTED,
+
+        /** 接收到设备的数据 */
+        RECEIVED,
+
+        /** 获取设备状态 */
+        GET_STATUE,
+    }
+
+    private HashMap<String, String> GPS_Data;
+    private Handler fragmentHandler = new Handler(){
+        public void handMessage(Message msg){
+            super.handleMessage(msg);
+            handler_key key= handler_key.values()[msg.what];
+            switch (key){
+                case RECEIVED:
+                    if (deviceDataMap.get("data") != null) {
+                        Log.i("info", (String) deviceDataMap.get("data"));
+                    }
+                    if (deviceDataMap.get("alters") != null) {
+                        Log.i("info", (String) deviceDataMap.get("alters"));
+                        // 返回主线程处理报警数据刷新
+                    }
+                    if (deviceDataMap.get("faults") != null) {
+                        Log.i("info", (String) deviceDataMap.get("faults"));
+                        // 返回主线程处理错误数据刷新
+                    }
+                    if(deviceDataMap.get("binary") != null){
+                        byte[] binary = (byte[]) deviceDataMap.get("binary");
+                        Log.i("info:::::", binary.toString());
+                        String ChuanTouData = mCenter.cParseString(binary);
+                        if(ChuanTouData == "SET_TIMER_OK"){
+                            ToastUtils.showShort(FragmentActivity.this, "GPS定时发送设置成功");
+                        }
+                        else if(ChuanTouData == "SET_SOS_OK"){
+                            ToastUtils.showShort(FragmentActivity.this,"管理员设置成功");
+                        }
+                        else if(ChuanTouData == "DEL_SOS_OK"){
+                            ToastUtils.showShort(FragmentActivity.this,"删除管理员成功");
+                        }
+                        else if(ChuanTouData == "SET_SAVING_OK"){
+                            ToastUtils.showShort(FragmentActivity.this,"模式设置成功");
+                        }
+                        else if(ChuanTouData == "RESET_OK"){
+                            ToastUtils.showShort(FragmentActivity.this,"重启设备成功");
+                        }
+                        else{
+                            GPS_Data = new HashMap<String, String>();
+                            GPS_Data = mCenter.parseGps(ChuanTouData);
+                        }
+
+                    }
+                    break;
+                case GET_STATUE:
+                    break;
+                case UPDATE_UI:
+                    break;
+                case ALARM:
+                    break;
+                case DISCONNECTED:
+                    break;
+            }
+        }
+    };
+    /**
+     * XPGWifiDeviceListener
+     * <p/>
+     * 设备属性监听器。 设备连接断开、获取绑定参数、获取设备信息、控制和接受设备信息相关.
+     */
+    protected XPGWifiDeviceListener deviceListener = new XPGWifiDeviceListener() {
+
+        @Override
+        public void didDeviceOnline(XPGWifiDevice device, boolean isOnline) {
+            FragmentActivity.this.didDeviceOnline(device, isOnline);
+        }
+
+        @Override
+        public void didDisconnected(XPGWifiDevice device) {
+            FragmentActivity.this.didDisconnected(device);
+        }
+
+        @Override
+        public void didReceiveData(XPGWifiDevice device,
+                                   ConcurrentHashMap<String, Object> dataMap, int result) {
+            FragmentActivity.this.didReceiveData(device, dataMap, result);
+        }
+
+    };
+    /**
+     * 接收指令回调
+     * <p/>
+     * sdk接收到模块传入的数据回调该接口.
+     *
+     * @param device
+     *            设备对象
+     * @param dataMap
+     *            json数据表
+     * @param result
+     *            状态代码
+     */
+    protected void didReceiveData(XPGWifiDevice device,
+                                  ConcurrentHashMap<String, Object> dataMap, int result) {
+        this.deviceDataMap = dataMap;
+        Log.i("FragmentActivity","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        Log.i("device:::",device.toString());
+        Log.i("dataMap:::",dataMap.toString());
+        Log.i("result",result+"");
+        fragmentHandler.sendEmptyMessage(handler_key.RECEIVED.ordinal());
+    }
+    /**
+     * 设备上下线通知.
+     *
+     * @param device
+     *            设备对象
+     * @param isOnline
+     *            上下线状态
+     */
+    protected void didDeviceOnline(XPGWifiDevice device, boolean isOnline) {
+        Log.i("设备在线",isOnline + "");
+    }
+    /**
+     * 断开连接回调接口.
+     *
+     * @param device
+     *            设备对象
+     */
+    protected void didDisconnected(XPGWifiDevice device) {
+        Log.i("设备未连接",device + "");
+    }
+
 
 }

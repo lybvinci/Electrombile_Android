@@ -184,6 +184,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                 + ";did=" + did);
         if (error == 0) {
             mHandler.sendEmptyMessage(handler_key.GET_LIST.ordinal());
+            setManager.setDid(did);
         } else {
             Message message = new Message();
             message.what = handler_key.FAILED.ordinal();
@@ -201,11 +202,13 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         Log.i("绑定设备列表",devicesList.toString());
         for (int i = 0; i < devicesList.size(); i++) {
             XPGWifiDevice device = devicesList.get(i);
-            if (device != null) {
+            if (device != null && device.getDid().equals(setManager.getDid())) {
                 mXpgWifiDevice = device;
                 mXpgWifiDevice.setListener(deviceListener);
                 mXpgWifiDevice.login(setManager.getUid(), setManager.getToken());
                 break;
+            }else{
+                mHandler.sendEmptyMessage(handler_key.LOGIN.ordinal());
             }
 
         }

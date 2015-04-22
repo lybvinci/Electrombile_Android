@@ -66,6 +66,9 @@ public class SettingManager {
 	/** The filter. */
 	static String filter = "=====";
 
+    //did
+    private final String DID = "did";
+
 	/**
 	 * Instantiates a new setting manager.
 	 *
@@ -85,6 +88,7 @@ public class SettingManager {
 		setPhoneNumber("");
 		setPassword("");
 		setUserName("");
+        setDid("");
 	}
 
 	/**
@@ -178,6 +182,8 @@ public class SettingManager {
 		return spf.getString(UID, "");
 	}
 
+    public void setDid(String did){spf.edit().putString(DID,did).commit();}
+    public String getDid(){return spf.getString(DID,"");}
 	/**
 	 * Sets the unit.
 	 *
