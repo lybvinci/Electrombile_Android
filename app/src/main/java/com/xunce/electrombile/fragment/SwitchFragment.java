@@ -1,6 +1,11 @@
 package com.xunce.electrombile.fragment;
 
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,6 +52,14 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     private final int IS_FINISH = 1;
     private boolean systemState = false;
     private boolean alarmState = false;
+    NotificationManager manager=FragmentActivity.manager;
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        manager.cancel(1);
+    }
+
     private String[] SWITCHKEY= {
             "switch",
             "ring"
@@ -101,10 +114,10 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         int value[] = {0};
 
         if(systemState == false){
-            value[0] = 1;
+            value[0] = 1;manager.cancel(1);changeNotificaton();
             btnSystem.setBackgroundResource(R.drawable.common_btn_pressed);
         }else{
-            value[0] = 0;
+            value[0] = 0; manager.cancel(1);initNotificaton();
             btnSystem.setBackgroundResource(R.drawable.common_btn_pressed);
         }
         final int finalValue[] = value;
@@ -287,5 +300,27 @@ public class SwitchFragment extends Fragment implements OnClickListener {
             Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
             btnAlarm.setBackgroundResource(R.drawable.common_btn_normal);
         }
+    }
+
+    /**
+     * 通知栏启动
+     */
+    public void changeNotificaton(){
+        manager =(NotificationManager) getActivity().getSystemService(Activity.NOTIFICATION_SERVICE);
+        Notification notification=new Notification(R.drawable.icon_1,"防盗系统已启动",System.currentTimeMillis());
+        Intent intent=new Intent(getActivity().getApplicationContext(),FragmentActivity.class);
+        PendingIntent pi=PendingIntent.getActivity(getActivity().getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        notification.setLatestEventInfo(getActivity().getApplicationContext(),"安全宝","防盗系统已启动",pi);
+        notification.flags =Notification.FLAG_NO_CLEAR;
+        manager.notify(1,notification);
+    }
+    public void initNotificaton(){
+        manager =(NotificationManager) getActivity().getSystemService(Activity.NOTIFICATION_SERVICE);
+        Notification notification=new Notification(R.drawable.icon_1,"防盗系统已关闭",System.currentTimeMillis());
+        Intent intent=new Intent(getActivity().getApplicationContext(),FragmentActivity.class);
+        PendingIntent pi=PendingIntent.getActivity(getActivity().getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        notification.setLatestEventInfo(getActivity().getApplicationContext(),"安全宝","危险，防盗系统未启动",pi);
+        notification.flags =Notification.FLAG_NO_CLEAR;
+        manager.notify(1,notification);
     }
 }
