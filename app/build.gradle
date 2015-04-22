@@ -24,4 +24,5 @@ dependencies {
     compile 'com.android.support:support-v4:22.0.0'
     compile files('libs/ZxingScanner.jar')
     compile files('libs/BaiduLBS_Android.jar')
+    compile files('libs/XPGWiFiSDK.jar')
 }
