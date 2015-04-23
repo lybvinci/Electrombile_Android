@@ -553,81 +553,81 @@ public class CmdCenter {
 	// 智能云空调控制相关
 	//
 	// =================================================================
-	/**
-	 * C switch on.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param isOn the is on
-	 */
-	public void cSwitchOn(XPGWifiDevice xpgWifiDevice, boolean isOn) {
-		cWrite(xpgWifiDevice, JsonKeys.ON_OFF, isOn);
-		cGetStatus(xpgWifiDevice);
-	}
-
-	/**
-	 * C set shake.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param isOn the is on
-	 */
-	public void cSetShake(XPGWifiDevice xpgWifiDevice, boolean isOn) {
-		cWrite(xpgWifiDevice, JsonKeys.FAN_SHAKE, isOn);
-		cGetStatus(xpgWifiDevice);
-	}
-
-	/**
-	 * C mode.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param mode the mode
-	 */
-	public void cMode(XPGWifiDevice xpgWifiDevice, int mode) {
-		cWrite(xpgWifiDevice, JsonKeys.MODE, mode);
-		cGetStatus(xpgWifiDevice);
-	}
-
-	/**
-	 * C fan speed.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param fanSpeed the fan speed
-	 */
-	public void cFanSpeed(XPGWifiDevice xpgWifiDevice, int fanSpeed) {
-		cWrite(xpgWifiDevice, JsonKeys.FAN_SPEED, fanSpeed);
-		cGetStatus(xpgWifiDevice);
-	}
-
-	/**
-	 * C time on.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param time the time
-	 */
-	public void cTimeOn(XPGWifiDevice xpgWifiDevice, int time) {
-		cWrite(xpgWifiDevice, JsonKeys.TIME_ON, time);
-		cGetStatus(xpgWifiDevice);
-	}
-
-	/**
-	 * C time off.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param time the time
-	 */
-	public void cTimeOff(XPGWifiDevice xpgWifiDevice, int time) {
-		cWrite(xpgWifiDevice, JsonKeys.TIME_OFF, time);
-		cGetStatus(xpgWifiDevice);
-	}
-
-	/**
-	 * C set temp.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param templature the templature
-	 */
-	public void cSetTemp(XPGWifiDevice xpgWifiDevice, int templature) {
-		cWrite(xpgWifiDevice, JsonKeys.SET_TEMP, templature);
-		cGetStatus(xpgWifiDevice);
-	}
+//	/**
+//	 * C switch on.
+//	 *
+//	 * @param xpgWifiDevice the xpg wifi device
+//	 * @param isOn the is on
+//	 */
+//	public void cSwitchOn(XPGWifiDevice xpgWifiDevice, boolean isOn) {
+//		cWrite(xpgWifiDevice, JsonKeys.ON_OFF, isOn);
+//		cGetStatus(xpgWifiDevice);
+//	}
+//
+//	/**
+//	 * C set shake.
+//	 *
+//	 * @param xpgWifiDevice the xpg wifi device
+//	 * @param isOn the is on
+//	 */
+//	public void cSetShake(XPGWifiDevice xpgWifiDevice, boolean isOn) {
+//		cWrite(xpgWifiDevice, JsonKeys.FAN_SHAKE, isOn);
+//		cGetStatus(xpgWifiDevice);
+//	}
+//
+//	/**
+//	 * C mode.
+//	 *
+//	 * @param xpgWifiDevice the xpg wifi device
+//	 * @param mode the mode
+//	 */
+//	public void cMode(XPGWifiDevice xpgWifiDevice, int mode) {
+//		cWrite(xpgWifiDevice, JsonKeys.MODE, mode);
+//		cGetStatus(xpgWifiDevice);
+//	}
+//
+//	/**
+//	 * C fan speed.
+//	 *
+//	 * @param xpgWifiDevice the xpg wifi device
+//	 * @param fanSpeed the fan speed
+//	 */
+//	public void cFanSpeed(XPGWifiDevice xpgWifiDevice, int fanSpeed) {
+//		cWrite(xpgWifiDevice, JsonKeys.FAN_SPEED, fanSpeed);
+//		cGetStatus(xpgWifiDevice);
+//	}
+//
+//	/**
+//	 * C time on.
+//	 *
+//	 * @param xpgWifiDevice the xpg wifi device
+//	 * @param time the time
+//	 */
+//	public void cTimeOn(XPGWifiDevice xpgWifiDevice, int time) {
+//		cWrite(xpgWifiDevice, JsonKeys.TIME_ON, time);
+//		cGetStatus(xpgWifiDevice);
+//	}
+//
+//	/**
+//	 * C time off.
+//	 *
+//	 * @param xpgWifiDevice the xpg wifi device
+//	 * @param time the time
+//	 */
+//	public void cTimeOff(XPGWifiDevice xpgWifiDevice, int time) {
+//		cWrite(xpgWifiDevice, JsonKeys.TIME_OFF, time);
+//		cGetStatus(xpgWifiDevice);
+//	}
+//
+//	/**
+//	 * C set temp.
+//	 *
+//	 * @param xpgWifiDevice the xpg wifi device
+//	 * @param templature the templature
+//	 */
+//	public void cSetTemp(XPGWifiDevice xpgWifiDevice, int templature) {
+//		cWrite(xpgWifiDevice, JsonKeys.SET_TEMP, templature);
+//		cGetStatus(xpgWifiDevice);
+//	}
 
 }

@@ -314,7 +314,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     }
 
     public void systemBtnClicked(){
-        mCenter.cSwitchOn(mXpgWifiDevice,true);
+       // mCenter.cSwitchOn(mXpgWifiDevice,true);
       //  mCenter.cGprsSend(mXpgWifiDevice);
         Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
     }
