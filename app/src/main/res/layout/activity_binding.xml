@@ -30,21 +30,7 @@
         android:gravity="center"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"/>
-    <TextView
-        android:layout_width="105dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/equipment_info"
-        android:layout_marginTop="90dp"
-        android:text="product_key:"
-        android:gravity="center"
-        android:textSize="18sp"/>
-    <EditText
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/et_product_key"
-        android:layout_toRightOf="@+id/equipment_info"
-        android:layout_marginLeft="10dp"
-        android:layout_alignBaseline="@+id/equipment_info"/>
+
     <TextView
         android:layout_width="105dp"
         android:layout_height="wrap_content"
@@ -52,12 +38,13 @@
         android:layout_below="@+id/equipment_info"
         android:text="passcode:"
         android:gravity="center"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="90dp"
         android:textSize="18sp"/>
     <EditText
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:id="@+id/et_passCode"
+        android:singleLine="true"
         android:layout_toRightOf="@+id/tv_equipment_info"
         android:layout_marginLeft="10dp"
         android:layout_alignBaseline="@+id/tv_equipment_info"/>
@@ -76,6 +63,7 @@
         android:id="@+id/et_did"
         android:layout_toRightOf="@+id/tv_did"
         android:layout_marginLeft="10dp"
+        android:singleLine="true"
         android:layout_alignBaseline="@+id/tv_did"/>
     <TextView
         android:id="@+id/jump_bind"

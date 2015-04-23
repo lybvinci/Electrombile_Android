@@ -24,7 +24,10 @@ import android.widget.Toast;
 
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
 import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
+import com.xtremeprog.xpgconnect.XPGWifiSDKListener;
+import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
+import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
@@ -44,7 +47,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -67,8 +72,39 @@ public class SwitchFragment extends Fragment implements OnClickListener {
             "switch",
             "ring"
     };
+    private GPSDataChangeListener mGpsChangedListener;
 
+    private enum loginHandler_key{
+        START_LOGIN,
+        SUCCESS,
+        FAILED,
+        LOGIN,
+    }
 
+    Handler loginHandler = new Handler(){
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            loginHandler_key key = loginHandler_key.values()[msg.what];
+            switch (key){
+                case START_LOGIN:
+                    ToastUtils.showShort(getActivity().getApplicationContext(),"正在登陆设备");
+                    mCenter.getXPGWifiSDK().getBoundDevices(setManager.getUid(),setManager.getToken(), Configs.PRODUCT_KEY);
+                    break;
+                case SUCCESS:
+                    ToastUtils.showShort(getActivity().getApplicationContext(),"登陆设备成功");
+                    mCenter.getXPGWifiSDK().setListener(sdkListener);
+                    if(mXpgWifiDevice != null)
+                        mXpgWifiDevice.setListener(deviceListener);
+                    break;
+                case FAILED:
+                    ToastUtils.showShort(getActivity().getApplicationContext(),"设备登陆失败,请重新绑定设备");
+                    break;
+                case LOGIN:
+                    loginDevice();
+                    break;
+            }
+        }
+    };
     private Button btnAlarm;
     private Button btnSystem;
     private Button btnTest;
@@ -76,17 +112,15 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     private CmdCenter mCenter;
     private XPGWifiDevice mXpgWifiDevice;
     private ConcurrentHashMap<String, Object> deviceDataMap;
-    //  public static XPGWifiDevice mXpgWifiDevice;
+    private SettingManager setManager;
+    protected static List<XPGWifiDevice> devicesList = new ArrayList<XPGWifiDevice>();
 
     @Override
     public void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
-        //       setManager = new SettingManager(getApplicationContext());
+        setManager = new SettingManager(getActivity().getApplicationContext());
         mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
-        // 每次返回activity都要注册一次sdk监听器，保证sdk状态能正确回调
-        mXpgWifiDevice = BaseActivity.mXpgWifiDevice;
-        if (mXpgWifiDevice != null)
-            mXpgWifiDevice.setListener(deviceListener);
+        loginHandler.sendEmptyMessage(loginHandler_key.START_LOGIN.ordinal());
 
     }
 
@@ -169,12 +203,13 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     }
 
     private HashMap<String, String> GPS_Data;
-    private Handler fragmentHandler = new Handler() {
-        public void handMessage(Message msg) {
+    private Handler fragmentHandler = new Handler(){
+        public void handleMessage(Message msg){
             super.handleMessage(msg);
             handler_key key = handler_key.values()[msg.what];
             switch (key) {
                 case RECEIVED:
+                    Log.i("switchfragment", "RECEIVED XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
                     if (deviceDataMap.get("data") != null) {
                         Log.i("info", (String) deviceDataMap.get("data"));
                     }
@@ -186,23 +221,31 @@ public class SwitchFragment extends Fragment implements OnClickListener {
                         Log.i("info", (String) deviceDataMap.get("faults"));
                         // 返回主线程处理错误数据刷新
                     }
-                    if (deviceDataMap.get("binary") != null) {
-                        String binary = (String) deviceDataMap.get("binary");
-                        Log.i("info", binary);
-                        String ChuanTouData = mCenter.cParseString(binary);
-                        if (ChuanTouData == "SET_TIMER_OK") {
-                            ToastUtils.showShort(getActivity().getApplicationContext(), "GPS定时发送设置成功");
-                        } else if (ChuanTouData == "SET_SOS_OK") {
-                            ToastUtils.showShort(getActivity().getApplicationContext(), "管理员设置成功");
-                        } else if (ChuanTouData == "DEL_SOS_OK") {
-                            ToastUtils.showShort(getActivity().getApplicationContext(), "删除管理员成功");
-                        } else if (ChuanTouData == "SET_SAVING_OK") {
-                            ToastUtils.showShort(getActivity().getApplicationContext(), "模式设置成功");
-                        } else if (ChuanTouData == "RESET_OK") {
-                            ToastUtils.showShort(getActivity().getApplicationContext(), "重启设备成功");
-                        } else {
+                    if(deviceDataMap.get("binary") != null){
+                        byte[] binary = (byte[])deviceDataMap.get("binary");
+                        String touChuanData = mCenter.cParseString(binary);
+                        if(touChuanData == null)
+                            break;
+                        Log.i("CHUANTOUDATA::::", touChuanData + "xxxxxxxx");
+                        if(touChuanData.equals("SET_TIMER_OK")){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"GPS定时发送设置成功");
+                        }
+                        else if(touChuanData.equals("SET_SOS_OK")){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"管理员设置成功");
+                        }
+                        else if(touChuanData.equals("DEL_SOS_OK")){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"删除管理员成功");
+                        }
+                        else if(touChuanData.equals("SET_SAVING_OK")){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"模式设置成功");
+                        }
+                        else if(touChuanData.equals("RESET_OK")){
+                            ToastUtils.showShort(getActivity().getApplicationContext(),"重启设备成功");
+                        }
+                        else{
                             GPS_Data = new HashMap<String, String>();
-                            GPS_Data = mCenter.parseGps(ChuanTouData);
+                            GPS_Data = mCenter.parseGps(touChuanData);
+                            mGpsChangedListener.gpsCallBack(GPS_Data.get("Lat"),GPS_Data.get("Lon"));
                         }
 
                     }
@@ -224,25 +267,51 @@ public class SwitchFragment extends Fragment implements OnClickListener {
      * 设备属性监听器。 设备连接断开、获取绑定参数、获取设备信息、控制和接受设备信息相关.
      */
     protected XPGWifiDeviceListener deviceListener = new XPGWifiDeviceListener() {
+        @Override
+        public void didLogin(XPGWifiDevice device, int result) {
+            super.didLogin(device, result);
+
+        }
 
         @Override
         public void didDeviceOnline(XPGWifiDevice device, boolean isOnline) {
-            this.didDeviceOnline(device, isOnline);
+            SwitchFragment.this.didDeviceOnline(device, isOnline);  //didDeviceOnline(device, isOnline);
         }
 
         @Override
         public void didDisconnected(XPGWifiDevice device) {
-            this.didDisconnected(device);
+            SwitchFragment.this.didDisconnected(device);
         }
 
         @Override
         public void didReceiveData(XPGWifiDevice device,
                                    ConcurrentHashMap<String, Object> dataMap, int result) {
-            this.didReceiveData(device, dataMap, result);
+            SwitchFragment.this.didReceiveData(device, dataMap, result);
         }
 
     };
+    /**
+     * 登陆设备
+     *            the xpg wifi device
+     */
+    private void loginDevice() {
 
+        Log.i("绑定设备列表",devicesList.toString());
+        for (int i = 0; i < devicesList.size(); i++) {
+            XPGWifiDevice device = devicesList.get(i);
+            if (device != null ) {
+                mXpgWifiDevice = device;
+                mXpgWifiDevice.setListener(deviceListener);
+                mXpgWifiDevice.login(setManager.getUid(), setManager.getToken());
+                loginHandler.sendEmptyMessage(loginHandler_key.SUCCESS.ordinal());
+                break;
+            }else{
+                loginHandler.sendEmptyMessage(loginHandler_key.LOGIN.ordinal());
+
+            }
+
+        }
+    }
     /**
      * 接收指令回调
      * <p/>
@@ -255,6 +324,10 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     protected void didReceiveData(XPGWifiDevice device,
                                   ConcurrentHashMap<String, Object> dataMap, int result) {
         this.deviceDataMap = dataMap;
+        Log.i("switchFragment","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        Log.i("device:::",device.toString());
+        Log.i("dataMap:::",dataMap.toString());
+        Log.i("result",result+"");
         fragmentHandler.sendEmptyMessage(handler_key.RECEIVED.ordinal());
     }
 
@@ -274,7 +347,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
      * @param device 设备对象
      */
     protected void didDisconnected(XPGWifiDevice device) {
-
+        ToastUtils.showLong(getActivity().getApplicationContext(),"设备连接断开，请重连");
     }
 
     public void systemBtnClicked() {
@@ -518,5 +591,76 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         super.onResume();
         if(mXpgWifiDevice != null)
             mXpgWifiDevice.setListener(deviceListener);
+        mCenter.getXPGWifiSDK().setListener(sdkListener);
+    }
+
+    /**
+     * XPGWifiSDKListener
+     * <p/>
+     * sdk监听器。 配置设备上线、注册登录用户、搜索发现设备、用户绑定和解绑设备相关.
+     */
+    private XPGWifiSDKListener sdkListener = new XPGWifiSDKListener() {
+
+        @Override
+        public void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
+            SwitchFragment.this.didDiscovered(error, devicesList);
+        }
+
+        @Override
+        public void didUnbindDevice(int error, String errorMessage, String did) {
+            SwitchFragment.this.didUnbindDevice(error, errorMessage, did);
+        }
+
+    };
+
+
+    /**
+     * 设备解除绑定回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param errorMessage
+     *            错误信息
+     * @param did
+     *            设备注册id
+     */
+    protected void didUnbindDevice(int error, String errorMessage, String did) {
+        if(error == 0){
+            ToastUtils.showShort(getActivity().getApplicationContext(),"设备解除绑定成功");
+            mXpgWifiDevice = null;
+            setManager.cleanDevice();
+        }
+    }
+
+    /**
+     * 搜索设备回调接口.
+     *
+     * @param error
+     *            结果代码
+     * @param devicesList
+     *            设备列表
+     */
+    protected void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
+        if(error == 0) {
+            this.devicesList = devicesList;
+            Log.i("设备列表", devicesList.toString());
+            loginHandler.sendEmptyMessage(loginHandler_key.LOGIN.ordinal());
+        }else{
+            loginHandler.sendEmptyMessage(loginHandler_key.FAILED.ordinal());
+        }
+    }
+
+    public interface GPSDataChangeListener{
+        public void gpsCallBack(String lat,String lon);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mGpsChangedListener = (GPSDataChangeListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + "must implement GPSDataChangeListener");
+        }
     }
 }

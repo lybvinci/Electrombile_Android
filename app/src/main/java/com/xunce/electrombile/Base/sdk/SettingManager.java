@@ -66,6 +66,10 @@ public class SettingManager {
 	/** The filter. */
 	static String filter = "=====";
 
+    //did
+    private final String DID = "did";
+    private final String PASSCODE = "passCode";
+
 	/**
 	 * Instantiates a new setting manager.
 	 *
@@ -79,13 +83,19 @@ public class SettingManager {
 	/**
 	 * SharePreference clean.
 	 */
-	public void clean() {
+	public void cleanAll() {
 		setUid("");
 		setToken("");
 		setPhoneNumber("");
 		setPassword("");
 		setUserName("");
+        setDid("");
+        setPassCode("");
 	}
+    public void cleanDevice() {
+        setDid("");
+        setPassCode("");
+    }
 
 	/**
 	 * Sets the user name.
@@ -178,6 +188,11 @@ public class SettingManager {
 		return spf.getString(UID, "");
 	}
 
+    public void setDid(String did){spf.edit().putString(DID,did).commit();}
+    public String getDid(){return spf.getString(DID,"");}
+
+    public void setPassCode(String passCode){spf.edit().putString(PASSCODE,passCode).commit();}
+    public String getPassCode(){return spf.getString(PASSCODE,"");}
 	/**
 	 * Sets the unit.
 	 *

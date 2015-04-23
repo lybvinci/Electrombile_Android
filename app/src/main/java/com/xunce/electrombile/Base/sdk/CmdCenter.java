@@ -18,10 +18,8 @@
 package com.xunce.electrombile.Base.sdk;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 import android.util.Log;
 
-import com.xtremeprog.xpgconnect.XPGWifiBinary;
 import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.config.JsonKeys;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
@@ -31,16 +29,13 @@ import com.xtremeprog.xpgconnect.XPGWifiSDK.XPGWifiConfigureMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.xunce.electrombile.xpg.common.useful.ByteUtils.Bytes2HexString;
 import static com.xunce.electrombile.xpg.common.useful.ByteUtils.HexString2Bytes;
 import static com.xunce.electrombile.xpg.common.useful.ByteUtils.judgeLength;
-import static com.xunce.electrombile.xpg.common.useful.ByteUtils.toByteArray;
 
 
 /**
@@ -331,7 +326,7 @@ public class CmdCenter {
         char[] frameHead = {0x0000,0x0003};
         byte[] flags = {0x00};
         char[] cmd = {0x0090};
-        byte[] orderByte = HexString2Bytes(order);
+        byte[] orderByte = order.getBytes();
         int length = flags.length + cmd.length + orderByte.length;
         byte[] len = judgeLength(length);
         String orderData1 = new String(frameHead);
@@ -393,7 +388,9 @@ public class CmdCenter {
 
     //3 、GPRS 定时发送设置
     public void cGprsSend(XPGWifiDevice xpgWifiDevice){
+        Log.i("CmdCenterAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",xpgWifiDevice.toString() +"qqqqqqqqqqqqqqqqqqqqqqq");
         String data = packetOrder(JsonKeys.GPRS_SEND,"");
+        Log.i("定时发送设置",data);
         xpgWifiDevice.write(data);
     }
 
@@ -466,25 +463,32 @@ public class CmdCenter {
 
 
     //解析收到的字符串 分解成命令
-    public String cParseString(String binary) {
-        if (binary.contains("SET TIMER OK")) {
+    public String cParseString(byte[] binary) {
+        String str1 = Bytes2HexString(binary);
+        Log.i("CmdCenter.....",str1);
+        String s = str1.replaceAll(" ", "");
+        Log.i("CmdCenter.....",s);
+        byte[] buf1 = HexString2Bytes(s);
+        String parseString = buf1.toString();
+        Log.i("CmdCenter.....",parseString);
+        if (parseString.contains("SET TIMER OK")) {
             return "SET_TIMER_OK";
         }
-        if (binary.contains("SET SOS OK")) {
+        if (parseString.contains("SET SOS OK")) {
             return "SET_SOS_OK";
         }
-        if (binary.contains("DEL SOS OK")) {
+        if (parseString.contains("DEL SOS OK")) {
             return "DEL_SOS_OK";
         }
-        if (binary.contains("SET SAVING OK")) {
+        if (parseString.contains("SET SAVING OK")) {
             return "SET_SAVING_OK";
         }
-        if (binary.contains("RESET OK")) {
+        if (parseString.contains("RESET OK")) {
             return "RESET_OK";
         }
-        if(binary.contains("Lat:")) {
+        if(parseString.contains("Lat:")) {
             Pattern p = Pattern.compile("Lat:.*");
-            Matcher m = p.matcher(binary);
+            Matcher m = p.matcher(parseString);
             if (m.find()) {
                 String data = m.group();
                 Log.i("gpsData...",data);
