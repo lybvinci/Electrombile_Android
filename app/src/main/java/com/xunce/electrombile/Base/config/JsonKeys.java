@@ -31,7 +31,7 @@ public class JsonKeys {
 	public final static String PRODUCT_NAME = "安全宝";
 
 	/** 实体字段名，代表对应的项目. */
-	public final static String KEY_ACTION = "entity0";
+	public final static String KEY_ACTION = "electrombile";
 
     //GPRS 定时发送设置
     public final static String GPRS_SEND = "TIMER,30#";

@@ -88,10 +88,6 @@
             android:label="@string/title_activity_forget" >
         </activity>
         <activity
-            android:name=".activity.account.UserManageActivity"
-            android:label="UserManageActivity" >
-        </activity>
-        <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>

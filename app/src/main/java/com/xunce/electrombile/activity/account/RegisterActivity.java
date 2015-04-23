@@ -113,7 +113,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	/**
 	 * The iv step.
 	 */
-	private ImageView ivStep;
+	//private ImageView ivStep;
 
 	/**
 	 * The tb psw flag.
@@ -228,14 +228,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 			}
 		}
 	};
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.gizwits.aircondition.activity.BaseActivity#onCreate(android.os.Bundle
-	 * )
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -259,16 +251,12 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		llInputCode = (LinearLayout) findViewById(R.id.llInputCode);
 		llInputPsw = (LinearLayout) findViewById(R.id.llInputPsw);
 		ivBack = (ImageView) findViewById(R.id.ivBack);
-		ivStep = (ImageView) findViewById(R.id.ivStep);
 		tbPswFlag = (ToggleButton) findViewById(R.id.tbPswFlag);
 		toogleUI(ui_statue.DEFAULT);
 		dialog = new ProgressDialog(this);
 		dialog.setMessage("处理中，请稍候...");
 	}
 
-	/**
-	 * Inits the events.
-	 */
 	private void initEvents() {
 		btnGetCode.setOnClickListener(this);
 		btnReGetCode.setOnClickListener(this);
@@ -299,11 +287,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		});
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 */
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
