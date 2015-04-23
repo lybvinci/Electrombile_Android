@@ -1,7 +1,14 @@
 package com.xunce.electrombile.fragment;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,6 +29,8 @@ import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.BaseActivity;
+import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import org.apache.http.HttpResponse;
@@ -44,14 +53,22 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-
 public class SwitchFragment extends Fragment implements OnClickListener {
 
     private static String TAG = "SwitchFragment:";
     private final int IS_FINISH = 1;
     private boolean systemState = false;
     private boolean alarmState = false;
-    private String[] SWITCHKEY= {
+
+    NotificationManager manager = FragmentActivity.manager;
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        manager.cancel(1);
+    }
+
+    private String[] SWITCHKEY = {
             "switch",
             "ring"
     };
@@ -99,7 +116,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     protected static List<XPGWifiDevice> devicesList = new ArrayList<XPGWifiDevice>();
 
     @Override
-    public void onCreate(Bundle saveInstanceState){
+    public void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
         setManager = new SettingManager(getActivity().getApplicationContext());
         mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
@@ -111,31 +128,32 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.btn_SystemState).setOnClickListener(this);
-        view.findViewById(R.id.btn_RemoteAlarm).setOnClickListener(this);
-        view.findViewById(R.id.btn_test).setOnClickListener(this);
-        btnAlarm = (Button)getActivity().findViewById(R.id.btn_RemoteAlarm);
-        btnSystem = (Button)getActivity().findViewById(R.id.btn_SystemState);
-        btnTest = (Button)getActivity().findViewById(R.id.btn_test);
+        //view.findViewById(R.id.btn_RemoteAlarm).setOnClickListener(this);
+        //view.findViewById(R.id.btn_test).setOnClickListener(this);
+       // btnAlarm = (Button) getActivity().findViewById(R.id.btn_RemoteAlarm);
+        btnSystem = (Button) getActivity().findViewById(R.id.btn_SystemState);
+        //btnTest = (Button) getActivity().findViewById(R.id.btn_test);
     }
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView called!");
-		return inflater.inflate(R.layout.switch_fragment, container, false);
-	}
+        return inflater.inflate(R.layout.switch_fragment, container, false);
+    }
 
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        switch (id){
+        switch (id) {
             case R.id.btn_SystemState:
                 systemBtnClicked();
                 break;
-            case R.id.btn_RemoteAlarm:
-                remoteAlarmClicked();
-                break;
-            case R.id.btn_test:
-                testBtnClicked();
+//            case R.id.btn_RemoteAlarm:
+//                remoteAlarmClicked();
+//                break;
+//            case R.id.btn_test:
+//                testBtnClicked();
             default:
                 break;
         }
@@ -144,19 +162,43 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     //handler 处理事件
     private enum handler_key {
 
-        /** 更新UI界面 */
+//<<<<<<< H//EAD
+//        if(systemState == fals//e){
+//            value[0] = 1;manager.cancel(1);changeNotificaton//();
+//            btnSystem.setBackgroundResource(R.drawable.common_btn_presse//d);
+//        }el//se{
+//            value[0] = 0; manager.cancel(1);initNotificaton//();
+//            btnSystem.setBackgroundResource(R.drawable.common_btn_presse//d);
+//      //  }
+//        final int finalValue[] = val//ue;
+//        new Thread(new Runnable(//) {
+//            @Overr//ide
+//            public void run(//) {
+//                requestHttp("http://electrombile.huakexunce.com/config", key, finalValu//e);
+//=======
+        /**
+         * 更新UI界面
+         */
         UPDATE_UI,
 
-        /** 显示警告*/
+        /**
+         * 显示警告
+         */
         ALARM,
 
-        /** 设备断开连接 */
+        /**
+         * 设备断开连接
+         */
         DISCONNECTED,
 
-        /** 接收到设备的数据 */
+        /**
+         * 接收到设备的数据
+         */
         RECEIVED,
 
-        /** 获取设备状态 */
+        /**
+         * 获取设备状态
+         */
         GET_STATUE,
     }
 
@@ -164,8 +206,8 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     private Handler fragmentHandler = new Handler(){
         public void handleMessage(Message msg){
             super.handleMessage(msg);
-            handler_key key= handler_key.values()[msg.what];
-            switch (key){
+            handler_key key = handler_key.values()[msg.what];
+            switch (key) {
                 case RECEIVED:
                     Log.i("switchfragment", "RECEIVED XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
                     if (deviceDataMap.get("data") != null) {
@@ -248,7 +290,6 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         }
 
     };
-
     /**
      * 登陆设备
      *            the xpg wifi device
@@ -276,12 +317,9 @@ public class SwitchFragment extends Fragment implements OnClickListener {
      * <p/>
      * sdk接收到模块传入的数据回调该接口.
      *
-     * @param device
-     *            设备对象
-     * @param dataMap
-     *            json数据表
-     * @param result
-     *            状态代码
+     * @param device  设备对象
+     * @param dataMap json数据表
+     * @param result  状态代码
      */
     protected void didReceiveData(XPGWifiDevice device,
                                   ConcurrentHashMap<String, Object> dataMap, int result) {
@@ -292,41 +330,111 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         Log.i("result",result+"");
         fragmentHandler.sendEmptyMessage(handler_key.RECEIVED.ordinal());
     }
+
     /**
      * 设备上下线通知.
      *
-     * @param device
-     *            设备对象
-     * @param isOnline
-     *            上下线状态
+     * @param device   设备对象
+     * @param isOnline 上下线状态
      */
     protected void didDeviceOnline(XPGWifiDevice device, boolean isOnline) {
 
     }
+
     /**
      * 断开连接回调接口.
      *
-     * @param device
-     *            设备对象
+     * @param device 设备对象
      */
     protected void didDisconnected(XPGWifiDevice device) {
         ToastUtils.showLong(getActivity().getApplicationContext(),"设备连接断开，请重连");
     }
 
-    public void systemBtnClicked(){
-       // mCenter.cSwitchOn(mXpgWifiDevice,true);
-      //  mCenter.cGprsSend(mXpgWifiDevice);
-        Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+
+    public void systemBtnClicked() {
+
+        if(!isNetworkAvailable()){
+            Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        final String key[] = {SWITCHKEY[0]};
+        int value[] = {0};
+
+        if(systemState == false){
+            systemState = true;
+
+            //更改通知栏状态
+            manager.cancel(1);
+            changeNotificaton();
+
+            value[0] = 1;
+            //btnSystem.setBackgroundResource(R.drawable.common_btn_pressed);
+            btnSystem.setBackgroundColor(Color.YELLOW);
+
+        }else{
+            systemState = false;
+
+            //更改通知栏状态
+            manager.cancel(1);
+            initNotificaton();
+
+            value[0] = 0;
+            btnSystem.setBackgroundResource(R.drawable.common_btn_normal);
+        }
+//        final int finalValue[] = value;
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                requestHttp("http://electrombile.huakexunce.com/config", key, finalValue);
+//            }
+//        }).start();
+
+
     }
 
-    public void remoteAlarmClicked(){
-        mCenter.cUnbindDevice(setManager.getUid(),setManager.getToken(),setManager.getDid(),setManager.getPassCode());
+    public void remoteAlarmClicked() {
+
+        final String key[] = {SWITCHKEY[1]};
+        int value[] = {0};
+
+        if (alarmState == false) {
+            value[0] = 1;
+            btnAlarm.setBackgroundResource(R.drawable.common_btn_pressed);
+        } else {
+            value[0] = 0;
+            btnAlarm.setBackgroundResource(R.drawable.common_btn_pressed);
+        }
+        final int finalValue[] = value;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                requestHttp("http://electrombile.huakexunce.com/config", key, finalValue);
+            }
+        }).start();
     }
 
-    public void testBtnClicked(){
-        mCenter.cGetStatus(mXpgWifiDevice);
+    public void testBtnClicked() {
+
     }
-    public void   requestHttp(final String url,final String[] key, final int[] value) {
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) {
+            return false;
+        } else {
+            NetworkInfo[] info = cm.getAllNetworkInfo();
+            if (info != null) {
+                for (int i = 0; i < info.length; i++) {
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    public void requestHttp(final String url, final String[] key, final int[] value) {
         int status = 0;
         DefaultHttpClient mHttpClient = new DefaultHttpClient();
         HttpPut mPut = new HttpPut(url);
@@ -388,7 +496,11 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         }
 
         Message msg = Message.obtain();
-        msg.arg1 = status;
+        if(systemState == false)
+            msg.arg1 = 1;
+        else
+            msg.arg1 = 0;
+        //msg.arg1 = status;
         msg.obj = key[0];
         msg.what = IS_FINISH;
         httpPutHandler.sendMessage(msg);
@@ -397,17 +509,17 @@ public class SwitchFragment extends Fragment implements OnClickListener {
 
     private Handler httpPutHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg){
+        public void handleMessage(Message msg) {
             Button handleBtn = null;
 
-            if(msg.what == IS_FINISH){
-                switch(msg.arg1){
-                    case 1 :{   //put操作是否成功
+            if (msg.what == IS_FINISH) {
+                switch (msg.arg1) {
+                    case 1: {   //put操作是否成功
                         //根据message中的参数判断
-                         chengeStateWhenSuc(msg.obj.toString());
+                        chengeStateWhenSuc(msg.obj.toString());
                         break;
                     }
-                    default:{
+                    default: {
                         restoreStateWhenFail(msg.obj.toString());
                         break;
                     }
@@ -416,37 +528,64 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         }
     };
 
-    private void chengeStateWhenSuc(String keyString){
+    private void chengeStateWhenSuc(String keyString) {
         Button btn = null;
-        if(keyString.equals(SWITCHKEY[0])){
-            btn = btnSystem;
-            if (!systemState) {
-                btn.setBackgroundColor(Color.YELLOW);
-                systemState = true;
-            } else {
-                btn.setBackgroundResource(R.drawable.common_btn_normal);
-                systemState = false;
-            }
-        }else if(keyString.equals(SWITCHKEY[1])){
-            btn = btnAlarm;
-            if (!alarmState) {
-                btn.setBackgroundColor(Color.YELLOW);
-                alarmState = true;
-            } else {
-                btn.setBackgroundResource(R.drawable.common_btn_normal);
-                alarmState = false;
-            }
-        }
+        btn = btnSystem;
+        btn.setBackgroundColor(Color.YELLOW);
+//        if (keyString.equals(SWITCHKEY[0])) {
+//            btn = btnSystem;
+//            if (systemState == false) {
+//                btn.setBackgroundColor(Color.YELLOW);
+//                systemState = true;
+//            } else {
+//                btn.setBackgroundResource(R.drawable.common_btn_normal);
+//                systemState = false;
+//            }
+//        } else if (keyString.equals(SWITCHKEY[1])) {
+//            btn = btnAlarm;
+//            if (alarmState == false) {
+//                btn.setBackgroundColor(Color.YELLOW);
+//                alarmState = true;
+//            } else {
+//                btn.setBackgroundResource(R.drawable.common_btn_normal);
+//                alarmState = false;
+//            }
+//        }
     }
-    private void restoreStateWhenFail(String keyString){
-        if(keyString.equals(SWITCHKEY[0])){
+
+    private void restoreStateWhenFail(String keyString) {
+        if (keyString.equals(SWITCHKEY[0])) {
             Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
             btnSystem.setBackgroundResource(R.drawable.common_btn_normal);
-        }else if(keyString.equals(SWITCHKEY[1])){
+        } else if (keyString.equals(SWITCHKEY[1])) {
             Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
             btnAlarm.setBackgroundResource(R.drawable.common_btn_normal);
         }
     }
+
+    /**
+     * 通知栏启动
+     */
+    public void changeNotificaton() {
+        manager = (NotificationManager) getActivity().getSystemService(Activity.NOTIFICATION_SERVICE);
+        Notification notification = new Notification(R.drawable.logo, "防盗系统已启动", System.currentTimeMillis());
+        Intent intent = new Intent(getActivity().getApplicationContext(), FragmentActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(getActivity().getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        notification.setLatestEventInfo(getActivity().getApplicationContext(), "安全宝", "防盗系统已启动", pi);
+        notification.flags = Notification.FLAG_NO_CLEAR;
+        manager.notify(1, notification);
+    }
+
+    public void initNotificaton() {
+        manager = (NotificationManager) getActivity().getSystemService(Activity.NOTIFICATION_SERVICE);
+        Notification notification = new Notification(R.drawable.logo, "防盗系统已关闭", System.currentTimeMillis());
+        Intent intent = new Intent(getActivity().getApplicationContext(), FragmentActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(getActivity().getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        notification.setLatestEventInfo(getActivity().getApplicationContext(), "安全宝", "危险，防盗系统未启动", pi);
+        notification.flags = Notification.FLAG_NO_CLEAR;
+        manager.notify(1, notification);
+    }
+
 
     @Override
     public void onResume() {
