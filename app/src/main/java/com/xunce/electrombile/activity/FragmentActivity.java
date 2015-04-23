@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by heyukun on 2015/3/24.
  */
-public class FragmentActivity extends android.support.v4.app.FragmentActivity{
+public class FragmentActivity extends android.support.v4.app.FragmentActivity implements SwitchFragment.GPSDataChangeListener{
     private static String TAG = "FragmentActivity:";
     public static boolean ISSTARTED = false;
     //设置菜单条目
@@ -577,8 +577,10 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity{
     private Handler exitHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             isExit = false;
-        };
+        }
     };
+
+
 
     //handler 处理事件
     private enum handler_key {
@@ -621,19 +623,19 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity{
                         byte[] binary = (byte[]) deviceDataMap.get("binary");
                         Log.i("info:::::", binary.toString());
                         String ChuanTouData = mCenter.cParseString(binary);
-                        if(ChuanTouData == "SET_TIMER_OK"){
+                        if(ChuanTouData.equals("SET_TIMER_OK")){
                             ToastUtils.showShort(FragmentActivity.this, "GPS定时发送设置成功");
                         }
-                        else if(ChuanTouData == "SET_SOS_OK"){
+                        else if(ChuanTouData.equals("SET_SOS_OK")){
                             ToastUtils.showShort(FragmentActivity.this,"管理员设置成功");
                         }
-                        else if(ChuanTouData == "DEL_SOS_OK"){
+                        else if(ChuanTouData.equals("DEL_SOS_OK")){
                             ToastUtils.showShort(FragmentActivity.this,"删除管理员成功");
                         }
-                        else if(ChuanTouData == "SET_SAVING_OK"){
+                        else if(ChuanTouData.equals("SET_SAVING_OK")){
                             ToastUtils.showShort(FragmentActivity.this,"模式设置成功");
                         }
-                        else if(ChuanTouData == "RESET_OK"){
+                        else if(ChuanTouData.equals("RESET_OK")){
                             ToastUtils.showShort(FragmentActivity.this,"重启设备成功");
                         }
                         else{
@@ -720,5 +722,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity{
         Log.i("设备未连接",device + "");
     }
 
-
+    @Override
+    public void gpsCallBack(String lat, String lon) {
+        //传递数据给地图的Fragment
+    }
 }

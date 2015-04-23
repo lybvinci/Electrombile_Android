@@ -23,9 +23,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
     private TextView equipment_info;
     private TextView jump_bind;
 
-    //product_key
-    private EditText et_product_key;
-
     //passCode
     private EditText et_passCode;
 
@@ -36,7 +33,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
     private Button bindSuccess;
 
     //String
-    private String product_key;
     private String did;
     private String passcode;
     /** The progress dialog. */
@@ -69,6 +65,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
               case SUCCESS:
                //   ToastUtils.showShort(BindingActivity.this, "添加成功");
                   ToastUtils.showShort(BindingActivity.this, "设备登陆成功");
+                  setManager.setPassCode(passcode);
                   progressDialog.cancel();
                   Intent intent = new Intent(BindingActivity.this,FragmentActivity.class);
                   startActivity(intent);
@@ -76,6 +73,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                   break;
               case FAILED:
                   ToastUtils.showShort(BindingActivity.this, "添加失败，请返回重试");
+                  progressDialog.cancel();
                   break;
           }
       }
@@ -97,7 +95,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
 
         et_did = (EditText) findViewById(R.id.et_did);
         et_passCode = (EditText) findViewById(R.id.et_passCode);
-        et_product_key = (EditText) findViewById(R.id.et_product_key);
 
         bindSuccess = (Button) findViewById(R.id.bindSuccess);
         jump_bind.setOnClickListener(this);
@@ -118,16 +115,16 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                 break;
             case R.id.jump_bind:
                 //第一次登陆
-                if(FragmentActivity.ISSTARTED == false) {
+                if(!FragmentActivity.ISSTARTED) {
                     Intent intent2 = new Intent(BindingActivity.this, FragmentActivity.class);
                     startActivity(intent2);
                 }
                 this.finish();
                 break;
             case R.id.bindSuccess:
-//                Intent intent3 = new Intent(BindingActivity.this,FragmentActivity.class);
-//                startActivity(intent3);
-//                this.finish();
+                if(et_passCode != null && et_did != null){
+                    mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());
+                }
                 break;
             default:break;
         }
@@ -144,16 +141,13 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 0x01 && resultCode == 0x02 && data != null) {
             if (data.getExtras().containsKey("result")) {
-               // equipment_info.setText(data.getExtras().getString("result"));
                 String text = data.getExtras().getString("result");
                 if (text.contains("product_key=") & text.contains("did=")
                         && text.contains("passcode=")) {
-                    product_key = getParamFomeUrl(text, "product_key");
                     did = getParamFomeUrl(text,"did");
                     passcode = getParamFomeUrl(text,"passcode");
-                    Log.i("",product_key+"#########"+did+"#######"+passcode);
+                    Log.i("",did+"#######"+passcode);
                     et_did.setText(did);
-                    et_product_key.setText(product_key);
                     et_passCode.setText(passcode);
                     bind_btn.setVisibility(View.INVISIBLE);
                     mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());

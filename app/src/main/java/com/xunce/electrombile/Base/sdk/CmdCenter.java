@@ -18,10 +18,8 @@
 package com.xunce.electrombile.Base.sdk;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 import android.util.Log;
 
-import com.xtremeprog.xpgconnect.XPGWifiBinary;
 import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.config.JsonKeys;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
@@ -31,17 +29,13 @@ import com.xtremeprog.xpgconnect.XPGWifiSDK.XPGWifiConfigureMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.xunce.electrombile.xpg.common.useful.ByteUtils.Bytes2HexString;
 import static com.xunce.electrombile.xpg.common.useful.ByteUtils.HexString2Bytes;
 import static com.xunce.electrombile.xpg.common.useful.ByteUtils.judgeLength;
-import static com.xunce.electrombile.xpg.common.useful.ByteUtils.toByteArray;
 
 
 /**
@@ -332,7 +326,7 @@ public class CmdCenter {
         char[] frameHead = {0x0000,0x0003};
         byte[] flags = {0x00};
         char[] cmd = {0x0090};
-        byte[] orderByte = HexString2Bytes(order);
+        byte[] orderByte = order.getBytes();
         int length = flags.length + cmd.length + orderByte.length;
         byte[] len = judgeLength(length);
         String orderData1 = new String(frameHead);
@@ -394,7 +388,9 @@ public class CmdCenter {
 
     //3 、GPRS 定时发送设置
     public void cGprsSend(XPGWifiDevice xpgWifiDevice){
+        Log.i("CmdCenterAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",xpgWifiDevice.toString() +"qqqqqqqqqqqqqqqqqqqqqqq");
         String data = packetOrder(JsonKeys.GPRS_SEND,"");
+        Log.i("定时发送设置",data);
         xpgWifiDevice.write(data);
     }
 
@@ -473,8 +469,7 @@ public class CmdCenter {
         String s = str1.replaceAll(" ", "");
         Log.i("CmdCenter.....",s);
         byte[] buf1 = HexString2Bytes(s);
-        Log.i("CmdCenter2.....",buf1.toString());
-        String parseString = new String(String.valueOf(buf1));
+        String parseString = buf1.toString();
         Log.i("CmdCenter.....",parseString);
         if (parseString.contains("SET TIMER OK")) {
             return "SET_TIMER_OK";
