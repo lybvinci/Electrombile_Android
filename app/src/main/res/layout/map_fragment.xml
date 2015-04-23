@@ -11,12 +11,39 @@
         android:clickable="true" />
 
     <Button
-        android:id="@+id/btn_changeMode"
+        android:id="@+id/btn_play_or_pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="100dp"
-        android:text="一键导航"/>
+        android:layout_marginBottom="80dp"
+        android:text="开始"/>
+    <Button
+        android:id="@+id/btn_cancel_track"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/btn_play_or_pause"
+        android:layout_alignTop="@+id/btn_play_or_pause"
+        android:layout_marginBottom="80dp"
+        android:text="退出"/>
 
+    <Button
+        android:id="@+id/btn_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="80dp"
+        android:layout_marginLeft="10dp"
+        android:text="实时\n位置"/>
+
+    <Button
+        android:id="@+id/btn_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="80dp"
+        android:layout_marginRight="10dp"
+        android:text="查看\n轨迹"/>
 </RelativeLayout>
