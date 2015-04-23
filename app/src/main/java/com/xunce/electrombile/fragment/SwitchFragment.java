@@ -18,7 +18,6 @@ import android.widget.Toast;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
 import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
 import com.xtremeprog.xpgconnect.XPGWifiSDKListener;
-import com.xtremeprog.xpgconnect.XPGWifiSSID;
 import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
@@ -81,7 +80,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
                         mXpgWifiDevice.setListener(deviceListener);
                     break;
                 case FAILED:
-                    ToastUtils.showShort(getActivity().getApplicationContext(),"设备登陆失败");
+                    ToastUtils.showShort(getActivity().getApplicationContext(),"设备登陆失败,请重新绑定设备");
                     break;
                 case LOGIN:
                     loginDevice();
@@ -311,7 +310,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
      *            设备对象
      */
     protected void didDisconnected(XPGWifiDevice device) {
-
+        ToastUtils.showLong(getActivity().getApplicationContext(),"设备连接断开，请重连");
     }
 
     public void systemBtnClicked(){
@@ -465,50 +464,8 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     private XPGWifiSDKListener sdkListener = new XPGWifiSDKListener() {
 
         @Override
-        public void didBindDevice(int error, String errorMessage, String did) {
-            SwitchFragment.this.didBindDevice(error, errorMessage, did);
-        }
-
-        @Override
-        public void didChangeUserEmail(int error, String errorMessage) {
-            SwitchFragment.this.didChangeUserEmail(error, errorMessage);
-        }
-
-        @Override
-        public void didChangeUserPassword(int error, String errorMessage) {
-            SwitchFragment.this.didChangeUserPassword(error, errorMessage);
-        }
-
-        @Override
-        public void didChangeUserPhone(int error, String errorMessage) {
-            SwitchFragment.this.didChangeUserPhone(error, errorMessage);
-        }
-
-        @Override
         public void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
-
             SwitchFragment.this.didDiscovered(error, devicesList);
-        }
-
-        @Override
-        public void didGetSSIDList(int error, List<XPGWifiSSID> ssidInfoList) {
-            SwitchFragment.this.didGetSSIDList(error, ssidInfoList);
-        }
-
-        @Override
-        public void didRegisterUser(int error, String errorMessage, String uid,
-                                    String token) {
-            SwitchFragment.this.didRegisterUser(error, errorMessage, uid, token);
-        }
-
-        @Override
-        public void didRequestSendVerifyCode(int error, String errorMessage) {
-            SwitchFragment.this.didRequestSendVerifyCode(error, errorMessage);
-        }
-
-        @Override
-        public void didSetDeviceWifi(int error, XPGWifiDevice device) {
-            SwitchFragment.this.didSetDeviceWifi(error, device);
         }
 
         @Override
@@ -516,46 +473,8 @@ public class SwitchFragment extends Fragment implements OnClickListener {
             SwitchFragment.this.didUnbindDevice(error, errorMessage, did);
         }
 
-        @Override
-        public void didUserLogin(int error, String errorMessage, String uid,
-                                 String token) {
-            SwitchFragment.this.didUserLogin(error, errorMessage, uid, token);
-        }
-
-        @Override
-        public void didUserLogout(int error, String errorMessage) {
-            SwitchFragment.this.didUserLogout(error, errorMessage);
-        }
-
     };
-    /**
-     * 用户登出回调借口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didUserLogout(int error, String errorMessage) {
 
-    }
-
-    /**
-     * 用户登陆回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     * @param uid
-     *            用户id
-     * @param token
-     *            授权令牌
-     */
-    protected void didUserLogin(int error, String errorMessage, String uid,
-                                String token) {
-
-    }
 
     /**
      * 设备解除绑定回调接口.
@@ -576,60 +495,6 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     }
 
     /**
-     * 设备配置结果回调.
-     *
-     * @param error
-     *            结果代码
-     * @param device
-     *            设备对象
-     */
-    protected void didSetDeviceWifi(int error, XPGWifiDevice device) {
-
-    }
-
-    /**
-     * 请求手机验证码回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didRequestSendVerifyCode(int error, String errorMessage) {
-
-    }
-
-    /**
-     * 注册用户结果回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     * @param uid
-     *            the 用户id
-     * @param token
-     *            the 授权令牌
-     */
-    protected void didRegisterUser(int error, String errorMessage, String uid,
-                                   String token) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /**
-     * 获取ssid列表回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param ssidInfoList
-     *            ssid列表
-     */
-    protected void didGetSSIDList(int error, List<XPGWifiSSID> ssidInfoList) {
-
-    }
-
-    /**
      * 搜索设备回调接口.
      *
      * @param error
@@ -638,59 +503,13 @@ public class SwitchFragment extends Fragment implements OnClickListener {
      *            设备列表
      */
     protected void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
-        this.devicesList =  devicesList ;
-        Log.i("设备列表",devicesList.toString());
-        loginHandler.sendEmptyMessage(loginHandler_key.LOGIN.ordinal());
-    }
-
-    /**
-     * 更换注册手机号码回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didChangeUserPhone(int error, String errorMessage) {
-
-    }
-
-    /**
-     * 更换密码回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didChangeUserPassword(int error, String errorMessage) {
-
-    }
-
-    /**
-     * 更换注册邮箱.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didChangeUserEmail(int error, String errorMessage) {
-
-    }
-
-    /**
-     * 绑定设备结果回调.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     * @param did
-     *            设备注册id
-     */
-    protected void didBindDevice(int error, String errorMessage, String did) {
-
+        if(error == 0) {
+            this.devicesList = devicesList;
+            Log.i("设备列表", devicesList.toString());
+            loginHandler.sendEmptyMessage(loginHandler_key.LOGIN.ordinal());
+        }else{
+            loginHandler.sendEmptyMessage(loginHandler_key.FAILED.ordinal());
+        }
     }
 
     public interface GPSDataChangeListener{

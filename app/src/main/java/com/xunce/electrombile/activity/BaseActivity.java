@@ -31,12 +31,12 @@ import com.xtremeprog.xpgconnect.XPGWifiDevice;
 import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
 import com.xtremeprog.xpgconnect.XPGWifiSDKListener;
 import com.xtremeprog.xpgconnect.XPGWifiSSID;
+import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.xunce.electrombile.UniversalTool.ToastUtil.showToast;
 
 
 /**
@@ -460,9 +460,7 @@ public class BaseActivity extends Activity {
 	public void exit() {
 		if (!isExit) {
 			isExit = true;
-            showToast(getApplicationContext(),"再按一次退出程序",2000);
-//			Toast.makeText(getApplicationContext(),
-//                    "再按一次退出程序", Toast.LENGTH_SHORT).show();
+            ToastUtils.showShort(getApplicationContext(), "再按一次退出程序");
 			handler.sendEmptyMessageDelayed(0, 2000);
 		} else {
 			Intent intent = new Intent(Intent.ACTION_MAIN);
