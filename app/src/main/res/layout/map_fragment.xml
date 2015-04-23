@@ -11,43 +11,39 @@
         android:clickable="true" />
 
     <Button
-        android:id="@+id/btn_changeMode"
+        android:id="@+id/btn_play_or_pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="100dp"
-        android:text="查看轨迹"/>
-
-    <Button
-        android:id="@+id/btn_pause"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="160dp"
+        android:layout_marginBottom="80dp"
         android:text="开始"/>
+    <Button
+        android:id="@+id/btn_cancel_track"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/btn_play_or_pause"
+        android:layout_alignTop="@+id/btn_play_or_pause"
+        android:layout_marginBottom="80dp"
+        android:text="退出"/>
 
     <Button
         android:id="@+id/btn_location"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="120dp"
+        android:layout_marginBottom="80dp"
         android:layout_marginLeft="10dp"
-        android:background="@drawable/location"
-        android:backgroundTint="@color/blue"/>
+        android:text="实时\n位置"/>
+
     <Button
         android:id="@+id/btn_record"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:background="@drawable/record"
-        android:layout_alignTop="@+id/btn_location"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="40dp" />
-
-
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="80dp"
+        android:layout_marginRight="10dp"
+        android:text="查看\n轨迹"/>
 </RelativeLayout>

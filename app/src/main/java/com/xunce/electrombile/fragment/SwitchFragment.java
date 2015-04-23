@@ -1,12 +1,10 @@
 package com.xunce.electrombile.fragment;
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -27,7 +25,6 @@ import android.widget.Toast;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
 import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
-import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
@@ -49,8 +46,6 @@ import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.xunce.electrombile.Base.utils.SystemResource.getApplicationContext;
 
 
 public class SwitchFragment extends Fragment implements OnClickListener {
@@ -284,7 +279,7 @@ public class SwitchFragment extends Fragment implements OnClickListener {
 
     public void systemBtnClicked() {
 
-        if(!checkNet()){
+        if(!isNetworkAvailable()){
             Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -348,14 +343,12 @@ public class SwitchFragment extends Fragment implements OnClickListener {
 
     }
 
-    private boolean checkNet() {
+    private boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getActivity().getApplicationContext()
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm == null) {
             return false;
         } else {
-            //如果仅仅是用来判断网络连接
-            //则可以使用 cm.getActiveNetworkInfo().isAvailable();
             NetworkInfo[] info = cm.getAllNetworkInfo();
             if (info != null) {
                 for (int i = 0; i < info.length; i++) {

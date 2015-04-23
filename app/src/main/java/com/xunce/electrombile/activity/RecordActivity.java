@@ -1,30 +1,25 @@
 package com.xunce.electrombile.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.ExpandableListView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.Toast;
 
+import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.fragment.MaptabFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by heyukun on 2015/4/18.
@@ -40,6 +35,7 @@ public class RecordActivity extends Activity{
     DatePicker dpBegin;
     DatePicker dpEnd;
     ListView m_listview;
+    TracksManager tracksManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +45,7 @@ public class RecordActivity extends Activity{
         setCustonViewVisibility(false);
         m_listview.setVisibility(View.INVISIBLE);
 
+        tracksManager = new TracksManager();
     }
 
     private void initView(){
@@ -108,7 +105,7 @@ public class RecordActivity extends Activity{
                 R.layout.listview_item,//ListItem的XML实现
                 //动态数组与ImageItem对应的子项
                 new String[] {"ItemTitle", "ItemText"},
-                //ImageItem的XML文件里面的一个ImageView,两个TextView ID
+                //,两个TextView ID
                 new int[] {R.id.ItemTitle,R.id.ItemText}
         );
 
@@ -121,6 +118,7 @@ public class RecordActivity extends Activity{
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                                     long arg3) {
+                    MaptabFragment.trackDataList = tracksManager.getTrack(arg2);
                 Toast.makeText(getApplicationContext(), "点击第" + arg2 + "个项目", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -132,11 +130,13 @@ public class RecordActivity extends Activity{
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v,
                                             ContextMenuInfo menuInfo) {
-                menu.setHeaderTitle("长按菜单-ContextMenu");
-                menu.add(0, 0, 0, "弹出长按菜单0");
-                menu.add(0, 1, 0, "弹出长按菜单1");
+                menu.setHeaderTitle("是否删除此记录");
+                menu.add(0, 0, 0, "确定");
+                menu.add(0, 1, 0, "取消");
             }
+
         });
+
     }
 
 
