@@ -346,6 +346,7 @@ public class CmdCenter {
 	 */
 	public void cDisconnect(XPGWifiDevice xpgWifiDevice) {
 		xpgWifiDevice.disconnect();
+     //   xpgWifiDevice = null;
 	}
 
 	/**
@@ -363,7 +364,8 @@ public class CmdCenter {
 	public void cUnbindDevice(String uid, String token, String did,
 			String passCode) {
         mSettingManager.cleanDevice();
-		xpgWifiGCC.unbindDevice(uid, token, did, passCode);
+        xpgWifiGCC.unbindDevice(uid, token, did, passCode);
+
 	}
 
 	/**
@@ -547,6 +549,15 @@ public class CmdCenter {
         else{
             return null;
         }
+    }
+
+    //解析GPS数据
+    public float parseGPSData(String gps){
+        float data = Float.parseFloat(gps);
+        int x =(int) data/60;
+        float y = data - 60*x;
+        y = y/60;
+        return x+y;
     }
 
 

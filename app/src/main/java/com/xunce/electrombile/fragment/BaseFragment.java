@@ -298,8 +298,12 @@ public class BaseFragment extends Fragment{
         protected void didUnbindDevice(int error, String errorMessage, String did) {
             if(error == 0){
                 ToastUtils.showShort(getActivity().getApplicationContext(),"设备解除绑定成功");
+                mCenter.cDisconnect(mXpgWifiDevice);
                 mXpgWifiDevice = null;
                 setManager.cleanDevice();
+              //  mCenter.cDisconnect(mXpgWifiDevice);
+            }else{
+                ToastUtils.showShort(getActivity().getApplicationContext(),"设备解除绑定失败");
             }
         }
 
