@@ -47,6 +47,8 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.btn_SystemState).setOnClickListener(this);
         btnSystem = (Button) getActivity().findViewById(R.id.btn_SystemState);
+        btnTest = (Button) getActivity().findViewById(R.id.btn_test);
+        view.findViewById(R.id.btn_test).setOnClickListener(this);
     }
 
     @Override
@@ -66,15 +68,15 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
 //            case R.id.btn_RemoteAlarm:
 //                remoteAlarmClicked();
 //                break;
-//            case R.id.btn_test:
-//                testBtnClicked();
+            case R.id.btn_test:
+                testBtnClicked();
             default:
                 break;
         }
     }
 
     public void systemBtnClicked() {
-
+        mCenter.cGetStatus(mXpgWifiDevice);
         if(!NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())){
             Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
             return;
@@ -126,8 +128,9 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
 //        }).start();
     }
 
+    //解除绑定
     public void testBtnClicked() {
-
+        relieveBind();
     }
 
     private void chengeStateWhenSuc(String keyString) {
