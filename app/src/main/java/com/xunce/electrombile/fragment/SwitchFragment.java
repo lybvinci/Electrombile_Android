@@ -22,6 +22,7 @@ import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import org.apache.http.HttpResponse;
@@ -103,7 +104,9 @@ public class SwitchFragment extends Fragment implements OnClickListener {
         super.onCreate(saveInstanceState);
         setManager = new SettingManager(getActivity().getApplicationContext());
         mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
-        loginHandler.sendEmptyMessage(loginHandler_key.START_LOGIN.ordinal());
+        mXpgWifiDevice = BaseActivity.mXpgWifiDevice;
+        if(mXpgWifiDevice == null && setManager.getDid() !=null && setManager.getPassCode() !=null)
+            loginHandler.sendEmptyMessage(loginHandler_key.START_LOGIN.ordinal());
 
     }
 
@@ -314,13 +317,14 @@ public class SwitchFragment extends Fragment implements OnClickListener {
     }
 
     public void systemBtnClicked(){
-        mCenter.cSwitchOn(mXpgWifiDevice,true);
+        mCenter.cGetStatus(mXpgWifiDevice);
       //  mCenter.cGprsSend(mXpgWifiDevice);
         Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
     }
 
     public void remoteAlarmClicked(){
         mCenter.cUnbindDevice(setManager.getUid(),setManager.getToken(),setManager.getDid(),setManager.getPassCode());
+        mCenter.cDisconnect(mXpgWifiDevice);
     }
 
     public void testBtnClicked(){
