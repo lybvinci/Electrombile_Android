@@ -14,6 +14,7 @@ import android.view.View.OnCreateContextMenuListener;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.Toast;
 
+import com.xunce.electrombile.Base.utils.HTTPUtil;
 import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.fragment.MaptabFragment;
@@ -67,6 +68,7 @@ public class RecordActivity extends Activity{
             public void onClick(View view) {
                 m_listview.setVisibility(View.VISIBLE);
                 setCustonViewVisibility(false);
+                HTTPUtil.HTTPGet()
             }
         });
         btnTwoDay = (Button)findViewById(R.id.btn_twoday);

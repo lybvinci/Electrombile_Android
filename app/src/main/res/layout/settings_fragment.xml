@@ -24,6 +24,7 @@
         android:id="@+id/layout_phone_number"
         android:layout_below="@+id/title"
         android:layout_marginTop="60dp"
+        android:orientation="horizontal"
         style="@style/clickableLayout">
         <TextView
             style="@style/clickableLayoutTextview"
