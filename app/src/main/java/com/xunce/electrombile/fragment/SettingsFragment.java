@@ -84,10 +84,12 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 break;
             case R.id.layout_phone_number:
                 //systemBtnClicked();
+              //  mCenter.cWrite(mXpgWifiDevice,"Lat","123456789");
                 mCenter.cGetStatus(mXpgWifiDevice);
                 break;
             case R.id.layout_help:
-                mCenter.cGetStatus(mXpgWifiDevice);
+                mCenter.cWhere(mXpgWifiDevice);
+               // mCenter.cGetStatus(mXpgWifiDevice);
                 //  mCenter.cGprsSend(mXpgWifiDevice);
                 Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
                 //systemBtnClicked();

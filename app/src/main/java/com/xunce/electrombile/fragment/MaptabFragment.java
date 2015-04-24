@@ -279,7 +279,7 @@ public class MaptabFragment extends Fragment {
     }
 
     //将地图中心移到某点
-    private void locateMobile(LatLng point){
+    public void locateMobile(LatLng point){
         /**
          *设定中心点坐标
          */

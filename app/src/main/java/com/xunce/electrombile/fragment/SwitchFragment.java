@@ -25,7 +25,7 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
             "switch",
             "ring"
     };
-    private GPSDataChangeListener mGpsChangedListener;
+
 
     private Button btnAlarm;
     private Button btnSystem;
@@ -95,17 +95,9 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
         }
     }
 
-    public interface GPSDataChangeListener{
-        public void gpsCallBack(String lat,String lon);
-    }
+//    public interface GPSDataChangeListener{
+//        public void gpsCallBack(String lat,String lon);
+//    }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mGpsChangedListener = (GPSDataChangeListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + "must implement GPSDataChangeListener");
-        }
-    }
+
 }
