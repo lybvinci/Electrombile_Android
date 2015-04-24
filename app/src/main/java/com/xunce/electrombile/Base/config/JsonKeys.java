@@ -68,39 +68,34 @@ public class JsonKeys {
     //25 、查询经纬度  设备会回复：Lat:N22.55787,Lon:E113.93509,Course:0.00,Speed:0.00km/h,DateTime:2014-12-12 07:32:133426
     public final static String WHERE = "WHERE#";
 
+    // GPS定位状态，0表示未定位，1表示已定位
+    public final static String GPSSTATUS = "GPSStatus";
 
-	/** 开关. */
-	public final static String ON_OFF = "switch";
+    //报警类型
+    public final static String ALARM = "alarm";
 
-	/** 定时开机. */
-	public final static String TIME_ON = "on_timing";
+    //小区识别码
+    public final static String CI = "ci";
 
-	/** 定时关机. */
-	public final static String TIME_OFF = "off_timing";
-	/**
-	 * 模式 0.制冷, 1.送风, 2.除湿, 3.自动
-	 */
-	public final static String MODE = "mode";
+    //航向：单位 度， 以正北为0度，顺时针
+    public final static String COURSE = "course";
 
-	/** 设定温度 16 - 30. */
-	public final static String SET_TEMP = "set_temp";
-	/**
-	 * 风速 0.低风, 1.中风, 2.高风
-	 */
-	public final static String FAN_SPEED = "fan_speed";
+    // location area code 位置区码
+    public final static String LAC = "lac";
 
-	/** 摆风. */
-	public final static String FAN_SHAKE = "fan_swing";
+    // Latitude:纬度，单位为分，把GPS的经纬度值转换为分为单位的小数
+    public final static String LAT = "lat";
 
-	/** 室内温度 -10 - 35. */
-	public final static String ROOM_TEMP = "room_temp";
+    //mcc Mobile Country Code，移动国家码，MCC的资源由国际电联（ITU）统一分配和管理，唯一识别移动用户所属的国家，共3位，中国为460;
+    public final static String MCC = "mcc";
 
-	/** 停机报警. */
-	public final static String ALARM_SHUTDOWM = "alert_shutdown";
+    //mnc  Mobile Network Code，移动网络号码，用于识别移动客户所属的移动网络。
+    public final static String MNC = "mnc";
 
-	/** 水满报警. */
-	public final static String ALARM_FULL = "alert_full";
+    // 运动速度： 单位 km/h
+    public final static String SPEED = "speed";
 
-	/** 室温故障. */
-	public final static String FAULT_ROOMTEMP = "fault_roomtemp";
+    // Longtitude:经度，单位为分
+    public final static String LONG = "long";
+
 }

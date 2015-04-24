@@ -122,7 +122,9 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                 this.finish();
                 break;
             case R.id.bindSuccess:
-                if(et_passCode != null && et_did != null){
+                if(et_did != null){
+                    did = et_did.getText().toString();
+                    passcode = null;
                     mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());
                 }
                 break;
