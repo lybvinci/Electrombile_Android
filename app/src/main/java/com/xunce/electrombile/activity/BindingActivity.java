@@ -82,7 +82,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                   break;
               case FAILED:
                   times = 0;
-                  bind_btn.setVisibility(View.INVISIBLE);
+                  //bind_btn.setVisibility(View.INVISIBLE);
                   ToastUtils.showShort(BindingActivity.this, "添加失败，请返回重试");
                   progressDialog.cancel();
                   break;
@@ -101,7 +101,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
 
     private void initView(){
         bind_btn = (Button) findViewById(R.id.bind_btn);
-        equipment_info = (TextView) findViewById(R.id.equipment_info);
         jump_bind = (TextView) findViewById(R.id.jump_bind);
 
         et_did = (EditText) findViewById(R.id.et_did);

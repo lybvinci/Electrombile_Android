@@ -58,6 +58,7 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
             case R.id.btn_SystemState:
                 systemBtnClicked();
                 break;
+            
             default:
                 break;
         }

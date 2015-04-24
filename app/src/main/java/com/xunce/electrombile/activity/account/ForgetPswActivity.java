@@ -296,10 +296,10 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 					toogleUI(ui_statu.PHONE);
 					sendVerifyCode(name);
 				} else {
-					ToastUtils.showShort(this, "请输入正确的账号。");
+					ToastUtils.showShort(this, "请输入正确的账号");
 				}
 			} else {
-				ToastUtils.showShort(this, "请输入正确的账号。");
+				ToastUtils.showShort(this, "请输入正确的账号");
 			}
 
 			break;

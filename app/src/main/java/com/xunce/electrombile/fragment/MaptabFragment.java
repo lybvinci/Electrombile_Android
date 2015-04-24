@@ -136,7 +136,7 @@ public class MaptabFragment extends Fragment {
             public void onClick(View view) {
                 if(mBaiduMap != null){
                     //LatLng point = getLatestLocation();
-                    locateMobile(getRealtimePos());
+                    locateMobile(getLatestLocation());
                 }
             }
         });
@@ -303,6 +303,8 @@ public class MaptabFragment extends Fragment {
                     public JSONArray call() throws Exception {
                         HttpClient client = new DefaultHttpClient();
                         HttpGet get = new HttpGet(httpBase);
+                        get.addHeader("Content-Type", "application/json");
+                        get.addHeader("X-Gizwits-Application-Id", "2e14d50b2d0941678104152d8070a831");
                         try {
                             HttpResponse response = client.execute(get);
                             if(response.getStatusLine().getStatusCode() == 200){
@@ -341,7 +343,9 @@ public class MaptabFragment extends Fragment {
     public LatLng getLatestLocation(){
         LatLng location;
         JSONObject jsonObject;
-        JSONArray m_JSONArray = getHttp(httpBase);
+        JSONArray m_JSONArray = getHttp("http://api.gizwits.com/app/devdata3?" +
+                "product_key=01fdd12699454be1a072094ec063749d&did=Bt9kPizX3i6a8MmLpJPwVq&" +
+                "start_ts=1429632000&end_ts=1429852794&limit=30&skip=0");
         if(m_JSONArray == null){
             Log.e("","m_JSONArray is null" );
             return null;

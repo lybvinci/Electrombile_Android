@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
+import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
 
 
@@ -63,7 +64,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 //systemBtnClicked();
                 break;
             case R.id.layout_help:
-                //systemBtnClicked();
+                Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
+                startActivity(intentHelp);
                 break;
             case R.id.btn_logout:
                 //systemBtnClicked();

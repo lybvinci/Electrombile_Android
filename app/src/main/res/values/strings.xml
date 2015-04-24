@@ -44,5 +44,7 @@
     <string name="networkSet">network setting</string>
     <string name="networkSettings">settings</string>
     <string name="skip">skip</string>
+    <string name="appInfo">Security Guard V1.0</string>
+    <string name="companyInfo">Wuhan Xiaoan technology co., LTD</string>
 
 </resources>

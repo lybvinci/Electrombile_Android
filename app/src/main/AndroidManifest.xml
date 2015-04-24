@@ -113,11 +113,10 @@
             android:name=".activity.RecordActivity"
             android:label="Record" >
         </activity>
-        <service
-            android:name="com.baidu.location.f"
-            android:enabled="true"
-            android:process=":remote">
-        </service>
+        <activity
+            android:name=".activity.HelpActivity"
+            android:label="Help" >
+        </activity>
         <!--来电悬浮窗暂关闭
         <receiver android:name=".IncomingReceiver">
             <intent-filter>

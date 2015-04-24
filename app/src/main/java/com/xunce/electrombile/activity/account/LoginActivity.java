@@ -117,7 +117,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 			// 登陆失败
 			case LOGIN_FAIL:
 				handler.removeMessages(handler_key.LOGIN_TIMEOUT.ordinal());
-				Toast.makeText(LoginActivity.this, msg.obj + "",
+				Toast.makeText(LoginActivity.this, "用户名或密码错误" + "",
                         Toast.LENGTH_SHORT).show();
 				dialog.cancel();
 				break;
