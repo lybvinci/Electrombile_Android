@@ -1,7 +1,74 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:backgroundTint="#ff1d252c">
 
-    <include layout="@layout/top_title" />
+    <RelativeLayout
+        android:id="@+id/title"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:background="#ff1d252c"
+        android:gravity="center_vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="安全宝"
+            android:textColor="#ffffff"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_phone_number"
+        android:layout_below="@+id/title"
+        android:layout_marginTop="60dp"
+        style="@style/clickableLayout">
+        <TextView
+            style="@style/clickableLayoutTextview"
+            android:text="设备手机号"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_bind"
+        android:layout_below="@+id/layout_phone_number"
+        android:layout_marginTop="1dp"
+        style="@style/clickableLayout">
+        <TextView
+            style="@style/clickableLayoutTextview"
+            android:text="绑定设备"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_relieve_bind"
+        android:layout_below="@+id/layout_bind"
+        android:layout_marginTop="1dp"
+        style="@style/clickableLayout">
+        <TextView
+            style="@style/clickableLayoutTextview"
+            android:text="解除绑定"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_help"
+        android:layout_below="@+id/layout_relieve_bind"
+        android:layout_marginTop="1dp"
+        style="@style/clickableLayout">
+        <TextView
+            style="@style/clickableLayoutTextview"
+            android:text="使用帮助"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="100dp"
+        android:text="退出登录"/>
 
 </RelativeLayout>

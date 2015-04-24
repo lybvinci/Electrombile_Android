@@ -6,9 +6,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -31,7 +28,6 @@ import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.utils.Historys;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.Updata.UpdateAppService;
-import com.xunce.electrombile.activity.account.LoginActivity;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
@@ -41,7 +37,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import com.xunce.electrombile.widget.TitlePopup.OnItemOnClickListener;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -87,6 +82,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     Handler MyHandler;
     RadioButton rbSwitch;
     RadioButton rbMap;
+    RadioButton rbSettings;
     boolean isupde;int a=0;
     //退出使用
     private boolean isExit = false;
@@ -371,48 +367,48 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         initFragment();
         rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
         rbMap = (RadioButton) findViewById(R.id.rbMap);
-
+        rbSettings = (RadioButton)findViewById(R.id.rbSettings);
         //实例化标题栏弹窗
         titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-        //设置按钮监听函数
-        btnSettings = (ImageButton) findViewById(R.id.title_btn);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                titlePopup.show(view);
-            }
-        });
-
-        titlePopup.setItemOnClickListener(new OnItemOnClickListener() {
-            @Override
-            public void onItemClick(ActionItem item, int position) {
-                switch (position) {
-                    case SETTINGS_ITEM1:
-                        Log.i(TAG, "clicked item 1");
-                        break;
-                    case SETTINGS_ITEM2:
-                        Log.i(TAG, "clicked item 2");
-                        Intent intentStartBinding = new Intent(FragmentActivity.this, BindingActivity.class);
-                        startActivity(intentStartBinding);
-                        break;
-                    case SETTINGS_ITEM3:
-                        Log.i(TAG, "clicked item 3");
-                        break;
-                    case SETTINGS_ITEM4:
-                        Log.i(TAG, "clicked item 4");
-                     //   AVUser.logOut();             //清除缓存用户对象
-                        //启动登陆activity
-                        Intent intentStartLogin = new Intent(FragmentActivity.this, LoginActivity.class);
-                        startActivity(intentStartLogin);
-                        //关闭当前activity
-                        FragmentActivity.this.finish();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
+//        //设置按钮监听函数
+//        btnSettings = (ImageButton) findViewById(R.id.title_btn);
+//        btnSettings.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                titlePopup.show(view);
+//            }
+//        });
+//
+//        titlePopup.setItemOnClickListener(new OnItemOnClickListener() {
+//            @Override
+//            public void onItemClick(ActionItem item, int position) {
+//                switch (position) {
+//                    case SETTINGS_ITEM1:
+//                        Log.i(TAG, "clicked item 1");
+//                        break;
+//                    case SETTINGS_ITEM2:
+//                        Log.i(TAG, "clicked item 2");
+//                        Intent intentStartBinding = new Intent(FragmentActivity.this, BindingActivity.class);
+//                        startActivity(intentStartBinding);
+//                        break;
+//                    case SETTINGS_ITEM3:
+//                        Log.i(TAG, "clicked item 3");
+//                        break;
+//                    case SETTINGS_ITEM4:
+//                        Log.i(TAG, "clicked item 4");
+//                     //   AVUser.logOut();             //清除缓存用户对象
+//                        //启动登陆activity
+//                        Intent intentStartLogin = new Intent(FragmentActivity.this, LoginActivity.class);
+//                        startActivity(intentStartLogin);
+//                        //关闭当前activity
+//                        FragmentActivity.this.finish();
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
+//        });
     }
 
     /**
@@ -446,7 +442,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         //ft.addToBackStack("settingsFragment");
 
         ft.commit();
-
     }
 
     /**
@@ -463,9 +458,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
                 //界面切换
                 rbSwitch.setChecked(true);
-                rbMap.setChecked(false);
                 rbSwitch.setTextColor(getResources().getColor(R.color.blue));
+                rbMap.setChecked(false);
                 rbMap.setTextColor(Color.BLACK);
+                rbSettings.setChecked(false);
+                rbSettings.setTextColor(Color.BLACK);
 
 
                 //从backstack中弹出
@@ -473,8 +470,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
                 FragmentTransaction ft = m_FMer.beginTransaction();
                 ft.show(switchFragment);
-                ft.setTransition(FragmentTransaction.TRANSIT_ENTER_MASK);
-                //ft.hide(settingsFragment);
+                ft.hide(settingsFragment);
                 ft.hide(maptabFragment);
                 ft.commit();
 
@@ -494,13 +490,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 rbMap.setTextColor(getResources().getColor(R.color.blue));
                 rbSwitch.setChecked(false);
                 rbSwitch.setTextColor(Color.BLACK);
+                rbSettings.setChecked(false);
+                rbSettings.setTextColor(Color.BLACK);
 
                 //从backstack中弹出
                 //popAllFragmentsExceptTheBottomOne();
 
                 FragmentTransaction ft = m_FMer.beginTransaction();
                 ft.hide(switchFragment);
-                //ft.hide(settingsFragment);
+                ft.hide(settingsFragment);
                 ft.show(maptabFragment);
                 //ft.addToBackStack("mapFragment");
                 ft.commit();
@@ -510,22 +508,28 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             }
         });
 
-//        findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
-//                    Log.e("", "set clicked");
-//                    return;
-//                }
-//                popAllFragmentsExceptTheBottomOne();
-//                FragmentTransaction ft = m_FMer.beginTransaction();
-//                ft.hide(switchFragment);
-//                ft.show(settingsFragment);
-//                ft.hide(maptabFragment);
-//                ft.addToBackStack("settingsFragment");
-//                ft.commit();
-//            }
-//        });
+        findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
+                    Log.e("", "set clicked");
+                    return;
+                }
+
+                rbMap.setChecked(false);
+                rbMap.setTextColor(Color.BLACK);
+                rbSwitch.setChecked(false);
+                rbSwitch.setTextColor(Color.BLACK);
+                rbSettings.setChecked(true);
+                rbSettings.setTextColor(getResources().getColor(R.color.blue));
+
+                FragmentTransaction ft = m_FMer.beginTransaction();
+                ft.hide(switchFragment);
+                ft.show(settingsFragment);
+                ft.hide(maptabFragment);
+                ft.commit();
+            }
+        });
     }
 
     /**

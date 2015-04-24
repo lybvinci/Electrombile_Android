@@ -53,7 +53,6 @@ public class MaptabFragment extends Fragment {
 
     //播放线程消息类型
     private final int CHANGEPOINT = 1;
-    private final int PAUSEPLAY = 2;
 
     //获取位置信息的http接口
     private final String httpBase= "http://electrombile.huakexunce.com/position";
@@ -215,7 +214,7 @@ public class MaptabFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
-		((TextView)getView().findViewById(R.id.tvTop)).setText("地图");
+		//((TextView)getView().findViewById(R.id.tvTop)).setText("地图");
 	}
 
     @Override

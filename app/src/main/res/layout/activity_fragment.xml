@@ -9,32 +9,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:background="#dbdbdb">
-        <RelativeLayout
-            android:id="@+id/title"
-            android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:background="#ff1d252c"
-            android:gravity="center_vertical" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="安全宝"
-                android:textColor="#ffffff"
-                android:textSize="20sp" />
-
-            <ImageButton
-                android:id="@+id/title_btn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/btn_settings"
-                android:onClick="btnmainright"/>
-        </RelativeLayout>
-
         <LinearLayout
             android:id="@+id/fragmentRoot"
             android:layout_width="fill_parent"
@@ -76,7 +50,7 @@
             </LinearLayout>
 
 
-            <!--<LinearLayout
+            <LinearLayout
                 android:id="@+id/bottomItemCurrentBg3"
                 style="@style/main_bottom_item" >
 
@@ -85,7 +59,7 @@
                     style="@style/footbar"
                     android:paddingTop="8dp"
                     android:text="设置" />
-            </LinearLayout>-->
+            </LinearLayout>
 
         </LinearLayout>
     </RelativeLayout>
