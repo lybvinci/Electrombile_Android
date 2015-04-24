@@ -362,6 +362,7 @@ public class CmdCenter {
 	 */
 	public void cUnbindDevice(String uid, String token, String did,
 			String passCode) {
+        mSettingManager.cleanDevice();
 		xpgWifiGCC.unbindDevice(uid, token, did, passCode);
 	}
 

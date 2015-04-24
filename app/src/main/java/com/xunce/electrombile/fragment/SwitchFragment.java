@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
-import com.xunce.electrombile.Base.sdk.CmdCenter;
-import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 
@@ -36,9 +34,6 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
     @Override
     public void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
-        setManager = new SettingManager(getActivity().getApplicationContext());
-        mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
-        loginHandler.sendEmptyMessage(loginHandler_key.START_LOGIN.ordinal());
 
     }
 
@@ -47,8 +42,6 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.btn_SystemState).setOnClickListener(this);
         btnSystem = (Button) getActivity().findViewById(R.id.btn_SystemState);
-        btnTest = (Button) getActivity().findViewById(R.id.btn_test);
-        view.findViewById(R.id.btn_test).setOnClickListener(this);
     }
 
     @Override
@@ -65,73 +58,26 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
             case R.id.btn_SystemState:
                 systemBtnClicked();
                 break;
-//            case R.id.btn_RemoteAlarm:
-//                remoteAlarmClicked();
-//                break;
-            case R.id.btn_test:
-                testBtnClicked();
             default:
                 break;
         }
     }
 
-    public void systemBtnClicked() {
+    public void systemBtnClicked(){
         mCenter.cGetStatus(mXpgWifiDevice);
-        if(!NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())){
-            Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        final String key[] = {SWITCHKEY[0]};
-        int value[] = {0};
-
-        if(!systemState){
-            systemState = true;
-
-            //更改通知栏状态
-            manager.cancel(1);
-            changeNotificaton();
-
-            value[0] = 1;
-            //btnSystem.setBackgroundResource(R.drawable.common_btn_pressed);
-            btnSystem.setBackgroundColor(Color.YELLOW);
-
-        }else{
-            systemState = false;
-
-            //更改通知栏状态
-            manager.cancel(1);
-            initNotificaton();
-
-            value[0] = 0;
-            btnSystem.setBackgroundResource(R.drawable.common_btn_normal);
-        }
+      //  mCenter.cGprsSend(mXpgWifiDevice);
+        Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
     }
 
-    public void remoteAlarmClicked() {
-
-//        final String key[] = {SWITCHKEY[1]};
-//        int value[] = {0};
-//
-//        if (alarmState == false) {
-//            value[0] = 1;
-//            btnAlarm.setBackgroundResource(R.drawable.common_btn_pressed);
-//        } else {
-//            value[0] = 0;
-//            btnAlarm.setBackgroundResource(R.drawable.common_btn_pressed);
-//        }
-//        final int finalValue[] = value;
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                requestHttp("http://electrombile.huakexunce.com/config", key, finalValue);
-//            }
-//        }).start();
+    public void remoteAlarmClicked(){
+        mCenter.cUnbindDevice(setManager.getUid(),setManager.getToken(),setManager.getDid(),setManager.getPassCode());
+        mCenter.cDisconnect(mXpgWifiDevice);
     }
 
-    //解除绑定
-    public void testBtnClicked() {
-        relieveBind();
+    public void testBtnClicked(){
+        mCenter.cGetStatus(mXpgWifiDevice);
     }
+
 
     private void chengeStateWhenSuc(String keyString) {
         Button btn = null;

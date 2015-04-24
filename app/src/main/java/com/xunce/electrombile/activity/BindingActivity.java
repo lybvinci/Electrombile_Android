@@ -45,7 +45,16 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         LOGIN,
         GET_LIST,
     }
-
+    //自动重登的次数
+    private int times = 0;
+//绑定步骤：
+    /*
+    * 1.先 获取passcede 和 did  进行startBind
+    * 2.接着回调 didBindDevice 如果成功getBoundDevices函数，进行搜索
+    * 3.接着回调 didDiscovered 如果成功，会获取一个设备列表
+    * 4.接着调用 loginDevice 登陆设备，如果成功 会回调 didlogin函数。
+    * 5.接着跳转界面
+    */
     //handler
     Handler mHandler = new Handler(){
       public void handleMessage(Message msg){
@@ -72,6 +81,8 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                   finish();
                   break;
               case FAILED:
+                  times = 0;
+                  bind_btn.setVisibility(View.INVISIBLE);
                   ToastUtils.showShort(BindingActivity.this, "添加失败，请返回重试");
                   progressDialog.cancel();
                   break;
@@ -122,9 +133,9 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                 this.finish();
                 break;
             case R.id.bindSuccess:
-                if(et_did != null){
+                if(et_passCode != null && et_did != null){
+                    passcode = et_passCode.getText().toString();
                     did = et_did.getText().toString();
-                    passcode = null;
                     mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());
                 }
                 break;
@@ -150,6 +161,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                     passcode = getParamFomeUrl(text,"passcode");
                     Log.i("",did+"#######"+passcode);
                     et_did.setText(did);
+                    setManager.setDid(did);
                     et_passCode.setText(passcode);
                     bind_btn.setVisibility(View.INVISIBLE);
                     mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());
@@ -204,7 +216,9 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                 mXpgWifiDevice.login(setManager.getUid(), setManager.getToken());
                 break;
             }else{
-                mHandler.sendEmptyMessage(handler_key.LOGIN.ordinal());
+                times++;
+                if(times < 5)
+                    mHandler.sendEmptyMessage(handler_key.LOGIN.ordinal());
             }
 
         }

@@ -68,7 +68,7 @@ public class RecordActivity extends Activity{
             public void onClick(View view) {
                 m_listview.setVisibility(View.VISIBLE);
                 setCustonViewVisibility(false);
-                HTTPUtil.HTTPGet()
+                HTTPUtil.HTTPGet("");
             }
         });
         btnTwoDay = (Button)findViewById(R.id.btn_twoday);
