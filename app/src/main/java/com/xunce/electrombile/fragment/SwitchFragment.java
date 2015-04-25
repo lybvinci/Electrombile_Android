@@ -10,11 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 
-public class SwitchFragment extends BaseFragment implements OnClickListener {
+public class SwitchFragment extends BaseFragment {
 
     private static String TAG = "SwitchFragment:";
     private final int IS_FINISH = 1;
@@ -28,8 +31,9 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
 
 
     private Button btnAlarm;
-    private Button btnSystem;
+    private ToggleButton btnSystem;
     private Button btnTest;
+
 
     @Override
     public void onCreate(Bundle saveInstanceState) {
@@ -40,8 +44,21 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.btn_SystemState).setOnClickListener(this);
-        btnSystem = (Button) getActivity().findViewById(R.id.btn_SystemState);
+        btnSystem = (ToggleButton) getActivity().findViewById(R.id.btn_SystemState);
+        btnSystem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(compoundButton.isChecked()){
+                    mCenter.alarmFlag = true;
+                    mCenter.cGetStatus(mXpgWifiDevice);
+                    //  mCenter.cGprsSend(mXpgWifiDevice);
+                    Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+                }else{
+                    mCenter.alarmFlag =false;
+                }
+            }
+        });
+
     }
 
     @Override
@@ -51,20 +68,21 @@ public class SwitchFragment extends BaseFragment implements OnClickListener {
         return inflater.inflate(R.layout.switch_fragment, container, false);
     }
 
-    @Override
-    public void onClick(View view) {
-        int id = view.getId();
-        switch (id) {
-            case R.id.btn_SystemState:
-                systemBtnClicked();
-                break;
-            
-            default:
-                break;
-        }
-    }
+//    @Override
+//    public void onClick(View view) {
+//        int id = view.getId();
+//        switch (id) {
+////            case R.id.btn_SystemState:
+////                systemBtnClicked();
+////                break;
+//
+//            default:
+//                break;
+//        }
+//    }
 
     public void systemBtnClicked(){
+        mCenter.alarmFlag = true;
         mCenter.cGetStatus(mXpgWifiDevice);
       //  mCenter.cGprsSend(mXpgWifiDevice);
         Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");

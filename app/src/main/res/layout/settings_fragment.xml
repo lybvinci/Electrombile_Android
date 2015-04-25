@@ -7,7 +7,7 @@
         android:id="@+id/title"
         android:layout_width="fill_parent"
         android:layout_height="60dp"
-        android:background="#ff1d252c"
+        android:background="#bfbfbf"
         android:gravity="center_vertical" >
 
         <TextView
@@ -60,6 +60,13 @@
             style="@style/clickableLayoutTextview"
             android:text="使用帮助"/>
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/distance"
+        android:text="距离："
+        android:layout_below="@+id/layout_help"/>
 
     <Button
         android:id="@+id/btn_logout"

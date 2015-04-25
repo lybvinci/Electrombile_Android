@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.CoordinateConverter;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.utils.Historys;
 import com.xunce.electrombile.R;
@@ -28,6 +29,7 @@ import com.xunce.electrombile.Updata.UpdateAppService;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
+import com.xunce.electrombile.service.GPSDataService;
 import com.xunce.electrombile.widget.ActionItem;
 import com.xunce.electrombile.widget.TitlePopup;
 import android.view.ViewGroup.LayoutParams;
@@ -322,6 +324,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
      */
     @Override
     public void onBackPressed() {
+        //this.finish();
         exit();
     }
 
@@ -338,6 +341,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     protected void onPause() {
         super.onPause();
+        startService(new Intent(FragmentActivity.this, GPSDataService.class));
+        Log.i("退出","ooooooooo");
     }
 
     @Override
@@ -471,15 +476,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     };
 
     @Override
-    public void gpsCallBack(String lat, String lon) {
+    public void gpsCallBack(float lat, float lon) {
         //传递数据给地图的Fragment
-        if(lat != null && lon != null) {
-            float latData = mCenter.parseGPSData(lat);
-            float longData = mCenter.parseGPSData(lon);
-            Log.i(TAG, latData + "aaaa");
-            Log.i(TAG, longData + "qqqq");
-            LatLng point = new LatLng(latData, longData);
-            maptabFragment.locateMobile(point);
-        }
+        Log.i(TAG, lat + "aaaa");
+        Log.i(TAG, lon + "qqqq");
+        LatLng sourcePoint = new LatLng(lat, lon);
+        LatLng desPoint = mCenter.convertPoint(sourcePoint);
+        maptabFragment.locateMobile(desPoint);
     }
+
+
+
 }

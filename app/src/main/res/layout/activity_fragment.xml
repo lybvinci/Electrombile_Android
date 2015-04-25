@@ -8,7 +8,7 @@
         android:id="@+id/aboveLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="#dbdbdb">
+        android:background="#fdfdfd">
         <LinearLayout
             android:id="@+id/fragmentRoot"
             android:layout_width="fill_parent"
@@ -30,10 +30,8 @@
                     android:id="@+id/rbSwitch"
                     style="@style/footbar"
                     android:drawableTop="@drawable/switch_icon"
-                    android:text="开关"
-                    android:textSize="18sp"
-                    android:textColor="@color/blue"
-                    android:checked="true"/>
+                    android:checked="true"
+                    android:paddingTop="8dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -44,8 +42,7 @@
                     android:id="@+id/rbMap"
                     style="@style/footbar"
                     android:drawableTop="@drawable/map_icon"
-                    android:text="地图"
-                    android:textSize="18sp"
+                    android:paddingTop="8dp"
                     android:checked="false"/>
             </LinearLayout>
 
@@ -56,9 +53,8 @@
 
                 <RadioButton
                     android:id="@+id/rbSettings"
-                    style="@style/footbar"
                     android:paddingTop="8dp"
-                    android:text="设置" />
+                    style="@style/footbar"/>
             </LinearLayout>
 
         </LinearLayout>
