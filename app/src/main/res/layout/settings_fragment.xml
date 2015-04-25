@@ -70,6 +70,7 @@
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:layout_marginBottom="100dp"
-        android:text="退出登录"/>
+        android:text="退出登录"
+        android:background="@drawable/special_btn"/>
 
 </RelativeLayout>
