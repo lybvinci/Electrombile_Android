@@ -89,10 +89,10 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 mCenter.cGetStatus(mXpgWifiDevice);
                 break;
             case R.id.layout_help:
-                Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
-                startActivity(intentHelp);
+//                Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
+//                startActivity(intentHelp);
 
-                mCenter.cWhere(mXpgWifiDevice);
+                mCenter.cSwitchOn(mXpgWifiDevice,true);
                // mCenter.cGetStatus(mXpgWifiDevice);
                 //  mCenter.cGprsSend(mXpgWifiDevice);
                 Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");

@@ -98,4 +98,6 @@ public class JsonKeys {
     // Longtitude:经度，单位为分
     public final static String LONG = "long";
 
+    public final static String ON_OFF = "switch";
+
 }

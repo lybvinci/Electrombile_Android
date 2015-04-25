@@ -8,9 +8,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
 import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
 import com.xtremeprog.xpgconnect.XPGWifiSDKListener;
@@ -45,6 +50,9 @@ public class BaseFragment extends Fragment{
 
         private static String TAG = "BaseFragmet:";
 
+    //Test  一会删除
+    public TextView tv_distance;
+
         protected enum loginHandler_key{
             START_LOGIN,
             SUCCESS,
@@ -78,7 +86,7 @@ public class BaseFragment extends Fragment{
         };
 
         protected CmdCenter mCenter;
-        protected XPGWifiDevice mXpgWifiDevice;
+        public static  XPGWifiDevice mXpgWifiDevice;
         protected ConcurrentHashMap<String, Object> deviceDataMap;
         protected SettingManager setManager;
         protected static List<XPGWifiDevice> devicesList = new ArrayList<XPGWifiDevice>();
@@ -93,9 +101,17 @@ public class BaseFragment extends Fragment{
             if(mXpgWifiDevice == null && setManager.getDid() !=null && setManager.getPassCode() !=null)
                 loginHandler.sendEmptyMessage(loginHandler_key.START_LOGIN.ordinal());
 
+
+
         }
 
-        //handler 处理事件
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        tv_distance = (TextView) getActivity().findViewById(R.id.distance);
+    }
+
+    //handler 处理事件
         protected enum handler_key {
 
             /** 更新UI界面 */
@@ -115,7 +131,8 @@ public class BaseFragment extends Fragment{
         }
 
         protected HashMap<String, String> GPS_Data;
-        protected Handler fragmentHandler = new Handler(){
+    protected LatLng pointOld = null;
+    protected Handler fragmentHandler = new Handler(){
             public void handleMessage(Message msg){
                 super.handleMessage(msg);
                 handler_key key= handler_key.values()[msg.what];
@@ -126,10 +143,29 @@ public class BaseFragment extends Fragment{
                             Log.i("info", (String) deviceDataMap.get("data"));
                             String data = (String) deviceDataMap.get("data");
                             HashMap<String,String> hm = mCenter.parseAllData(data);
-                            mGpsChangedListener.gpsCallBack(hm.get(JsonKeys.LAT),hm.get(JsonKeys.LONG));
-                            if(!hm.get(JsonKeys.ALARM).equals("0")){
-                                Intent intent = new Intent(getActivity().getApplicationContext(),AlarmActivity.class);
-                                startActivity(intent);
+                            if(hm.get(JsonKeys.LAT) != null && hm.get(JsonKeys.LONG) != null) {
+                                float latData = mCenter.parseGPSData(hm.get(JsonKeys.LAT));
+                                float longData = mCenter.parseGPSData(hm.get(JsonKeys.LONG));
+                                Log.i(TAG, latData + "PPPPP");
+                                Log.i(TAG, longData + "OOOO");
+                                LatLng pointNewTemp = new LatLng(latData, longData);
+                                LatLng pointNew = mCenter.convertPoint(pointNewTemp);
+                                double distance = 0;
+                                if (pointOld != null) {
+                                    distance = DistanceUtil.getDistance(pointOld, pointNew);
+                                    tv_distance.setText("" + distance);
+                                    Log.i(TAG, distance + "PPPPP");
+                                }
+                                if( pointOld == null && mCenter.alarmFlag) {
+                                    pointOld = pointNew;
+                                    Log.i(TAG, mCenter.alarmFlag + "    PPPPP");
+                                }
+                                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 10) && mCenter.alarmFlag) {
+                                    Intent intent = new Intent(getActivity().getApplicationContext(), AlarmActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                }
+                                mGpsChangedListener.gpsCallBack(latData, longData);
                             }
                         }
                         if (deviceDataMap.get("alters") != null) {
@@ -344,7 +380,7 @@ public class BaseFragment extends Fragment{
 
 
     public interface GPSDataChangeListener{
-        public void gpsCallBack(String lat,String lon);
+        public void gpsCallBack(float lat,float lon);
     }
     @Override
     public void onAttach(Activity activity) {
@@ -354,6 +390,11 @@ public class BaseFragment extends Fragment{
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + "must implement GPSDataChangeListener");
         }
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
     }
 }
 

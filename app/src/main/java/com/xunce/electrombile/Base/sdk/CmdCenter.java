@@ -20,6 +20,8 @@ package com.xunce.electrombile.Base.sdk;
 import android.content.Context;
 import android.util.Log;
 
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.CoordinateConverter;
 import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.config.JsonKeys;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
@@ -63,6 +65,9 @@ public class CmdCenter {
 	 * The m setting manager.
 	 */
 	private SettingManager mSettingManager;
+
+    //报警用的标志位
+    public static boolean alarmFlag = false;
 
 	/**
 	 * Instantiates a new cmd center.
@@ -517,7 +522,7 @@ public class CmdCenter {
             String lat = JSONUtils.ParseJSON(entity0, JsonKeys.LAT);
             Log.i("lat.....",lat);
             String longitude = JSONUtils.ParseJSON(entity0, JsonKeys.LONG);
-            Log.i("longitude.....",longitude);
+           // Log.i("longitude.....",longitude);
             String mcc = JSONUtils.ParseJSON(entity0, JsonKeys.MCC);
             String mnc = JSONUtils.ParseJSON(entity0, JsonKeys.MNC);
             String speed = JSONUtils.ParseJSON(entity0, JsonKeys.SPEED);
@@ -592,6 +597,19 @@ public class CmdCenter {
         y = y/60;
         return x+y;
     }
+
+    public LatLng convertPoint(LatLng sourcePoint){
+        CoordinateConverter cdc = new CoordinateConverter();
+        cdc.from(CoordinateConverter.CoordType.GPS);
+        cdc.coord(sourcePoint);
+        LatLng desPoint = cdc.convert();
+        return desPoint;
+    }
+
+    public void cSwitchOn(XPGWifiDevice xpgWifiDevice, boolean isOn) {
+		cWrite(xpgWifiDevice, JsonKeys.ON_OFF, isOn);
+		cGetStatus(xpgWifiDevice);
+	}
 
 
 
