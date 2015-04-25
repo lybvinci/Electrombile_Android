@@ -22,13 +22,14 @@ import java.util.Random;
 public class AlarmActivity extends Activity{
     Button btnWarmComfirm = null;
     AudioManager aManager = null;
+    MediaPlayer mPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
 
         //播放警铃
-        final MediaPlayer mPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alarm);
+        mPlayer= MediaPlayer.create(getApplicationContext(), R.raw.alarm);
         mPlayer.setLooping(true);
         mPlayer.start();
 
@@ -43,5 +44,13 @@ public class AlarmActivity extends Activity{
         AlarmActivity.this.finish();
             }
         });
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mPlayer.stop();
+        AlarmActivity.this.finish();
     }
 }

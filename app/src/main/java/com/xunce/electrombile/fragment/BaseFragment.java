@@ -19,7 +19,9 @@ import com.xunce.electrombile.Base.config.JsonKeys;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.AlarmActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
+import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -31,6 +33,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by lybvinci on 2015/4/24.
+ * 实现机智云的所有回调接口，监听器。
+ * 解除绑定功能：
+ * 1.需要先绑定设备，如果界面先出现正在登陆设备，而未出现登陆成功，就可能是之前解除绑定过，否则不会出现。
+ * 2.解除绑定功能需要先使用unbindDevice函数，解除绑定，在didunbindDevice里得到结果
+ * 3.同时还需要调用disconnnect函数，断开连接。如果不断开连接，是不能重新绑定设备的。
+ * 4.当解除绑定时，如果出现解除绑定成功，就可以重新绑定新设备了。
+ * 5当解除绑定时出现设备断开连接，则表明解除绑定操作失败，重新打开app，重新解除绑定操作……（我也不知道怎么操作才能正常解除绑定）
  */
 public class BaseFragment extends Fragment{
 
@@ -73,6 +82,7 @@ public class BaseFragment extends Fragment{
         protected ConcurrentHashMap<String, Object> deviceDataMap;
         protected SettingManager setManager;
         protected static List<XPGWifiDevice> devicesList = new ArrayList<XPGWifiDevice>();
+        protected GPSDataChangeListener mGpsChangedListener;
 
         @Override
         public void onCreate(Bundle saveInstanceState){
@@ -114,6 +124,13 @@ public class BaseFragment extends Fragment{
                         Log.i("switchfragment", "RECEIVED XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
                         if (deviceDataMap.get("data") != null) {
                             Log.i("info", (String) deviceDataMap.get("data"));
+                            String data = (String) deviceDataMap.get("data");
+                            HashMap<String,String> hm = mCenter.parseAllData(data);
+                            mGpsChangedListener.gpsCallBack(hm.get(JsonKeys.LAT),hm.get(JsonKeys.LONG));
+                            if(!hm.get(JsonKeys.ALARM).equals("0")){
+                                Intent intent = new Intent(getActivity().getApplicationContext(),AlarmActivity.class);
+                                startActivity(intent);
+                            }
                         }
                         if (deviceDataMap.get("alters") != null) {
                             Log.i("info", (String) deviceDataMap.get("alters"));
@@ -124,30 +141,30 @@ public class BaseFragment extends Fragment{
                             // 返回主线程处理错误数据刷新
                         }
                         if(deviceDataMap.get("binary") != null){
-                            byte[] binary = (byte[])deviceDataMap.get("binary");
-                            String touChuanData = mCenter.cParseString(binary);
-                            if(touChuanData == null)
-                                break;
-                            Log.i("CHUANTOUDATA::::", touChuanData + "xxxxxxxx");
-                            if(touChuanData.equals("SET_TIMER_OK")){
-                                ToastUtils.showShort(getActivity().getApplicationContext(),"GPS定时发送设置成功");
-                            }
-                            else if(touChuanData.equals("SET_SOS_OK")){
-                                ToastUtils.showShort(getActivity().getApplicationContext(),"管理员设置成功");
-                            }
-                            else if(touChuanData.equals("DEL_SOS_OK")){
-                                ToastUtils.showShort(getActivity().getApplicationContext(),"删除管理员成功");
-                            }
-                            else if(touChuanData.equals("SET_SAVING_OK")){
-                                ToastUtils.showShort(getActivity().getApplicationContext(),"模式设置成功");
-                            }
-                            else if(touChuanData.equals("RESET_OK")){
-                                ToastUtils.showShort(getActivity().getApplicationContext(),"重启设备成功");
-                            }
-                            else{
-                                GPS_Data = new HashMap<String, String>();
-                                GPS_Data = mCenter.parseGps(touChuanData);
-                            }
+//                            byte[] binary = (byte[])deviceDataMap.get("binary");
+//                            String touChuanData = mCenter.cParseString(binary);
+//                            if(touChuanData == null)
+//                                break;
+//                            Log.i("CHUANTOUDATA::::", touChuanData + "xxxxxxxx");
+//                            if(touChuanData.equals("SET_TIMER_OK")){
+//                                ToastUtils.showShort(getActivity().getApplicationContext(),"GPS定时发送设置成功");
+//                            }
+//                            else if(touChuanData.equals("SET_SOS_OK")){
+//                                ToastUtils.showShort(getActivity().getApplicationContext(),"管理员设置成功");
+//                            }
+//                            else if(touChuanData.equals("DEL_SOS_OK")){
+//                                ToastUtils.showShort(getActivity().getApplicationContext(),"删除管理员成功");
+//                            }
+//                            else if(touChuanData.equals("SET_SAVING_OK")){
+//                                ToastUtils.showShort(getActivity().getApplicationContext(),"模式设置成功");
+//                            }
+//                            else if(touChuanData.equals("RESET_OK")){
+//                                ToastUtils.showShort(getActivity().getApplicationContext(),"重启设备成功");
+//                            }
+//                            else{
+//                                GPS_Data = new HashMap<String, String>();
+//                                GPS_Data = mCenter.parseGps(touChuanData);
+//                            }
 
                         }
                         break;
@@ -298,8 +315,12 @@ public class BaseFragment extends Fragment{
         protected void didUnbindDevice(int error, String errorMessage, String did) {
             if(error == 0){
                 ToastUtils.showShort(getActivity().getApplicationContext(),"设备解除绑定成功");
+                mCenter.cDisconnect(mXpgWifiDevice);
                 mXpgWifiDevice = null;
                 setManager.cleanDevice();
+              //  mCenter.cDisconnect(mXpgWifiDevice);
+            }else{
+                ToastUtils.showShort(getActivity().getApplicationContext(),"设备解除绑定失败");
             }
         }
 
@@ -322,6 +343,17 @@ public class BaseFragment extends Fragment{
         }
 
 
-
+    public interface GPSDataChangeListener{
+        public void gpsCallBack(String lat,String lon);
+    }
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mGpsChangedListener = (GPSDataChangeListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + "must implement GPSDataChangeListener");
+        }
+    }
 }
 
