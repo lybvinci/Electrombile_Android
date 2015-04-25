@@ -6,8 +6,6 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
-<<<<<<< HEAD
-=======
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
       <profile-state>
@@ -24,7 +22,6 @@
       </profile-state>
     </entry>
   </component>
->>>>>>> jk/master
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
