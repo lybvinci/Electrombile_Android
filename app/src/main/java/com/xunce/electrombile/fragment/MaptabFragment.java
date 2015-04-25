@@ -27,6 +27,7 @@ import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.RecordActivity;
 
@@ -46,6 +47,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
 
 public class MaptabFragment extends Fragment {
 
@@ -65,7 +67,7 @@ public class MaptabFragment extends Fragment {
     Button btnClearTrack;
 
     //maptabFragment 维护一组历史轨迹坐标列表
-    public static List<LatLng> trackDataList;
+    public static List<TrackPoint> trackDataList;
 
     PlayRecordThread m_playThread;
 
@@ -88,7 +90,7 @@ public class MaptabFragment extends Fragment {
         //注意该方法要再setContentView方法之前实现
         SDKInitializer.initialize(this.getActivity().getApplicationContext());
 
-        trackDataList = new ArrayList<LatLng>();
+        trackDataList = new ArrayList<TrackPoint>();
     }
 
 	@Override
@@ -363,9 +365,13 @@ public class MaptabFragment extends Fragment {
     }
 
     private void drawLine(){
+        ArrayList<LatLng> points = new ArrayList<LatLng>();
+        for(TrackPoint tp:trackDataList){
+            points.add(tp.point);
+        }
         //构建用户绘制多边形的Option对象
         OverlayOptions polylineOption = new PolylineOptions()
-                .points(trackDataList)
+                .points(points)
                 .width(5)
                 .color(0xAA00FF00);
         //在地图上添加多边形Option，用于显示
@@ -385,7 +391,7 @@ public class MaptabFragment extends Fragment {
         public void run() {
             super.run();
             while(!isTimeToDie) {
-                for (LatLng pt : trackDataList) {
+                for (TrackPoint pt : trackDataList) {
                     if(isTimeToDie) return;
                     //暂停播放
                     synchronized (PlayRecordThread.class) {
@@ -394,7 +400,7 @@ public class MaptabFragment extends Fragment {
                     //向主线程发出消息，移动地图中心点
                     Message msg = Message.obtain();
                     msg.what = CHANGEPOINT;
-                    msg.obj = pt;
+                    msg.obj = pt.point;
                     playHandler.sendMessage(msg);
 
                     try {

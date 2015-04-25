@@ -25,4 +25,5 @@ dependencies {
     compile files('libs/ZxingScanner.jar')
     compile files('libs/BaiduLBS_Android.jar')
     compile files('libs/XPGWiFiSDK.jar')
+    compile files('libs/avoscloud-sdk-v3.1.5.jar')
 }
