@@ -160,7 +160,8 @@ public class BaseFragment extends Fragment{
                                     pointOld = pointNew;
                                     Log.i(TAG, mCenter.alarmFlag + "    PPPPP");
                                 }
-                                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 10) && mCenter.alarmFlag) {
+                                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag) {
+                                    pointOld = null;
                                     Intent intent = new Intent(getActivity().getApplicationContext(), AlarmActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(intent);

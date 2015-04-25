@@ -55,7 +55,6 @@ public class SwitchFragment extends BaseFragment {
                     Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
                 }else{
                     mCenter.alarmFlag =false;
-                    compoundButton.setBackgroundResource(R.drawable.login_button_white);
                 }
             }
         });
