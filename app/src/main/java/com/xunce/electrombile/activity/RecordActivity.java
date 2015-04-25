@@ -1,7 +1,11 @@
 package com.xunce.electrombile.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
@@ -21,6 +25,7 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
+import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
@@ -37,6 +42,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import com.suredigit.inappfeedback;
 
 /**
  * Created by heyukun on 2015/4/18.
@@ -68,8 +74,11 @@ public class RecordActivity extends Activity{
     //数据适配器
     SimpleAdapter listItemAdapter;
 
-    boolean firstCallback = true;
+    //用来获取时间
     Calendar can;
+
+    //查询失败对话框
+    Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,11 +88,14 @@ public class RecordActivity extends Activity{
         setCustonViewVisibility(false);
         m_listview.setVisibility(View.INVISIBLE);
 
-        tracksManager = new TracksManager();
+        tracksManager = new TracksManager(getApplicationContext());
         can = Calendar.getInstance();
+
+
     }
 
     private void initView(){
+        watiDialog = new ProgressDialog(this);
         btnCuston = (Button)findViewById(R.id.btn_custom);
         btnCuston.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,19 +118,9 @@ public class RecordActivity extends Activity{
                 SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 GregorianCalendar gcStart = new GregorianCalendar(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) - 1);
                 startT = gcStart.getTime();
-                GregorianCalendar gcEnd = new GregorianCalendar(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH)  + 1);
+                GregorianCalendar gcEnd = new GregorianCalendar(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH));
                 endT = gcEnd.getTime();
-//                try {
-//                    startT = new SimpleDateFormat("dd/MM/yyyy").parse("24/04/2015").getTime() / 1000;
-//                    endT = new SimpleDateFormat("dd/MM/yyyy").parse("25/04/2015").getTime() / 1000;
-//
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-//                watiDialog = new ProgressDialog(getApplicationContext());
-//                watiDialog.setCancelable(false);
-//                watiDialog.setMessage("查询中，请稍候...");
-//                watiDialog.show();
+
                 findCloud(startT, endT);
             }
         });
@@ -129,13 +131,14 @@ public class RecordActivity extends Activity{
                 m_listview.setVisibility(View.VISIBLE);
                 setCustonViewVisibility(false);
 
-//                try {
-//                    startT = new SimpleDateFormat("dd/MM/yyyy").parse("23/04/2015").getTime() / 1000;
-//                    endT = new SimpleDateFormat("dd/MM/yyyy").parse("25/04/2015").getTime() / 1000;
-//
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
+                //set start time and end time
+                SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                GregorianCalendar gcStart = new GregorianCalendar(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) - 2);
+                startT = gcStart.getTime();
+                GregorianCalendar gcEnd = new GregorianCalendar(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH));
+                endT = gcEnd.getTime();
+
+                //get data form cloud
                 findCloud(startT, endT);
             }
         });
@@ -150,20 +153,13 @@ public class RecordActivity extends Activity{
                 setCustonViewVisibility(false);
                 m_listview.setVisibility(View.VISIBLE);
 
+                //set start time and end time
+                SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                GregorianCalendar gcStart = new GregorianCalendar(dpBegin.getYear(), dpBegin.getMonth(), dpBegin.getDayOfMonth());
+                startT = gcStart.getTime();
+                GregorianCalendar gcEnd = new GregorianCalendar(dpEnd.getYear(), dpEnd.getMonth(), dpEnd.getDayOfMonth());
+                endT = gcEnd.getTime();
 
-                String startS = ((dpBegin.getDayOfMonth() > 10)?(dpBegin.getDayOfMonth() + ""):("0"+dpBegin.getDayOfMonth())) + "/" +
-                        ((dpBegin.getMonth() + 1 > 10)?((dpBegin.getMonth() + 1)+ ""):("0"+(dpBegin.getMonth() + 1))) + "/" + dpBegin.getYear();
-
-                String endS = ((dpEnd.getDayOfMonth() > 10)?(dpEnd.getDayOfMonth() + ""):("0"+dpEnd.getDayOfMonth())) + "/" +
-                                ((dpEnd.getMonth() + 1 > 10)?((dpEnd.getMonth() + 1)+ ""):("0"+(dpEnd.getMonth() + 1))) + "/" + dpEnd.getYear();
-                Log.i("______", "start:" + startS + "end:" + endS);
-//                try {
-////                startT = new SimpleDateFormat("dd/MM/yyyy").parse(startS).getTime() / 1000;
-////                endT = new SimpleDateFormat("dd/MM/yyyy").parse(endS).getTime() / 1000;
-//
-//                } catch (ParseException e) {
-//                e.printStackTrace();
-//                }
                 findCloud(startT, endT);
             }
         });
@@ -209,6 +205,22 @@ public class RecordActivity extends Activity{
             }
 
         });
+
+        dialog = new AlertDialog.Builder(this)
+                .setPositiveButton("继续查询",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                            }
+                        }).setNegativeButton("返回地图", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+
+                    }
+                }).create();
     }
 
     private void findCloud(Date st, Date et) {
@@ -216,15 +228,28 @@ public class RecordActivity extends Activity{
         query.setLimit(1000);
         query.whereGreaterThan("createdAt", startT);
         query.whereLessThan("createdAt", endT);
+        //watiDialog = ProgressDialog.show(this, "正在查询数据，请稍后…");
+        watiDialog.setMessage("正在查询数据，请稍后…");
+        watiDialog.show();
         query.findInBackground(new FindCallback<AVObject>() {
             @Override
             public void done(List<AVObject> avObjects, AVException e) {
                 if(e == null){
+                    if(avObjects.size() == 0){
+                        dialog.setTitle("此时间段内没有数据");
+                        dialog.show();
+                        return;
+                    }
                     tracksManager.clearTracks();
                     List<AVObject> gpsData = avObjects;
                     tracksManager.setTranks(gpsData);
                     updateListView();
+                    watiDialog.dismiss();
                     listItemAdapter.notifyDataSetChanged();
+                }else{
+                    dialog.setTitle("查询失败");
+                    dialog.show();
+                    watiDialog.dismiss();
                 }
             }
         });
@@ -233,20 +258,47 @@ public class RecordActivity extends Activity{
     private void updateListView(){
         Log.i(TAG, "update list View");
         listItem.clear();
+        //如果没有数据，弹出对话框
+        if(tracksManager.getTracks().size() == 0){
+            dialog.setTitle("此时间段内没有数据");
+            dialog.show();
+            return;
+        }
+
         for(int i=0;i<tracksManager.getTracks().size();i++)
         {
+            //如果当前路线段只有一个点 不显示
+            if(tracksManager.getTracks().get(i).size() == 1) {
+                //tracksManager.getTracks().remove(i);
+                continue;
+            }
             ArrayList<TrackPoint> trackList = tracksManager.getTracks().get(i);
+
+            //获取当前路线段的开始和结束点
             TrackPoint startP = trackList.get(0);
             TrackPoint endP = trackList.get(trackList.size() - 1);
+
+            //计算开始点和结束点时间间隔
             Long diff = (endP.time.getTime() - startP.time.getTime()) / 1000;
             long days = diff / (60 * 60 * 24);
             long hours = (diff-days*(60 * 60 * 24))/(60 * 60);
             long minutes = (diff-days*( 60 * 60 * 24)-hours*(60 * 60))/(60);
+
+            //计算路程
+            double distance = 0;
+            for(int j = 0; j < trackList.size() - 2; j++){
+                LatLng m_start = trackList.get(j).point;
+                LatLng m_end = trackList.get(j +1).point;
+                distance += DistanceUtil.getDistance(m_start, m_end);
+            }
+            int distanceKM = (int)(distance / 1000);
+            int diatanceM = (int)(distance - distanceKM * 1000);
+            //更新列表信息
             HashMap<String, Object> map = new HashMap<String, Object>();
             map.put("ItemTotalTime", "历时:" + days + "天" + hours +"小时" + minutes + "分钟");
             map.put("ItemStartTime", "开始时间:" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(startP.time));
             map.put("ItemEndTime", "结束时间:" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(endP.time));
-            map.put("ItemDistance", "距离:" + DistanceUtil.getDistance(startP.point, endP.point));
+            map.put("ItemDistance", "距离:" + distanceKM + "千米" + diatanceM + "米");
             listItem.add(map);
         }
 

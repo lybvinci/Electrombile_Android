@@ -246,6 +246,7 @@ public class MaptabFragment extends Fragment {
 
         //检查历史轨迹列表，若不为空，则需要绘制轨迹
         if(trackDataList.size() > 0){
+            if(tracksOverlay != null) tracksOverlay.remove();
             enterPlayTrackMode();
             drawLine();
         }
