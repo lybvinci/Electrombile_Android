@@ -243,4 +243,11 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         Log.i("设备列表",devicesList.toString());
         mHandler.sendEmptyMessage(handler_key.LOGIN.ordinal());
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        progressDialog.cancel();
+        ToastUtils.showShort(this,"绑定失败！\n请重启app重新绑定设备");
+    }
 }

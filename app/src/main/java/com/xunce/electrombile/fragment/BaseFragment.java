@@ -33,6 +33,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by lybvinci on 2015/4/24.
+ * 实现机智云的所有回调接口，监听器。
+ * 解除绑定功能：
+ * 1.需要先绑定设备，如果界面先出现正在登陆设备，而未出现登陆成功，就可能是之前解除绑定过，否则不会出现。
+ * 2.解除绑定功能需要先使用unbindDevice函数，解除绑定，在didunbindDevice里得到结果
+ * 3.同时还需要调用disconnnect函数，断开连接。如果不断开连接，是不能重新绑定设备的。
+ * 4.当解除绑定时，如果出现解除绑定成功，就可以重新绑定新设备了。
+ * 5当解除绑定时出现设备断开连接，则表明解除绑定操作失败，重新打开app，重新解除绑定操作……（我也不知道怎么操作才能正常解除绑定）
  */
 public class BaseFragment extends Fragment{
 
