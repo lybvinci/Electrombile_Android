@@ -299,6 +299,7 @@ public class BaseFragment extends Fragment{
                     setManager.setDid(mXpgWifiDevice.getDid());
                     mXpgWifiDevice.setListener(deviceListener);
                     mXpgWifiDevice.login(setManager.getUid(), setManager.getToken());
+                    updateLocation();
                     loginHandler.sendEmptyMessage(loginHandler_key.SUCCESS.ordinal());
                     break;
                 }else{

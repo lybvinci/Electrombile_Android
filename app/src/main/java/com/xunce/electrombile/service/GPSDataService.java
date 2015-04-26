@@ -233,6 +233,7 @@ public class GPSDataService extends Service{
         new Thread() {
             public void run() {
                 try {
+
                     sleep(60000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
