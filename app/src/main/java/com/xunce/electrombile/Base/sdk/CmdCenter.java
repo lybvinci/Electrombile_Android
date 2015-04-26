@@ -20,11 +20,14 @@ package com.xunce.electrombile.Base.sdk;
 import android.content.Context;
 import android.util.Log;
 
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.CoordinateConverter;
 import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.config.JsonKeys;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
 import com.xtremeprog.xpgconnect.XPGWifiSDK;
 import com.xtremeprog.xpgconnect.XPGWifiSDK.XPGWifiConfigureMode;
+import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,6 +65,9 @@ public class CmdCenter {
 	 * The m setting manager.
 	 */
 	private SettingManager mSettingManager;
+
+    //报警用的标志位
+    public static boolean alarmFlag = false;
 
 	/**
 	 * Instantiates a new cmd center.
@@ -241,7 +247,7 @@ public class CmdCenter {
 	 */
 	public void cSetSoftAp(String wifi, String password) {
 		xpgWifiGCC.setDeviceWifi(wifi, password,
-				XPGWifiConfigureMode.XPGWifiConfigureModeSoftAP, 30);
+                XPGWifiConfigureMode.XPGWifiConfigureModeSoftAP, 30);
 	}
 
 	/**
@@ -346,6 +352,7 @@ public class CmdCenter {
 	 */
 	public void cDisconnect(XPGWifiDevice xpgWifiDevice) {
 		xpgWifiDevice.disconnect();
+     //   xpgWifiDevice = null;
 	}
 
 	/**
@@ -363,7 +370,8 @@ public class CmdCenter {
 	public void cUnbindDevice(String uid, String token, String did,
 			String passCode) {
         mSettingManager.cleanDevice();
-		xpgWifiGCC.unbindDevice(uid, token, did, passCode);
+        xpgWifiGCC.unbindDevice(uid, token, did, passCode);
+
 	}
 
 	/**
@@ -500,54 +508,115 @@ public class CmdCenter {
     }
 
     //解析gps数据
-    public HashMap<String, String> parseGps(String data){
-        String Lat = null;
-        String Lon = null;
-        String Course = null;
-        String Speed = null;
-        String DateTime = null;
-        Pattern pLat = Pattern.compile("(Lat:)(\\.*)(,)");
-        Pattern pLon = Pattern.compile("(Lon:)(\\.*)(,)");
-        Pattern pCourse = Pattern.compile("(Course:)(\\.*)(,)");
-        Pattern pSpeed = Pattern.compile("(Speed:)(\\.*)(,)");
-        Pattern pDateTime = Pattern.compile("(DateTime:)(\\.*)");
-        Matcher m = pLat.matcher(data);
-        if(m.find()){
-            Lat = m.group(2);
-        }
-        m = pLon.matcher(data);
-        if(m.find()){
-            Lon = m.group(2);
-        }
-        m = pCourse.matcher(data);
-        if(m.find()){
-            Course = m.group(2);
-        }
-        m = pSpeed.matcher(data);
-        if(m.find()){
-            Speed = m.group(2);
-        }
-        m = pDateTime.matcher(data);
-        if(m.find()){
-            DateTime = m.group(2);
-        }
-        if(Lat != null
-                && Lon != null
-                && Course != null
-                && Speed != null
-                && DateTime != null) {
+    public HashMap<String, String> parseAllData(String data){
+        if(data != null ) {
+            String entity0 = JSONUtils.ParseJSON(data,"entity0");
+            Log.i("entity0.....",entity0);
             HashMap<String, String> hm = new HashMap<String, String>();
-            hm.put("Lat", Lat);
-            hm.put("Lon", Lon);
-            hm.put("Course",Course);
-            hm.put("Speed",Speed);
-            hm.put("DateTime", DateTime);
+            String GPSStatus = JSONUtils.ParseJSON(entity0, JsonKeys.GPSSTATUS);
+            String alarm = JSONUtils.ParseJSON(entity0, JsonKeys.ALARM);
+            Log.i("alarm.....",alarm);
+            String ci = JSONUtils.ParseJSON(entity0, JsonKeys.CI);
+            String course = JSONUtils.ParseJSON(entity0, JsonKeys.COURSE);
+            String lac = JSONUtils.ParseJSON(entity0, JsonKeys.LAC);
+            String lat = JSONUtils.ParseJSON(entity0, JsonKeys.LAT);
+            Log.i("lat.....",lat);
+            String longitude = JSONUtils.ParseJSON(entity0, JsonKeys.LONG);
+           // Log.i("longitude.....",longitude);
+            String mcc = JSONUtils.ParseJSON(entity0, JsonKeys.MCC);
+            String mnc = JSONUtils.ParseJSON(entity0, JsonKeys.MNC);
+            String speed = JSONUtils.ParseJSON(entity0, JsonKeys.SPEED);
+            hm.put(JsonKeys.GPSSTATUS,GPSStatus);
+            hm.put(JsonKeys.ALARM,alarm);
+            hm.put(JsonKeys.CI,ci);
+            hm.put(JsonKeys.COURSE,course);
+            hm.put(JsonKeys.LAC,lac);
+            hm.put(JsonKeys.LAT,lat);
+            hm.put(JsonKeys.LONG,longitude);
+            hm.put(JsonKeys.MCC,mcc);
+            hm.put(JsonKeys.MNC,mnc);
+            hm.put(JsonKeys.SPEED,speed);
             return hm;
-        }
-        else{
+        }else{
             return null;
         }
+
+//        String Lat = null;
+//        String Lon = null;
+//        String Course = null;
+//        String Speed = null;
+//        String DateTime = null;
+//        Pattern pLat = Pattern.compile("(Lat:)(\\.*)(,)");
+//        Pattern pLon = Pattern.compile("(Lon:)(\\.*)(,)");
+//        Pattern pCourse = Pattern.compile("(Course:)(\\.*)(,)");
+//        Pattern pSpeed = Pattern.compile("(Speed:)(\\.*)(,)");
+//        Pattern pDateTime = Pattern.compile("(DateTime:)(\\.*)");
+//        Matcher m = pLat.matcher(data);
+//        if(m.find()){
+//            Lat = m.group(2);
+//        }
+//        m = pLon.matcher(data);
+//        if(m.find()){
+//            Lon = m.group(2);
+//        }
+//        m = pCourse.matcher(data);
+//        if(m.find()){
+//            Course = m.group(2);
+//        }
+//        m = pSpeed.matcher(data);
+//        if(m.find()){
+//            Speed = m.group(2);
+//        }
+//        m = pDateTime.matcher(data);
+//        if(m.find()){
+//            DateTime = m.group(2);
+//        }
+//        if(Lat != null
+//                && Lon != null
+//                && Course != null
+//                && Speed != null
+//                && DateTime != null) {
+//            HashMap<String, String> hm = new HashMap<String, String>();
+//            hm.put("Lat", Lat);
+//            hm.put("Lon", Lon);
+//            hm.put("Course",Course);
+//            hm.put("Speed",Speed);
+//            hm.put("DateTime", DateTime);
+//            return hm;
+//        }
+//        else{
+//            return null;
+//        }
     }
+
+    //解析GPS数据
+    public float parseGPSData(String gps){
+        float data = Float.parseFloat(gps);
+        int x =(int) data/60;
+        float y = data - 60*x;
+        y = y/60;
+        return x+y;
+    }
+
+    public float parseGPSData(float gps){
+        int x =(int) gps/60;
+        float y = gps - 60*x;
+        y = y/60;
+        return x+y;
+    }
+
+    public LatLng convertPoint(LatLng sourcePoint){
+        CoordinateConverter cdc = new CoordinateConverter();
+        cdc.from(CoordinateConverter.CoordType.GPS);
+        cdc.coord(sourcePoint);
+        LatLng desPoint = cdc.convert();
+        return desPoint;
+    }
+
+    public void cSwitchOn(XPGWifiDevice xpgWifiDevice, boolean isOn) {
+		cWrite(xpgWifiDevice, JsonKeys.ON_OFF, isOn);
+		cGetStatus(xpgWifiDevice);
+	}
 
 
 

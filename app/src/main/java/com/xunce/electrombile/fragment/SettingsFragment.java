@@ -14,13 +14,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
+import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 
-public class SettingsFragment extends Fragment implements View.OnClickListener {
+public class SettingsFragment extends BaseFragment implements View.OnClickListener {
 
     private static String TAG = "SettingsFragment:";
     private LinearLayout btnPhoneNumber;
@@ -53,22 +56,51 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         switch (id) {
             case R.id.layout_bind:
                 //systemBtnClicked();
+                if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())){
+               // if(mXpgWifiDevice.isBind(setManager.getUid())){
                 Log.i(TAG, "clicked item layout_relieve_bind");
                 Intent intentStartBinding = new Intent(getActivity().getApplicationContext(), BindingActivity.class);
                 startActivity(intentStartBinding);
+//            }else{
+//                    ToastUtils.showShort(getActivity().getApplicationContext(),"请先解绑设备");
+//                }
+                }else{
+                    ToastUtils.showShort(getActivity().getApplicationContext(),"网络连接错误");
+                    }
                 break;
             case R.id.layout_relieve_bind:
-                //systemBtnClicked();
+                if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())) {
+                    if (mXpgWifiDevice.isConnected()) {
+                        mCenter.cUnbindDevice(setManager.getUid(), setManager.getToken(), setManager.getDid(), setManager.getPassCode());
+                        mCenter.cDisconnect(mXpgWifiDevice);
+                        // mXpgWifiDevice = null;
+                        // BaseActivity.mXpgWifiDevice = null;
+                        //systemBtnClicked();
+                    }else{
+                        ToastUtils.showShort(getActivity().getApplicationContext(), "请尝试连接网络或先绑定设备");
+                    }
+                }else{
+                ToastUtils.showShort(getActivity().getApplicationContext(), "网络连接错误");
+                }
                 break;
             case R.id.layout_phone_number:
                 //systemBtnClicked();
+              //  mCenter.cWrite(mXpgWifiDevice,"Lat","123456789");
+                mCenter.cGetStatus(mXpgWifiDevice);
                 break;
             case R.id.layout_help:
-                Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
-                startActivity(intentHelp);
+//                Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
+//                startActivity(intentHelp);
+
+                mCenter.cSwitchOn(mXpgWifiDevice,true);
+               // mCenter.cGetStatus(mXpgWifiDevice);
+                //  mCenter.cGprsSend(mXpgWifiDevice);
+                Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
                 break;
             case R.id.btn_logout:
                 //systemBtnClicked();
+                mCenter.cLogout();
+                setManager.cleanAll();
                 Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(intentStartLogin);
                 //关闭当前activity

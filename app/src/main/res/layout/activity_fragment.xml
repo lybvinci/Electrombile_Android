@@ -7,8 +7,8 @@
     <RelativeLayout
         android:id="@+id/aboveLayout"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="#dbdbdb">
+        android:layout_height="match_parent"
+        android:background="@color/gainsboro">
         <LinearLayout
             android:id="@+id/fragmentRoot"
             android:layout_width="fill_parent"
@@ -19,7 +19,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@android:color/holo_blue_dark"
+            android:background="@color/transparent"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -30,10 +30,8 @@
                     android:id="@+id/rbSwitch"
                     style="@style/footbar"
                     android:drawableTop="@drawable/switch_icon"
-                    android:text="开关"
-                    android:textSize="18sp"
-                    android:textColor="@color/blue"
-                    android:checked="true"/>
+                    android:checked="true"
+                    android:paddingTop="10dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -44,8 +42,7 @@
                     android:id="@+id/rbMap"
                     style="@style/footbar"
                     android:drawableTop="@drawable/map_icon"
-                    android:text="地图"
-                    android:textSize="18sp"
+                    android:paddingTop="10dp"
                     android:checked="false"/>
             </LinearLayout>
 
@@ -56,9 +53,9 @@
 
                 <RadioButton
                     android:id="@+id/rbSettings"
-                    style="@style/footbar"
-                    android:paddingTop="8dp"
-                    android:text="设置" />
+                    android:paddingTop="10dp"
+                    android:drawableTop="@drawable/setting_icon"
+                    style="@style/footbar"/>
             </LinearLayout>
 
         </LinearLayout>
