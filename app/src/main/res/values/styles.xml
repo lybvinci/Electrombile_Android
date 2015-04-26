@@ -9,10 +9,10 @@
     </style>
     <style name="footbar">
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:button">@null</item>
-        <item name="android:background">@color/transparent</item>
-        <item name="android:gravity">center_vertical</item>
+        <item name="android:gravity">center</item>
+
     </style>
 
     <style name="main_bottom_item">

@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
@@ -42,7 +44,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import com.suredigit.inappfeedback;
 
 /**
  * Created by heyukun on 2015/4/18.
@@ -80,6 +81,8 @@ public class RecordActivity extends Activity{
     //查询失败对话框
     Dialog dialog;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +93,6 @@ public class RecordActivity extends Activity{
 
         tracksManager = new TracksManager(getApplicationContext());
         can = Calendar.getInstance();
-
 
     }
 
@@ -130,6 +132,15 @@ public class RecordActivity extends Activity{
             public void onClick(View view) {
                 m_listview.setVisibility(View.VISIBLE);
                 setCustonViewVisibility(false);
+
+
+//                Intent intent = new Intent(Intent.ACTION_SENDTO);
+//                intent.setType("text/plain");
+//                intent.putExtra(Intent.EXTRA_SUBJECT, "安全宝客户端 - 信息反馈");
+//                intent.putExtra(Intent.EXTRA_TEXT, "nice app");
+//                intent.setData(Uri.parse("mailto:heyukun@huakexunce.com"));
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                startActivity(intent);
 
                 //set start time and end time
                 SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -188,23 +199,23 @@ public class RecordActivity extends Activity{
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                                     long arg3) {
                 MaptabFragment.trackDataList = tracksManager.getTrack(arg2);
-                Toast.makeText(getApplicationContext(), "点击第" + arg2 + "个项目", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "点击第" + arg2 + "个项目", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
 
         //添加长按点击
-        m_listview.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-
-            @Override
-            public void onCreateContextMenu(ContextMenu menu, View v,
-                                            ContextMenuInfo menuInfo) {
-                menu.setHeaderTitle("是否删除此记录");
-                menu.add(0, 0, 0, "确定");
-                menu.add(0, 1, 0, "取消");
-            }
-
-        });
+//        m_listview.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+//
+//            @Override
+//            public void onCreateContextMenu(ContextMenu menu, View v,
+//                                            ContextMenuInfo menuInfo) {
+//                menu.setHeaderTitle("是否删除此记录");
+//                menu.add(0, 0, 0, "确定");
+//                menu.add(0, 1, 0, "取消");
+//            }
+//
+//        });
 
         dialog = new AlertDialog.Builder(this)
                 .setPositiveButton("继续查询",

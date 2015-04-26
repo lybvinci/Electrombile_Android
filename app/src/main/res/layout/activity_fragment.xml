@@ -19,7 +19,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@android:color/holo_blue_dark"
+            android:background="@color/transparent"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -30,8 +30,7 @@
                     android:id="@+id/rbSwitch"
                     style="@style/footbar"
                     android:drawableTop="@drawable/switch_icon"
-                    android:checked="true"
-                    android:paddingTop="8dp" />
+                    android:checked="true"/>
             </LinearLayout>
 
             <LinearLayout
