@@ -47,13 +47,22 @@
         android:layout_marginLeft="25dp"
         android:src="@drawable/switch_fragment_tiao"/>
     <ToggleButton
-        android:layout_width="@dimen/switch_btn_width"
-        android:layout_height="300dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:id="@+id/btn_SystemState"
         android:layout_below="@+id/iv1"
+        android:layout_marginLeft="140dp"
         android:textOn=""
         android:textOff=""
+        android:background="#00000000"
+        android:layout_marginTop="60dp"/>
+
+    <ImageView
+        android:layout_width="@dimen/switch_btn_width"
+        android:layout_height="300dp"
+        android:id="@+id/iv_SystemState"
+        android:layout_below="@+id/iv1"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/switch_framment_tooglebtn"/>
+        android:background="@drawable/switch_fragment_zhuangtai1"/>
 
 </RelativeLayout>
