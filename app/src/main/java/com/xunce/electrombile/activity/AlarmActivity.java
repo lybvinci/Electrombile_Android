@@ -15,6 +15,7 @@ import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.UniversalTool.VibratorUtil;
 
 import java.util.Random;
 
@@ -25,10 +26,12 @@ public class AlarmActivity extends Activity{
     ToggleButton btnWarmComfirm = null;
     AudioManager aManager = null;
     MediaPlayer mPlayer;
+    public static AlarmActivity instance = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
+        VibratorUtil.Vibrate(this,60000);
 
         //播放警铃
         mPlayer= MediaPlayer.create(getApplicationContext(), R.raw.alarm);
@@ -41,8 +44,10 @@ public class AlarmActivity extends Activity{
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(compoundButton.isChecked()){
                     //stop alarm
+                    VibratorUtil.VibrateCancle(AlarmActivity.this);
                     mPlayer.stop();
                     AlarmActivity.this.finish();
+                    AlarmActivity.instance = null;
                 }
             }
         });
@@ -55,6 +60,7 @@ public class AlarmActivity extends Activity{
 //        AlarmActivity.this.finish();
 //            }
 //        });
+        instance = this;
 
     }
 
@@ -62,6 +68,7 @@ public class AlarmActivity extends Activity{
     public void onBackPressed() {
         super.onBackPressed();
         mPlayer.stop();
+        VibratorUtil.VibrateCancle(AlarmActivity.this);
         AlarmActivity.this.finish();
     }
 }

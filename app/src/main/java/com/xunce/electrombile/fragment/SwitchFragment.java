@@ -61,16 +61,15 @@ public class SwitchFragment extends BaseFragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(compoundButton.isChecked()){
-                    mCenter.alarmFlag = true;
-                    mCenter.cGetStatus(mXpgWifiDevice);
-                    //  mCenter.cGprsSend(mXpgWifiDevice);
-                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-                    Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
-
-                    //测试报警
-//                    Intent intent = new Intent(getActivity().getApplicationContext(),AlarmActivity.class);
-//                    startActivity(intent);
-
+                    if(mXpgWifiDevice !=null) {
+                        mCenter.alarmFlag = true;
+                        mCenter.cGetStatus(mXpgWifiDevice);
+                        //  mCenter.cGprsSend(mXpgWifiDevice);
+                        iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+                        Log.i("发送数据SwitchFragment", "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+                    }else{
+                        btnSystem.setChecked(false);
+                    }
                 }else{
                     mCenter.alarmFlag =false;
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);

@@ -15,6 +15,7 @@ import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
 import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
+import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.config.JsonKeys;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
@@ -119,7 +120,7 @@ public class GPSDataService extends Service{
                         if(pointOld == null && mCenter.alarmFlag) {
                             pointOld = pointNew;
                         }
-                        if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag) {
+                        if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag && AlarmActivity.instance == null) {
                             pointOld = null;
                             wakeUpAndUnlock(GPSDataService.this);
                             Intent intent = new Intent(GPSDataService.this, AlarmActivity.class);
@@ -138,12 +139,13 @@ public class GPSDataService extends Service{
                     if(pointOld == null && mCenter.alarmFlag) {
                         pointOld = pointNew;
                     }
-                    if (distance > 100 && mCenter.alarmFlag) {
+                    if (distance > 0.5 && mCenter.alarmFlag && AlarmActivity.instance == null) {
                         pointOld = null;
                         wakeUpAndUnlock(GPSDataService.this);
                         Intent intent = new Intent(GPSDataService.this, AlarmActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         getApplication().startActivity(intent);
+                        mCenter.alarmFlag = false;
                     }
                     Handler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
                     break;
@@ -197,14 +199,14 @@ public class GPSDataService extends Service{
 
     //手动获取数据
     public void updateLocation(){
-        final String httpAPI = "http://api.gizwits.com/app/devdata/" + "YvaJsbzzHEVX4Y2hUcJpGn" + "/latest";
+        final String httpAPI = "http://api.gizwits.com/app/devdata/" + setManager.getDid() + "/latest";
         new Thread(new Runnable() {
             @Override
             public void run() {
                 HttpClient client = new DefaultHttpClient();
                 HttpGet get = new HttpGet(httpAPI);
                 get.addHeader("Content-Type", "application/json");
-                get.addHeader("X-Gizwits-Application-Id", "2e14d50b2d0941678104152d8070a831");
+                get.addHeader("X-Gizwits-Application-Id", Configs.APPID);
                 try {
                     HttpResponse response = client.execute(get);
                     if(response.getStatusLine().getStatusCode() == 200){
@@ -227,13 +229,14 @@ public class GPSDataService extends Service{
     }
 
     private void timeGetData(){
+
         new Thread() {
             public void run() {
                 try {
                     sleep(60000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                } finally{
+                }finally {
                     updateLocation();
                 }
             }

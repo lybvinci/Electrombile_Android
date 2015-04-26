@@ -170,7 +170,9 @@ public class BaseFragment extends Fragment{
                                     pointOld = pointNew;
                                     Log.i(TAG, mCenter.alarmFlag + "    PPPPP");
                                 }
-                                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag) {
+                                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100)
+                                        && mCenter.alarmFlag
+                                        && AlarmActivity.instance == null) {
                                     pointOld = null;
                                     Intent intent = new Intent(getActivity().getApplicationContext(), AlarmActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -235,11 +237,12 @@ public class BaseFragment extends Fragment{
                         if(pointOld == null && mCenter.alarmFlag) {
                             pointOld = pointNew;
                         }
-                        if (distance > 100 && mCenter.alarmFlag) {
+                        if (distance > 0.5 && mCenter.alarmFlag && AlarmActivity.instance == null) {
                             pointOld = null;
                             Intent intent = new Intent(getActivity().getApplicationContext(), AlarmActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
+                            mCenter.alarmFlag = false;
                         }
                         mGpsChangedListener.gpsCallBack(pointNew);
                         fragmentHandler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
@@ -293,6 +296,7 @@ public class BaseFragment extends Fragment{
                 XPGWifiDevice device = devicesList.get(i);
                 if (device != null ) {
                     mXpgWifiDevice = device;
+                    setManager.setDid(mXpgWifiDevice.getDid());
                     mXpgWifiDevice.setListener(deviceListener);
                     mXpgWifiDevice.login(setManager.getUid(), setManager.getToken());
                     loginHandler.sendEmptyMessage(loginHandler_key.SUCCESS.ordinal());
@@ -435,13 +439,14 @@ public class BaseFragment extends Fragment{
     }
 
     protected void timeGetData(){
+
         new Thread() {
             public void run() {
                 try {
                     sleep(60000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                } finally{
+                }finally {
                     updateLocation();
                 }
             }
@@ -449,14 +454,15 @@ public class BaseFragment extends Fragment{
     }
     //手动获取数据
     protected void updateLocation(){
-        final String httpAPI = "http://api.gizwits.com/app/devdata/" + "YvaJsbzzHEVX4Y2hUcJpGn" + "/latest";
+        final String httpAPI = "http://api.gizwits.com/app/devdata/" + setManager.getDid() + "/latest";
+        LogUtil.log.i(httpAPI);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 HttpClient client = new DefaultHttpClient();
                 HttpGet get = new HttpGet(httpAPI);
                 get.addHeader("Content-Type", "application/json");
-                get.addHeader("X-Gizwits-Application-Id", "2e14d50b2d0941678104152d8070a831");
+                get.addHeader("X-Gizwits-Application-Id",Configs.APPID);
                 try {
                     HttpResponse response = client.execute(get);
                     if(response.getStatusLine().getStatusCode() == 200){
