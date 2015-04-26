@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
@@ -27,6 +28,9 @@ import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.xunce.electrombile.Base.sdk.CmdCenter;
+import com.xunce.electrombile.Base.sdk.SettingManager;
+import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.RecordActivity;
 
@@ -41,11 +45,14 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
+import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 
 public class MaptabFragment extends Fragment {
 
@@ -53,9 +60,10 @@ public class MaptabFragment extends Fragment {
 
     //播放线程消息类型
     private final int CHANGEPOINT = 1;
+    private final int LOCATEMESSAGE = 2;
 
     //获取位置信息的http接口
-    private final String httpBase= "http://electrombile.huakexunce.com/position";
+    private final String httpBase= "http://api.gizwits.com/app/devdata/";
     public static MapView mMapView;
     private BaiduMap mBaiduMap;
     Button btnChengeMode;
@@ -65,7 +73,7 @@ public class MaptabFragment extends Fragment {
     Button btnClearTrack;
 
     //maptabFragment 维护一组历史轨迹坐标列表
-    public static List<LatLng> trackDataList;
+    public static List<TrackPoint> trackDataList;
 
     PlayRecordThread m_playThread;
 
@@ -77,6 +85,10 @@ public class MaptabFragment extends Fragment {
     Overlay tracksOverlay;
 
     private boolean isPlaying = false;
+    private CmdCenter mCenter;
+    SettingManager settingManager;
+
+
 
 
     @Override
@@ -88,7 +100,10 @@ public class MaptabFragment extends Fragment {
         //注意该方法要再setContentView方法之前实现
         SDKInitializer.initialize(this.getActivity().getApplicationContext());
 
-        trackDataList = new ArrayList<LatLng>();
+        trackDataList = new ArrayList<TrackPoint>();
+        settingManager = new SettingManager(getActivity().getApplicationContext());
+
+        mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
     }
 
 	@Override
@@ -136,7 +151,7 @@ public class MaptabFragment extends Fragment {
             public void onClick(View view) {
                 if(mBaiduMap != null){
                     //LatLng point = getLatestLocation();
-                    locateMobile(getLatestLocation());
+                    updateLocation();
                 }
             }
         });
@@ -244,6 +259,7 @@ public class MaptabFragment extends Fragment {
 
         //检查历史轨迹列表，若不为空，则需要绘制轨迹
         if(trackDataList.size() > 0){
+            if(tracksOverlay != null) tracksOverlay.remove();
             enterPlayTrackMode();
             drawLine();
         }
@@ -296,76 +312,58 @@ public class MaptabFragment extends Fragment {
         markerMobile.setPosition(point);
     }
 
-    public JSONArray getHttp(final String httpBase){
-        FutureTask<JSONArray> task = new FutureTask<JSONArray>(
-                new Callable<JSONArray>() {
-                    @Override
-                    public JSONArray call() throws Exception {
-                        HttpClient client = new DefaultHttpClient();
-                        HttpGet get = new HttpGet(httpBase);
-                        get.addHeader("Content-Type", "application/json");
-                        get.addHeader("X-Gizwits-Application-Id", "2e14d50b2d0941678104152d8070a831");
-                        try {
-                            HttpResponse response = client.execute(get);
-                            if(response.getStatusLine().getStatusCode() == 200){
-                                String result = EntityUtils.toString(response.getEntity());
-                                return new JSONArray(result);
-                            }
-                            return null;
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            return null;
-                        }
-                    }
-                });
-
-        new Thread(task).start();
-
-        try {
-            //wait the result of http get, if wait for more than 5 secs, return null
-            return task.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return null;
-        } catch (TimeoutException e) {
-            return null;
-        }
-    }
 
     private LatLng getRealtimePos(){
         return new LatLng(30.5171, 114.4392);
     }
 
     //return longitude and latitude data,if no data, returns null
-    public LatLng getLatestLocation(){
-        LatLng location;
-        JSONObject jsonObject;
-        JSONArray m_JSONArray = getHttp("http://api.gizwits.com/app/devdata3?" +
-                "product_key=01fdd12699454be1a072094ec063749d&did=Bt9kPizX3i6a8MmLpJPwVq&" +
-                "start_ts=1429632000&end_ts=1429852794&limit=30&skip=0");
-        if(m_JSONArray == null){
-            Log.e("","m_JSONArray is null" );
-            return null;
-        }
-        try {
-            jsonObject = m_JSONArray.getJSONObject(m_JSONArray.length() - 1);
-            double longt = jsonObject.getDouble("longitude");
-            double lat = jsonObject.getDouble("latitude");
-            location = new LatLng(lat,longt);
-            return location;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public void updateLocation(){
+        final String httpAPI = "http://api.gizwits.com/app/devdata/" + "YvaJsbzzHEVX4Y2hUcJpGn" + "/latest";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient client = new DefaultHttpClient();
+                HttpGet get = new HttpGet(httpAPI);
+                get.addHeader("Content-Type", "application/json");
+                get.addHeader("X-Gizwits-Application-Id", "2e14d50b2d0941678104152d8070a831");
+                LatLng point;
+                try {
+                    HttpResponse response = client.execute(get);
+                    if(response.getStatusLine().getStatusCode() == 200){
+                        String resultJson = EntityUtils.toString(response.getEntity());
+                        String resultLong = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "long");
+                        String resultLat = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "lat");
+                        float fLat = mCenter.parseGPSData(resultLat);
+                        float fLong = mCenter.parseGPSData(resultLong);
+                        LatLng p = mCenter.convertPoint(new LatLng(fLat, fLong));
+                        point= mCenter.convertPoint(new LatLng(fLat, fLong));
+                        //向主线程发出消息，地图定位成功
+                        Message msg = Message.obtain();
+                        msg.what = LOCATEMESSAGE;
+                        msg.obj = point;
+                        playHandler.sendMessage(msg);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //向主线程发出消息，地图定位成功
+                    Message msg = Message.obtain();
+                    msg.what = LOCATEMESSAGE;
+                    msg.obj = null;
+                    playHandler.sendMessage(msg);
+                }
+            }
+        }).start();
     }
 
     private void drawLine(){
+        ArrayList<LatLng> points = new ArrayList<LatLng>();
+        for(TrackPoint tp:trackDataList){
+            points.add(tp.point);
+        }
         //构建用户绘制多边形的Option对象
         OverlayOptions polylineOption = new PolylineOptions()
-                .points(trackDataList)
+                .points(points)
                 .width(5)
                 .color(0xAA00FF00);
         //在地图上添加多边形Option，用于显示
@@ -385,7 +383,7 @@ public class MaptabFragment extends Fragment {
         public void run() {
             super.run();
             while(!isTimeToDie) {
-                for (LatLng pt : trackDataList) {
+                for (TrackPoint pt : trackDataList) {
                     if(isTimeToDie) return;
                     //暂停播放
                     synchronized (PlayRecordThread.class) {
@@ -394,7 +392,7 @@ public class MaptabFragment extends Fragment {
                     //向主线程发出消息，移动地图中心点
                     Message msg = Message.obtain();
                     msg.what = CHANGEPOINT;
-                    msg.obj = pt;
+                    msg.obj = pt.point;
                     playHandler.sendMessage(msg);
 
                     try {
@@ -420,6 +418,17 @@ public class MaptabFragment extends Fragment {
                 case CHANGEPOINT:
                     locateMobile((LatLng) msg.obj);
                     break;
+                case LOCATEMESSAGE:{
+                    if(msg.obj!= null){
+                        locateMobile((LatLng) msg.obj);
+                        break;
+                    }else{
+                        Toast.makeText(getActivity().getApplicationContext(),
+                                "定位数据获取失败，请重试或检查网络",Toast.LENGTH_LONG).show();
+                    }
+
+                }
+
             }
         }
     };

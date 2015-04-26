@@ -19,13 +19,27 @@
         android:layout_height="wrap_content"
         android:textSize="20dip"
         android:layout_width="fill_parent"
-        android:id="@+id/ItemTitle"
+        android:id="@+id/ItemTotalTime"
         />
     <TextView
         android:text="TextView02"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
-        android:layout_below="@+id/ItemTitle"
-        android:id="@+id/ItemText"
+        android:layout_below="@+id/ItemTotalTime"
+        android:id="@+id/ItemStartTime"
+        />
+    <TextView
+        android:text="TextView02"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_below="@+id/ItemStartTime"
+        android:id="@+id/ItemEndTime"
+        />
+    <TextView
+        android:text="TextView02"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_below="@+id/ItemEndTime"
+        android:id="@+id/ItemDistance"
         />
 </RelativeLayout>

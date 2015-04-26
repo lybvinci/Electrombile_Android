@@ -247,7 +247,7 @@ public class CmdCenter {
 	 */
 	public void cSetSoftAp(String wifi, String password) {
 		xpgWifiGCC.setDeviceWifi(wifi, password,
-				XPGWifiConfigureMode.XPGWifiConfigureModeSoftAP, 30);
+                XPGWifiConfigureMode.XPGWifiConfigureModeSoftAP, 30);
 	}
 
 	/**
@@ -594,6 +594,13 @@ public class CmdCenter {
         float data = Float.parseFloat(gps);
         int x =(int) data/60;
         float y = data - 60*x;
+        y = y/60;
+        return x+y;
+    }
+
+    public float parseGPSData(float gps){
+        int x =(int) gps/60;
+        float y = gps - 60*x;
         y = y/60;
         return x+y;
     }
