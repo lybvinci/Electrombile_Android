@@ -349,6 +349,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     protected void onResume() {
         ISSTARTED = true;
+        stopService(new Intent(FragmentActivity.this, GPSDataService.class));
         super.onResume();
     }
 
@@ -477,13 +478,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     };
 
     @Override
-    public void gpsCallBack(float lat, float lon) {
+    public void gpsCallBack(LatLng desLat) {
         //传递数据给地图的Fragment
-        Log.i(TAG, lat + "aaaa");
-        Log.i(TAG, lon + "qqqq");
-        LatLng sourcePoint = new LatLng(lat, lon);
-        LatLng desPoint = mCenter.convertPoint(sourcePoint);
-        maptabFragment.locateMobile(desPoint);
+        maptabFragment.locateMobile(desLat);
     }
 
 
