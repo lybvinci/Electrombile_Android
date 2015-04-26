@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -24,6 +25,7 @@ public class SwitchFragment extends BaseFragment {
     private boolean systemState = false;
     private boolean alarmState = false;
 
+
     private String[] SWITCHKEY = {
             "switch",
             "ring"
@@ -33,6 +35,9 @@ public class SwitchFragment extends BaseFragment {
     private Button btnAlarm;
     private ToggleButton btnSystem;
     private Button btnTest;
+
+    //textview 设置当前位置
+    private TextView switch_fragment_tvLocation;
 
 
     @Override
@@ -45,6 +50,7 @@ public class SwitchFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         btnSystem = (ToggleButton) getActivity().findViewById(R.id.btn_SystemState);
+        switch_fragment_tvLocation = (TextView) getActivity().findViewById(R.id.switch_fragment_tvLocation);
         btnSystem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -53,6 +59,7 @@ public class SwitchFragment extends BaseFragment {
                     mCenter.cGetStatus(mXpgWifiDevice);
                     //  mCenter.cGprsSend(mXpgWifiDevice);
                     Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+
                 }else{
                     mCenter.alarmFlag =false;
                 }

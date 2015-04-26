@@ -7,8 +7,8 @@
     <RelativeLayout
         android:id="@+id/aboveLayout"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="#fdfdfd">
+        android:layout_height="match_parent"
+        android:background="@color/gainsboro">
         <LinearLayout
             android:id="@+id/fragmentRoot"
             android:layout_width="fill_parent"
@@ -30,7 +30,8 @@
                     android:id="@+id/rbSwitch"
                     style="@style/footbar"
                     android:drawableTop="@drawable/switch_icon"
-                    android:checked="true"/>
+                    android:checked="true"
+                    android:paddingTop="10dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -41,7 +42,7 @@
                     android:id="@+id/rbMap"
                     style="@style/footbar"
                     android:drawableTop="@drawable/map_icon"
-                    android:paddingTop="8dp"
+                    android:paddingTop="10dp"
                     android:checked="false"/>
             </LinearLayout>
 
@@ -52,7 +53,8 @@
 
                 <RadioButton
                     android:id="@+id/rbSettings"
-                    android:paddingTop="8dp"
+                    android:paddingTop="10dp"
+                    android:drawableTop="@drawable/setting_icon"
                     style="@style/footbar"/>
             </LinearLayout>
 

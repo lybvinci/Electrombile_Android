@@ -51,6 +51,8 @@
         android:layout_height="300dp"
         android:id="@+id/btn_SystemState"
         android:layout_below="@+id/iv1"
+        android:textOn=""
+        android:textOff=""
         android:layout_centerHorizontal="true"
         android:background="@drawable/switch_framment_tooglebtn"/>
 
