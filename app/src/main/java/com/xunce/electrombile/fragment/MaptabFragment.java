@@ -202,7 +202,7 @@ public class MaptabFragment extends Fragment {
             //将电动车位置移至中心
             MapStatus mMapStatus = new MapStatus.Builder()
                     .target(point)
-                    .zoom(mBaiduMap.getMapStatus().zoom)
+                    .zoom(mBaiduMap.getMapStatus().zoom*2)
                     .build();
             //float a = mBaiduMap.getMapStatus().zoom;
             //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
