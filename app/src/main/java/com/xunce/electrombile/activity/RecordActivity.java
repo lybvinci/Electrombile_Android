@@ -29,6 +29,7 @@ import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
+import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
 import com.xunce.electrombile.R;
@@ -43,6 +44,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -81,7 +84,11 @@ public class RecordActivity extends Activity{
     //查询失败对话框
     Dialog dialog;
 
+    //管理应用数据的类
+    SettingManager sm;
 
+    SimpleDateFormat sdfWithSecond;
+    SimpleDateFormat sdf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +100,13 @@ public class RecordActivity extends Activity{
 
         tracksManager = new TracksManager(getApplicationContext());
         can = Calendar.getInstance();
+        sm = new SettingManager(this);
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+
+        sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
 
     }
 
@@ -118,9 +132,15 @@ public class RecordActivity extends Activity{
                 setCustonViewVisibility(false);
 
                 SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                GregorianCalendar gcStart = new GregorianCalendar(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) - 1);
-                startT = gcStart.getTime();
-                GregorianCalendar gcEnd = new GregorianCalendar(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH));
+
+                GregorianCalendar gcStart = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
+                gcStart.set(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+                startT= gcStart.getTime();
+
+                Log.i(TAG, "timezone:" + gcStart.getTimeZone().getDisplayName() + "Local:" + Locale.getDefault().getDisplayName());
+
+                GregorianCalendar gcEnd = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
+                gcEnd.set(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) + 1, 0, 0, 0);
                 endT = gcEnd.getTime();
 
                 findCloud(startT, endT);
@@ -143,10 +163,13 @@ public class RecordActivity extends Activity{
 //                startActivity(intent);
 
                 //set start time and end time
-                SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                GregorianCalendar gcStart = new GregorianCalendar(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) - 2);
-                startT = gcStart.getTime();
-                GregorianCalendar gcEnd = new GregorianCalendar(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH));
+                GregorianCalendar gcStart = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
+                gcStart.set(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) - 1, 0, 0, 0);
+                startT= gcStart.getTime();
+
+
+                GregorianCalendar gcEnd = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
+                gcEnd.set(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) + 1, 0, 0, 0);
                 endT = gcEnd.getTime();
 
                 //get data form cloud
@@ -165,10 +188,12 @@ public class RecordActivity extends Activity{
                 m_listview.setVisibility(View.VISIBLE);
 
                 //set start time and end time
-                SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                GregorianCalendar gcStart = new GregorianCalendar(dpBegin.getYear(), dpBegin.getMonth(), dpBegin.getDayOfMonth());
-                startT = gcStart.getTime();
-                GregorianCalendar gcEnd = new GregorianCalendar(dpEnd.getYear(), dpEnd.getMonth(), dpEnd.getDayOfMonth());
+                GregorianCalendar gcStart = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
+                gcStart.set(dpBegin.getYear(), dpBegin.getMonth(), dpBegin.getDayOfMonth(), 0, 0, 0);
+                startT= gcStart.getTime();
+
+                GregorianCalendar gcEnd = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
+                gcEnd.set(dpEnd.getYear(), dpEnd.getMonth(), dpEnd.getDayOfMonth(), 0, 0, 0);
                 endT = gcEnd.getTime();
 
                 findCloud(startT, endT);
@@ -204,18 +229,6 @@ public class RecordActivity extends Activity{
             }
         });
 
-        //添加长按点击
-//        m_listview.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-//
-//            @Override
-//            public void onCreateContextMenu(ContextMenu menu, View v,
-//                                            ContextMenuInfo menuInfo) {
-//                menu.setHeaderTitle("是否删除此记录");
-//                menu.add(0, 0, 0, "确定");
-//                menu.add(0, 1, 0, "取消");
-//            }
-//
-//        });
 
         dialog = new AlertDialog.Builder(this)
                 .setPositiveButton("继续查询",
@@ -237,6 +250,7 @@ public class RecordActivity extends Activity{
     private void findCloud(Date st, Date et) {
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1000);
+        query.whereEqualTo("did", sm.getDid());
         query.whereGreaterThan("createdAt", startT);
         query.whereLessThan("createdAt", endT);
         //watiDialog = ProgressDialog.show(this, "正在查询数据，请稍后…");
@@ -249,6 +263,7 @@ public class RecordActivity extends Activity{
                     if(avObjects.size() == 0){
                         dialog.setTitle("此时间段内没有数据");
                         dialog.show();
+                        watiDialog.dismiss();
                         return;
                     }
                     tracksManager.clearTracks();
@@ -290,10 +305,12 @@ public class RecordActivity extends Activity{
             TrackPoint endP = trackList.get(trackList.size() - 1);
 
             //计算开始点和结束点时间间隔
-            Long diff = (endP.time.getTime() - startP.time.getTime()) / 1000;
+            long diff = (endP.time.getTime() - startP.time.getTime()) / 1000 +1;
             long days = diff / (60 * 60 * 24);
             long hours = (diff-days*(60 * 60 * 24))/(60 * 60);
-            long minutes = (diff-days*( 60 * 60 * 24)-hours*(60 * 60))/(60);
+            double minutes = (diff-days*( 60 * 60 * 24.0)-hours*(60 * 60))/(60.0);
+            int secodes = (int)((minutes - Math.floor(minutes)) * 60);
+
 
             //计算路程
             double distance = 0;
@@ -306,9 +323,9 @@ public class RecordActivity extends Activity{
             int diatanceM = (int)(distance - distanceKM * 1000);
             //更新列表信息
             HashMap<String, Object> map = new HashMap<String, Object>();
-            map.put("ItemTotalTime", "历时:" + days + "天" + hours +"小时" + minutes + "分钟");
-            map.put("ItemStartTime", "开始时间:" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(startP.time));
-            map.put("ItemEndTime", "结束时间:" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(endP.time));
+            map.put("ItemTotalTime", "历时:" + days + "天" + hours +"小时" + (int)Math.floor(minutes) + "分钟" + secodes + "秒");
+            map.put("ItemStartTime", "开始时间:" + sdfWithSecond.format(startP.time));
+            map.put("ItemEndTime", "结束时间:" + sdfWithSecond.format(endP.time));
             map.put("ItemDistance", "距离:" + distanceKM + "千米" + diatanceM + "米");
             listItem.add(map);
         }

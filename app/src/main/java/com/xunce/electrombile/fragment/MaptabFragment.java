@@ -28,6 +28,7 @@ import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.Base.utils.TracksManager;
@@ -217,7 +218,7 @@ public class MaptabFragment extends Fragment {
             //将电动车位置移至中心
             MapStatus mMapStatus = new MapStatus.Builder()
                     .target(point)
-                    .zoom(mBaiduMap.getMapStatus().zoom*2)
+                    .zoom(mBaiduMap.getMapStatus().zoom * new Double(1.5).floatValue())
                     .build();
             //float a = mBaiduMap.getMapStatus().zoom;
             //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
@@ -319,14 +320,14 @@ public class MaptabFragment extends Fragment {
 
     //return longitude and latitude data,if no data, returns null
     public void updateLocation(){
-        final String httpAPI = "http://api.gizwits.com/app/devdata/" + "YvaJsbzzHEVX4Y2hUcJpGn" + "/latest";
+        final String httpAPI = "http://api.gizwits.com/app/devdata/" + settingManager.getDid() + "/latest";
         new Thread(new Runnable() {
             @Override
             public void run() {
                 HttpClient client = new DefaultHttpClient();
                 HttpGet get = new HttpGet(httpAPI);
                 get.addHeader("Content-Type", "application/json");
-                get.addHeader("X-Gizwits-Application-Id", "2e14d50b2d0941678104152d8070a831");
+                get.addHeader("X-Gizwits-Application-Id", Configs.APPID);
                 LatLng point;
                 try {
                     HttpResponse response = client.execute(get);
