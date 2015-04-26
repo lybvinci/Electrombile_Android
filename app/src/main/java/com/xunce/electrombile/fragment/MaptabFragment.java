@@ -85,7 +85,9 @@ public class MaptabFragment extends Fragment {
     //轨迹图层
     Overlay tracksOverlay;
 
-    private boolean isPlaying = false;
+    //正在播放轨迹标志
+    public boolean isPlaying = false;
+
     private CmdCenter mCenter;
     SettingManager settingManager;
 
@@ -162,6 +164,8 @@ public class MaptabFragment extends Fragment {
         btnRecord.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                clearData();
+
                 Intent intent = new Intent(getActivity().getApplicationContext(),RecordActivity.class);
                 startActivity(intent);
             }
@@ -173,24 +177,30 @@ public class MaptabFragment extends Fragment {
         btnClearTrack.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                //清除轨迹
-                tracksOverlay.remove();
-                //结束播放线程
-                if(m_playThread != null){
-                    m_playThread.isTimeToDie = true;
-                }
-                m_playThread = null;
+                clearData();
 
-                //电动车标志回到当前位置
-                markerMobile.setPosition(getRealtimePos());
-
-                //清除轨迹数据
-                trackDataList.clear();
-
-                //退出播放轨迹模式
-                exitPlayTrackMode();
             }
         });
+    }
+
+    private void clearData() {
+        //清除轨迹
+        if(tracksOverlay != null)
+            tracksOverlay.remove();
+        //结束播放线程
+        if(m_playThread != null){
+            m_playThread.isTimeToDie = true;
+        }
+        m_playThread = null;
+
+        //电动车标志回到当前位置
+        updateLocation();
+
+        //清除轨迹数据
+        trackDataList.clear();
+
+        //退出播放轨迹模式
+        exitPlayTrackMode();
     }
 
     @Override
@@ -261,6 +271,7 @@ public class MaptabFragment extends Fragment {
         //检查历史轨迹列表，若不为空，则需要绘制轨迹
         if(trackDataList.size() > 0){
             if(tracksOverlay != null) tracksOverlay.remove();
+            locateMobile(trackDataList.get(0).point);
             enterPlayTrackMode();
             drawLine();
         }
@@ -275,10 +286,12 @@ public class MaptabFragment extends Fragment {
     }
 
     private void enterPlayTrackMode(){
+        isPlaying = true;
         btnClearTrack.setVisibility(View.VISIBLE);
         btnPlayOrPause.setVisibility(View.VISIBLE);
     }
     private void exitPlayTrackMode(){
+        isPlaying = false;
         btnClearTrack.setVisibility(View.INVISIBLE);
         btnPlayOrPause.setVisibility(View.INVISIBLE);
         btnPlayOrPause.setText("开始");
@@ -314,9 +327,6 @@ public class MaptabFragment extends Fragment {
     }
 
 
-    private LatLng getRealtimePos(){
-        return new LatLng(30.5171, 114.4392);
-    }
 
     //return longitude and latitude data,if no data, returns null
     public void updateLocation(){
@@ -435,6 +445,7 @@ public class MaptabFragment extends Fragment {
     };
 
     private void pausePlay(){
+        if(m_playThread!= null)
             m_playThread.PAUSE = true;
     };
 

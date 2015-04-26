@@ -115,7 +115,7 @@ public class BaseFragment extends Fragment{
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        tv_distance = (TextView) getActivity().findViewById(R.id.distance);
+        //tv_distance = (TextView) getActivity().findViewById(R.id.distance);
     }
 
     //handler 处理事件

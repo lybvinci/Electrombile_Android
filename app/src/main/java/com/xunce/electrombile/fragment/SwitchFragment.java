@@ -15,18 +15,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.geocode.GeoCodeResult;
+import com.baidu.mapapi.search.geocode.GeoCoder;
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.AlarmActivity;
 import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 
-public class SwitchFragment extends BaseFragment {
+public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultListener {
 
     private static String TAG = "SwitchFragment:";
     private final int IS_FINISH = 1;
     private boolean systemState = false;
     private boolean alarmState = false;
-
+    GeoCoder mSearch = null; // 搜索模块，也可去掉地图模块独立使用
 
     private String[] SWITCHKEY = {
             "switch",
@@ -46,6 +53,9 @@ public class SwitchFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
+        // 初始化搜索模块，注册事件监听
+        mSearch = GeoCoder.newInstance();
+        mSearch.setOnGetGeoCodeResultListener(this);
 
     }
 
@@ -133,6 +143,23 @@ public class SwitchFragment extends BaseFragment {
 //    public interface GPSDataChangeListener{
 //        public void gpsCallBack(String lat,String lon);
 //    }
+    public void reverserGeoCedec(LatLng pCenter){
+        mSearch.reverseGeoCode(new ReverseGeoCodeOption()
+                .location(pCenter));
+    }
+    @Override
+    public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
 
+    }
+
+    @Override
+    public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
+        if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
+//            Toast.makeText(GeoCoderDemo.this, "抱歉，未能找到结果", Toast.LENGTH_LONG)
+//                    .show();
+            return;
+        }
+        switch_fragment_tvLocation.setText(result.getAddress());
+    }
 
 }

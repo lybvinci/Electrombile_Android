@@ -480,7 +480,10 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     public void gpsCallBack(LatLng desLat) {
         //传递数据给地图的Fragment
-        maptabFragment.locateMobile(desLat);
+        //如果正在播放轨迹，则更新位置
+        if(!maptabFragment.isPlaying)
+            maptabFragment.locateMobile(desLat);
+        switchFragment.reverserGeoCedec(desLat);
     }
 
 
