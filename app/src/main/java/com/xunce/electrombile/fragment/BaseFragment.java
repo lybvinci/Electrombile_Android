@@ -237,7 +237,7 @@ public class BaseFragment extends Fragment{
                         if(pointOld == null && mCenter.alarmFlag) {
                             pointOld = pointNew;
                         }
-                        if (distance > 0.5 && mCenter.alarmFlag && AlarmActivity.instance == null) {
+                        if (distance > 500 && mCenter.alarmFlag && AlarmActivity.instance == null) {
                             pointOld = null;
                             Intent intent = new Intent(getActivity().getApplicationContext(), AlarmActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -299,6 +299,7 @@ public class BaseFragment extends Fragment{
                     setManager.setDid(mXpgWifiDevice.getDid());
                     mXpgWifiDevice.setListener(deviceListener);
                     mXpgWifiDevice.login(setManager.getUid(), setManager.getToken());
+                    updateLocation();
                     loginHandler.sendEmptyMessage(loginHandler_key.SUCCESS.ordinal());
                     break;
                 }else{

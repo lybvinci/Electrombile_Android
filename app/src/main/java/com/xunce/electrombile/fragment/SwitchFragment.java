@@ -1,7 +1,5 @@
 package com.xunce.electrombile.fragment;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -75,14 +73,14 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                         mCenter.alarmFlag = true;
                         mCenter.cGetStatus(mXpgWifiDevice);
                         //  mCenter.cGprsSend(mXpgWifiDevice);
-                        iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+                        iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                         Log.i("发送数据SwitchFragment", "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
                     }else{
                         btnSystem.setChecked(false);
                     }
                 }else{
                     mCenter.alarmFlag =false;
-                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                 }
             }
         });
