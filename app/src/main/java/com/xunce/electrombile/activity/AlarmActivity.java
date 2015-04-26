@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 
 import com.xunce.electrombile.R;
 
@@ -20,7 +22,7 @@ import java.util.Random;
  * Created by heyukun on 2015/4/3.
  */
 public class AlarmActivity extends Activity{
-    Button btnWarmComfirm = null;
+    ToggleButton btnWarmComfirm = null;
     AudioManager aManager = null;
     MediaPlayer mPlayer;
     @Override
@@ -33,17 +35,26 @@ public class AlarmActivity extends Activity{
         mPlayer.setLooping(true);
         mPlayer.start();
 
-        btnWarmComfirm = (Button)findViewById(R.id.btn_warning_confirm);
-        btnWarmComfirm.setOnClickListener(new View.OnClickListener() {
+        btnWarmComfirm = (ToggleButton) findViewById(R.id.btn_warning_confirm);
+        btnWarmComfirm.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                //Intent intent = new Intent(AlarmActivity.this, FragmentActivity.class);
-                //startActivity(intent);
-        //stop alarm
-        mPlayer.stop();
-        AlarmActivity.this.finish();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(compoundButton.isChecked()){
+                    //stop alarm
+                    mPlayer.stop();
+                    AlarmActivity.this.finish();
+                }
             }
         });
+//            @Override
+//            public void onClick(View view) {
+//                //Intent intent = new Intent(AlarmActivity.this, FragmentActivity.class);
+//                //startActivity(intent);
+//        //stop alarm
+//        mPlayer.stop();
+//        AlarmActivity.this.finish();
+//            }
+//        });
 
     }
 

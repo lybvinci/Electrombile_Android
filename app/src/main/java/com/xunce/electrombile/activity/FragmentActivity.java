@@ -98,7 +98,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 isupde=bundle.getBoolean("isupdate");
                 a=bundle.getInt("want");
                 if (isupde) {
-                    updata();isupde=false;
+                    updata();
+                    isupde=false;
                 }
             }
         };

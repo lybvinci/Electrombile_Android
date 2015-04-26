@@ -60,13 +60,22 @@
             style="@style/clickableLayoutTextview"
             android:text="使用帮助"/>
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_login_again"
+        android:layout_below="@+id/layout_help"
+        android:layout_marginTop="1dp"
+        style="@style/clickableLayout">
+        <TextView
+            style="@style/clickableLayoutTextview"
+            android:text="登录设备"/>
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/distance"
         android:text="距离："
-        android:layout_below="@+id/layout_help"/>
+        android:layout_below="@+id/layout_login_again"/>
 
     <Button
         android:id="@+id/btn_logout"
@@ -76,7 +85,7 @@
         android:layout_centerHorizontal="true"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="80dp"
         android:text="退出登录"
         android:background="@drawable/special_btn"/>
 

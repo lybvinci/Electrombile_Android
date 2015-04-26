@@ -1,6 +1,7 @@
 package com.xunce.electrombile.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.AlarmActivity;
+import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 
 public class SwitchFragment extends BaseFragment {
@@ -63,6 +66,10 @@ public class SwitchFragment extends BaseFragment {
                     //  mCenter.cGprsSend(mXpgWifiDevice);
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                     Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+
+                    //测试报警
+//                    Intent intent = new Intent(getActivity().getApplicationContext(),AlarmActivity.class);
+//                    startActivity(intent);
 
                 }else{
                     mCenter.alarmFlag =false;

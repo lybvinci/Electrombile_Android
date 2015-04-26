@@ -70,6 +70,8 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
               case START_BIND:
                   progressDialog.show();
                   startBind(passcode, did);
+                  //超时设置
+                  timeOut();
                   break;
               case SUCCESS:
                //   ToastUtils.showShort(BindingActivity.this, "添加成功");
@@ -162,7 +164,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                     et_did.setText(did);
                     setManager.setDid(did);
                     et_passCode.setText(passcode);
-                    bind_btn.setVisibility(View.INVISIBLE);
+                   // bind_btn.setVisibility(View.INVISIBLE);
                     mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());
                 }
             }
@@ -248,5 +250,19 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         super.onBackPressed();
         progressDialog.cancel();
         ToastUtils.showShort(this,"绑定失败！\n请重启app重新绑定设备");
+    }
+
+    private void timeOut(){
+        new Thread() {
+            public void run() {
+                try {
+                    sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally{
+                    mHandler.sendEmptyMessage(handler_key.FAILED.ordinal());
+                }
+            }
+        }.start();
     }
 }

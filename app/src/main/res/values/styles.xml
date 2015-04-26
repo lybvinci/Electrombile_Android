@@ -30,7 +30,7 @@
     </style>
 
     <style name="EditTextTheme" parent="NoMarginEditTextTheme">
-        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginTop">0dp</item>
         <item name="android:layout_marginRight">10dp</item>
         <item name="android:layout_marginBottom">10dp</item>
         <item name="android:layout_marginLeft">10dp</item>
@@ -46,7 +46,7 @@
     <style name="NoMarginEditTextTheme">
         <item name="android:textSize">16sp</item>
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:background">@drawable/login_input_box</item>
     </style>
     <style name="noBackgroundDialog" parent="android:style/Theme.Dialog">
