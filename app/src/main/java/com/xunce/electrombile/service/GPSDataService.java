@@ -139,7 +139,7 @@ public class GPSDataService extends Service{
                     if(pointOld == null && mCenter.alarmFlag) {
                         pointOld = pointNew;
                     }
-                    if (distance > 0.5 && mCenter.alarmFlag && AlarmActivity.instance == null) {
+                    if (distance > 500 && mCenter.alarmFlag && AlarmActivity.instance == null) {
                         pointOld = null;
                         wakeUpAndUnlock(GPSDataService.this);
                         Intent intent = new Intent(GPSDataService.this, AlarmActivity.class);

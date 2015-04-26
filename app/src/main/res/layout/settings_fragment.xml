@@ -26,6 +26,10 @@
         android:layout_marginTop="60dp"
         android:orientation="horizontal"
         style="@style/clickableLayout">
+        <ImageView
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:src="@drawable/setting_tel"/>
         <TextView
             style="@style/clickableLayoutTextview"
             android:text="设备手机号"/>
@@ -36,6 +40,10 @@
         android:layout_below="@+id/layout_phone_number"
         android:layout_marginTop="1dp"
         style="@style/clickableLayout">
+        <ImageView
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:src="@drawable/setting_bangdingshebei"/>
         <TextView
             style="@style/clickableLayoutTextview"
             android:text="绑定设备"/>
@@ -46,6 +54,10 @@
         android:layout_below="@+id/layout_bind"
         android:layout_marginTop="1dp"
         style="@style/clickableLayout">
+        <ImageView
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:src="@drawable/setting_tel"/>
         <TextView
             style="@style/clickableLayoutTextview"
             android:text="解除绑定"/>
@@ -56,6 +68,10 @@
         android:layout_below="@+id/layout_relieve_bind"
         android:layout_marginTop="1dp"
         style="@style/clickableLayout">
+        <ImageView
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:src="@drawable/setting_help"/>
         <TextView
             style="@style/clickableLayoutTextview"
             android:text="使用帮助"/>
@@ -65,6 +81,10 @@
         android:layout_below="@+id/layout_help"
         android:layout_marginTop="1dp"
         style="@style/clickableLayout">
+        <ImageView
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:src="@drawable/setting_tel"/>
         <TextView
             style="@style/clickableLayoutTextview"
             android:text="登录设备"/>
