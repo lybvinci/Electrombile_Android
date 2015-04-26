@@ -13,6 +13,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.geocode.GeoCodeResult;
+import com.baidu.mapapi.search.geocode.GeoCoder;
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
@@ -33,11 +39,14 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
     private LinearLayout login_again;
     private Button btnLogout;
 
+    GeoCoder mSearch = null; // 搜索模块，也可去掉地图模块独立使用
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView called!");
         initView();
+
 		return inflater.inflate(R.layout.settings_fragment, container, false);
 	}
 
@@ -127,4 +136,5 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
 		super.onActivityCreated(savedInstanceState);
 		//((TextView)getView().findViewById(R.id.tvTop)).setText("设置");
 	}
+
 }

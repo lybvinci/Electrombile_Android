@@ -154,13 +154,7 @@ public class RecordActivity extends Activity{
                 setCustonViewVisibility(false);
 
 
-//                Intent intent = new Intent(Intent.ACTION_SENDTO);
-//                intent.setType("text/plain");
-//                intent.putExtra(Intent.EXTRA_SUBJECT, "安全宝客户端 - 信息反馈");
-//                intent.putExtra(Intent.EXTRA_TEXT, "nice app");
-//                intent.setData(Uri.parse("mailto:heyukun@huakexunce.com"));
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                startActivity(intent);
+
 
                 //set start time and end time
                 GregorianCalendar gcStart = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
@@ -250,9 +244,10 @@ public class RecordActivity extends Activity{
     private void findCloud(Date st, Date et) {
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1000);
-        query.whereEqualTo("did", sm.getDid());
-        query.whereGreaterThan("createdAt", startT);
+        query.whereEqualTo("did", "YvaJsbzzHEVX4Y2hUcJpGn");
+        query.whereGreaterThanOrEqualTo("createdAt", startT);
         query.whereLessThan("createdAt", endT);
+        //query.whereEqualTo("objectId", "553c92b0e4b034be7f0d6532");
         //watiDialog = ProgressDialog.show(this, "正在查询数据，请稍后…");
         watiDialog.setMessage("正在查询数据，请稍后…");
         watiDialog.show();
@@ -260,6 +255,8 @@ public class RecordActivity extends Activity{
             @Override
             public void done(List<AVObject> avObjects, AVException e) {
                 if(e == null){
+                    if(avObjects.size() > 0)
+                        Log.e(TAG,"oooooooooooooook--------" + avObjects.size());
                     if(avObjects.size() == 0){
                         dialog.setTitle("此时间段内没有数据");
                         dialog.show();

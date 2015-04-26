@@ -37,7 +37,7 @@
         android:orientation="horizontal"
         android:layout_below="@+id/tv_companyInfo"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp">
+        android:layout_marginTop="60dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -51,6 +51,18 @@
             android:textSize="20sp"
             android:autoLink="phone" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_feadBack"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="100dp"
+        android:text="反馈"
+        android:background="@drawable/common_btn"/>
 
     <Button
         android:id="@+id/btn_returnFromFelp"
