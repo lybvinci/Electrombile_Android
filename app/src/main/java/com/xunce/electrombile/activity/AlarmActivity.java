@@ -11,8 +11,11 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.UniversalTool.VibratorUtil;
 
 import java.util.Random;
 
@@ -20,30 +23,44 @@ import java.util.Random;
  * Created by heyukun on 2015/4/3.
  */
 public class AlarmActivity extends Activity{
-    Button btnWarmComfirm = null;
+    ToggleButton btnWarmComfirm = null;
     AudioManager aManager = null;
     MediaPlayer mPlayer;
+    public static AlarmActivity instance = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
+        VibratorUtil.Vibrate(this,60000);
 
         //播放警铃
         mPlayer= MediaPlayer.create(getApplicationContext(), R.raw.alarm);
         mPlayer.setLooping(true);
         mPlayer.start();
 
-        btnWarmComfirm = (Button)findViewById(R.id.btn_warning_confirm);
-        btnWarmComfirm.setOnClickListener(new View.OnClickListener() {
+        btnWarmComfirm = (ToggleButton) findViewById(R.id.btn_warning_confirm);
+        btnWarmComfirm.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                //Intent intent = new Intent(AlarmActivity.this, FragmentActivity.class);
-                //startActivity(intent);
-        //stop alarm
-        mPlayer.stop();
-        AlarmActivity.this.finish();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(compoundButton.isChecked()){
+                    //stop alarm
+                    VibratorUtil.VibrateCancle(AlarmActivity.this);
+                    mPlayer.stop();
+                    AlarmActivity.this.finish();
+                    AlarmActivity.instance = null;
+                }
             }
         });
+//            @Override
+//            public void onClick(View view) {
+//                //Intent intent = new Intent(AlarmActivity.this, FragmentActivity.class);
+//                //startActivity(intent);
+//        //stop alarm
+//        mPlayer.stop();
+//        AlarmActivity.this.finish();
+//            }
+//        });
+        instance = this;
 
     }
 
@@ -51,6 +68,7 @@ public class AlarmActivity extends Activity{
     public void onBackPressed() {
         super.onBackPressed();
         mPlayer.stop();
+        VibratorUtil.VibrateCancle(AlarmActivity.this);
         AlarmActivity.this.finish();
     }
 }

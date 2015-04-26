@@ -10,17 +10,27 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
 import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
+import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.config.JsonKeys;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.activity.AlarmActivity;
 import com.xunce.electrombile.fragment.BaseFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
+import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,6 +45,8 @@ public class GPSDataService extends Service{
     private XPGWifiDevice mXpgWifiDevice;
     private SettingManager setManager;
     LatLng pointOld = null;
+    private LatLng pointNew;
+
     //handler 处理事件
     private enum handler_key {
         /** 更新UI界面 */
@@ -47,6 +59,11 @@ public class GPSDataService extends Service{
         RECEIVED,
         /** 获取设备状态 */
         GET_STATUE,
+
+        //手动获取数据
+        SHOUDONGREC,
+        //手动刷新时间
+        SHOUDONGTIME,
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -69,6 +86,7 @@ public class GPSDataService extends Service{
             Log.i(TAG,"设备正常启动后台");
             mXpgWifiDevice.setListener(deviceListener);
         }
+        Handler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -102,7 +120,7 @@ public class GPSDataService extends Service{
                         if(pointOld == null && mCenter.alarmFlag) {
                             pointOld = pointNew;
                         }
-                        if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag) {
+                        if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag && AlarmActivity.instance == null) {
                             pointOld = null;
                             wakeUpAndUnlock(GPSDataService.this);
                             Intent intent = new Intent(GPSDataService.this, AlarmActivity.class);
@@ -110,6 +128,32 @@ public class GPSDataService extends Service{
                             getApplication().startActivity(intent);
                         }
                     }
+                    break;
+                case SHOUDONGREC:
+                    LogUtil.log.i( "SHOUDONGREC");
+                    double distance = 0;
+                    if(pointOld != null) {
+                        distance = DistanceUtil.getDistance(pointOld, pointNew);
+                        Log.i(TAG,distance + "LLLL");
+                    }
+                    if(pointOld == null && mCenter.alarmFlag) {
+                        pointOld = pointNew;
+                    }
+                    if (distance > 0.5 && mCenter.alarmFlag && AlarmActivity.instance == null) {
+                        pointOld = null;
+                        wakeUpAndUnlock(GPSDataService.this);
+                        Intent intent = new Intent(GPSDataService.this, AlarmActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getApplication().startActivity(intent);
+                        mCenter.alarmFlag = false;
+                    }
+                    Handler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
+                    break;
+                case SHOUDONGTIME:
+                    LogUtil.log.i( "SHOUDONGTIME");
+                    timeGetData();
+                  //  updateLocation();
+                    break;
             }
         }
     };
@@ -151,6 +195,52 @@ public class GPSDataService extends Service{
         wl.acquire();
         //释放
         wl.release();
+    }
+
+    //手动获取数据
+    public void updateLocation(){
+        final String httpAPI = "http://api.gizwits.com/app/devdata/" + setManager.getDid() + "/latest";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient client = new DefaultHttpClient();
+                HttpGet get = new HttpGet(httpAPI);
+                get.addHeader("Content-Type", "application/json");
+                get.addHeader("X-Gizwits-Application-Id", Configs.APPID);
+                try {
+                    HttpResponse response = client.execute(get);
+                    if(response.getStatusLine().getStatusCode() == 200){
+                        String resultJson = EntityUtils.toString(response.getEntity());
+                        String resultLong = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "long");
+                        String resultLat = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "lat");
+                        float fLat = mCenter.parseGPSData(resultLat);
+                        float fLong = mCenter.parseGPSData(resultLong);
+                        pointNew= mCenter.convertPoint(new LatLng(fLat, fLong));
+                        LogUtil.log.i( "GPSDDDDDDDDDDDDDDDD" + pointNew.toString());
+                        //向主线程发出消息，地图定位成功
+                        Handler.sendEmptyMessage(handler_key.SHOUDONGREC.ordinal());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Handler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
+                }
+            }
+        }).start();
+    }
+
+    private void timeGetData(){
+
+        new Thread() {
+            public void run() {
+                try {
+                    sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }finally {
+                    updateLocation();
+                }
+            }
+        }.start();
     }
 
 }

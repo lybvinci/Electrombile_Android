@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
@@ -31,6 +32,14 @@ import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import com.xunce.electrombile.activity.BaseActivity;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,9 +109,7 @@ public class BaseFragment extends Fragment{
             mXpgWifiDevice = BaseActivity.mXpgWifiDevice;
             if(mXpgWifiDevice == null && setManager.getDid() !=null && setManager.getPassCode() !=null)
                 loginHandler.sendEmptyMessage(loginHandler_key.START_LOGIN.ordinal());
-
-
-
+            fragmentHandler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
         }
 
     @Override
@@ -128,10 +135,13 @@ public class BaseFragment extends Fragment{
 
             /** 获取设备状态 */
             GET_STATUE,
+        SHOUDONGREC,
+        SHOUDONGTIME,
         }
 
         protected HashMap<String, String> GPS_Data;
     protected LatLng pointOld = null;
+    private LatLng pointNew;
     protected Handler fragmentHandler = new Handler(){
             public void handleMessage(Message msg){
                 super.handleMessage(msg);
@@ -149,7 +159,7 @@ public class BaseFragment extends Fragment{
                                 Log.i(TAG, latData + "PPPPP");
                                 Log.i(TAG, longData + "OOOO");
                                 LatLng pointNewTemp = new LatLng(latData, longData);
-                                LatLng pointNew = mCenter.convertPoint(pointNewTemp);
+                                pointNew = mCenter.convertPoint(pointNewTemp);
                                 double distance = 0;
                                 if (pointOld != null) {
                                     distance = DistanceUtil.getDistance(pointOld, pointNew);
@@ -160,13 +170,15 @@ public class BaseFragment extends Fragment{
                                     pointOld = pointNew;
                                     Log.i(TAG, mCenter.alarmFlag + "    PPPPP");
                                 }
-                                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag) {
+                                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100)
+                                        && mCenter.alarmFlag
+                                        && AlarmActivity.instance == null) {
                                     pointOld = null;
                                     Intent intent = new Intent(getActivity().getApplicationContext(), AlarmActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(intent);
                                 }
-                                mGpsChangedListener.gpsCallBack(latData, longData);
+                                mGpsChangedListener.gpsCallBack(pointNew);
                             }
                         }
                         if (deviceDataMap.get("alters") != null) {
@@ -213,6 +225,32 @@ public class BaseFragment extends Fragment{
                         break;
                     case DISCONNECTED:
                         break;
+
+                    case SHOUDONGREC:
+                        LogUtil.log.i( "SHOUDONGREC" );
+                        //   LatLng pointNew = mCenter.convertPoint(pointNewTemp);
+                        double distance = 0;
+                        if(pointOld != null) {
+                            distance = DistanceUtil.getDistance(pointOld, pointNew);
+                            Log.i(TAG,distance + "LLLL");
+                        }
+                        if(pointOld == null && mCenter.alarmFlag) {
+                            pointOld = pointNew;
+                        }
+                        if (distance > 0.5 && mCenter.alarmFlag && AlarmActivity.instance == null) {
+                            pointOld = null;
+                            Intent intent = new Intent(getActivity().getApplicationContext(), AlarmActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            mCenter.alarmFlag = false;
+                        }
+                        mGpsChangedListener.gpsCallBack(pointNew);
+                        fragmentHandler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
+                        break;
+                    case SHOUDONGTIME:
+                        LogUtil.log.i( "SHOUDONGTIME" );
+                        timeGetData();
+                        break;
                 }
             }
         };
@@ -244,6 +282,7 @@ public class BaseFragment extends Fragment{
                 BaseFragment.this.didReceiveData(device, dataMap, result);
             }
 
+
         };
 
         /**
@@ -257,6 +296,7 @@ public class BaseFragment extends Fragment{
                 XPGWifiDevice device = devicesList.get(i);
                 if (device != null ) {
                     mXpgWifiDevice = device;
+                    setManager.setDid(mXpgWifiDevice.getDid());
                     mXpgWifiDevice.setListener(deviceListener);
                     mXpgWifiDevice.login(setManager.getUid(), setManager.getToken());
                     loginHandler.sendEmptyMessage(loginHandler_key.SUCCESS.ordinal());
@@ -336,6 +376,7 @@ public class BaseFragment extends Fragment{
                 BaseFragment.this.didUnbindDevice(error, errorMessage, did);
             }
 
+
         };
 
 
@@ -352,10 +393,9 @@ public class BaseFragment extends Fragment{
         protected void didUnbindDevice(int error, String errorMessage, String did) {
             if(error == 0){
                 ToastUtils.showShort(getActivity().getApplicationContext(),"设备解除绑定成功");
-                mCenter.cDisconnect(mXpgWifiDevice);
+           //     mCenter.cDisconnect(mXpgWifiDevice);
                 mXpgWifiDevice = null;
                 setManager.cleanDevice();
-              //  mCenter.cDisconnect(mXpgWifiDevice);
             }else{
                 ToastUtils.showShort(getActivity().getApplicationContext(),"设备解除绑定失败");
             }
@@ -381,7 +421,7 @@ public class BaseFragment extends Fragment{
 
 
     public interface GPSDataChangeListener{
-        public void gpsCallBack(float lat,float lon);
+        public void gpsCallBack(LatLng desLat);
     }
     @Override
     public void onAttach(Activity activity) {
@@ -396,6 +436,51 @@ public class BaseFragment extends Fragment{
     @Override
     public void onPause(){
         super.onPause();
+    }
+
+    protected void timeGetData(){
+
+        new Thread() {
+            public void run() {
+                try {
+                    sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }finally {
+                    updateLocation();
+                }
+            }
+        }.start();
+    }
+    //手动获取数据
+    protected void updateLocation(){
+        final String httpAPI = "http://api.gizwits.com/app/devdata/" + setManager.getDid() + "/latest";
+        LogUtil.log.i(httpAPI);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient client = new DefaultHttpClient();
+                HttpGet get = new HttpGet(httpAPI);
+                get.addHeader("Content-Type", "application/json");
+                get.addHeader("X-Gizwits-Application-Id",Configs.APPID);
+                try {
+                    HttpResponse response = client.execute(get);
+                    if(response.getStatusLine().getStatusCode() == 200){
+                        String resultJson = EntityUtils.toString(response.getEntity());
+                        String resultLong = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "long");
+                        String resultLat = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "lat");
+                        float fLat = mCenter.parseGPSData(resultLat);
+                        float fLong = mCenter.parseGPSData(resultLong);
+                        pointNew= mCenter.convertPoint(new LatLng(fLat, fLong));
+                        //向主线程发出消息，地图定位成功
+                        fragmentHandler.sendEmptyMessage(handler_key.SHOUDONGREC.ordinal());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    fragmentHandler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
+                }
+            }
+        }).start();
     }
 }
 

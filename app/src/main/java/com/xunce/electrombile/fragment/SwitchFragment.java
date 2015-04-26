@@ -1,6 +1,7 @@
 package com.xunce.electrombile.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,11 +12,14 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.AlarmActivity;
+import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 
 public class SwitchFragment extends BaseFragment {
@@ -35,6 +39,7 @@ public class SwitchFragment extends BaseFragment {
     private Button btnAlarm;
     private ToggleButton btnSystem;
     private Button btnTest;
+    private ImageView iv_SystemState;
 
     //textview 设置当前位置
     private TextView switch_fragment_tvLocation;
@@ -51,17 +56,23 @@ public class SwitchFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         btnSystem = (ToggleButton) getActivity().findViewById(R.id.btn_SystemState);
         switch_fragment_tvLocation = (TextView) getActivity().findViewById(R.id.switch_fragment_tvLocation);
+        iv_SystemState = (ImageView) getActivity().findViewById(R.id.iv_SystemState);
         btnSystem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(compoundButton.isChecked()){
-                    mCenter.alarmFlag = true;
-                    mCenter.cGetStatus(mXpgWifiDevice);
-                    //  mCenter.cGprsSend(mXpgWifiDevice);
-                    Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
-
+                    if(mXpgWifiDevice !=null) {
+                        mCenter.alarmFlag = true;
+                        mCenter.cGetStatus(mXpgWifiDevice);
+                        //  mCenter.cGprsSend(mXpgWifiDevice);
+                        iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+                        Log.i("发送数据SwitchFragment", "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+                    }else{
+                        btnSystem.setChecked(false);
+                    }
                 }else{
                     mCenter.alarmFlag =false;
+                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                 }
             }
         });

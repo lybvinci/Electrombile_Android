@@ -30,6 +30,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
     private LinearLayout btnBind;
     private LinearLayout btnRelieveBind;
     private LinearLayout btnHelp;
+    private LinearLayout login_again;
     private Button btnLogout;
 
 	@Override
@@ -48,6 +49,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
         view.findViewById(R.id.layout_relieve_bind).setOnClickListener(this);
         view.findViewById(R.id.layout_help).setOnClickListener(this);
         view.findViewById(R.id.btn_logout).setOnClickListener(this);
+        view.findViewById(R.id.layout_login_again).setOnClickListener(this);
     }
 
     @Override
@@ -61,9 +63,6 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 Log.i(TAG, "clicked item layout_relieve_bind");
                 Intent intentStartBinding = new Intent(getActivity().getApplicationContext(), BindingActivity.class);
                 startActivity(intentStartBinding);
-//            }else{
-//                    ToastUtils.showShort(getActivity().getApplicationContext(),"请先解绑设备");
-//                }
                 }else{
                     ToastUtils.showShort(getActivity().getApplicationContext(),"网络连接错误");
                     }
@@ -89,13 +88,9 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 mCenter.cGetStatus(mXpgWifiDevice);
                 break;
             case R.id.layout_help:
-//                Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
-//                startActivity(intentHelp);
+                Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
+                startActivity(intentHelp);
 
-                mCenter.cSwitchOn(mXpgWifiDevice,true);
-               // mCenter.cGetStatus(mXpgWifiDevice);
-                //  mCenter.cGprsSend(mXpgWifiDevice);
-                Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
                 break;
             case R.id.btn_logout:
                 //systemBtnClicked();
@@ -105,6 +100,13 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 startActivity(intentStartLogin);
                 //关闭当前activity
                 getActivity().finish();
+                break;
+            case R.id.layout_login_again:
+                if(!mXpgWifiDevice.isConnected() && setManager.getDid() !=null && setManager.getPassCode() !=null) {
+                    loginHandler.sendEmptyMessage(loginHandler_key.START_LOGIN.ordinal());
+                }else{
+                    ToastUtils.showShort(getActivity().getApplicationContext(),"未绑定或已登陆设备");
+                }
                 break;
             default:
                 break;
@@ -116,6 +118,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
         btnRelieveBind = (LinearLayout)getActivity().findViewById(R.id.layout_relieve_bind);
         btnHelp = (LinearLayout)getActivity().findViewById(R.id.layout_help);
         btnLogout = (Button)getActivity().findViewById(R.id.btn_logout);
+        login_again = (LinearLayout) getActivity().findViewById(R.id.layout_login_again);
     }
 
     @Override
