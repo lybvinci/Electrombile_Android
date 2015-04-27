@@ -28,6 +28,7 @@ import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.CoordinateConverter;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.utils.Historys;
+import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.Updata.UpdateAppService;
 import com.xunce.electrombile.fragment.MaptabFragment;
@@ -54,8 +55,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.Calendar;
 
 
 /**
@@ -376,6 +378,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     protected void onDestroy() {
         ISSTARTED = false;
+        cancelNotification();
         super.onDestroy();
     }
 
@@ -502,7 +505,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         //传递数据给地图的Fragment
         //如果正在播放轨迹，则更新位置
         if(!maptabFragment.isPlaying)
-            maptabFragment.locateMobile(desLat);
+            maptabFragment.locateMobile(new TracksManager.TrackPoint(Calendar.getInstance().getTime(),desLat));
+//        maptabFragment.currentTrack.time = Calendar.getInstance().getTime();
+//        maptabFragment.currentTrack.point = desLat;
         switchFragment.reverserGeoCedec(desLat);
     }
 
@@ -514,8 +519,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             float Flat = bundle.getFloat("LAT");
             float Flong = bundle.getFloat("LONG");
             LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
-            if(!maptabFragment.isPlaying)
-                maptabFragment.locateMobile(point);
+            if(!maptabFragment.isPlaying) {
+                maptabFragment.locateMobile(new TracksManager.TrackPoint(Calendar.getInstance().getTime(),point));
+            }
             switchFragment.reverserGeoCedec(point);
         }
     }

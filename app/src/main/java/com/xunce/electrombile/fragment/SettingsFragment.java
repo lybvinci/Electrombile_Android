@@ -98,8 +98,9 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
 
                 break;
             case R.id.btn_logout:
-                mCenter.cLogout();
+           //     mCenter.cLogout();
 //                setManager.cleanAll();
+                setManager.cleanAll();
                 Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(intentStartLogin);
                 getActivity().stopService(new Intent(getActivity().getApplicationContext(), GPSDataService.class));

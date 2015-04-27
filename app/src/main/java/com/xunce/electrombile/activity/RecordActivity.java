@@ -244,7 +244,7 @@ public class RecordActivity extends Activity{
     private void findCloud(Date st, Date et) {
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1000);
-        query.whereEqualTo("did", "YvaJsbzzHEVX4Y2hUcJpGn");
+        query.whereEqualTo("did",sm.getDid());
         query.whereGreaterThanOrEqualTo("createdAt", startT);
         query.whereLessThan("createdAt", endT);
         //query.whereEqualTo("objectId", "553c92b0e4b034be7f0d6532");

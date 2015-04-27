@@ -23,6 +23,7 @@ import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.UniversalTool.VibratorUtil;
 import com.xunce.electrombile.activity.AlarmActivity;
 import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
@@ -73,9 +74,11 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                         mCenter.alarmFlag = true;
                         //mCenter.cGetStatus(mXpgWifiDevice);
                         //  mCenter.cGprsSend(mXpgWifiDevice);
+                        VibratorUtil.Vibrate(getActivity(),1000);
                         iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                         Log.i("发送数据SwitchFragment", "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
                     }else{
+                        VibratorUtil.Vibrate(getActivity(),1000);
                         btnSystem.setChecked(false);
                     }
                 }else{
