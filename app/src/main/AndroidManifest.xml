@@ -82,6 +82,7 @@
         </activity>
         <activity
             android:name=".activity.account.RegisterActivity"
+            android:theme="@style/registerActivity"
             android:label="RegisterActivity" >
         </activity>
         <activity

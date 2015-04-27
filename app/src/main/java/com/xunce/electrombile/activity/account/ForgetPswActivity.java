@@ -262,15 +262,15 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 							etInputPsw
 									.setInputType(InputType.TYPE_CLASS_TEXT
 											| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-							etInputPsw.setKeyListener(DigitsKeyListener
-									.getInstance(getResources().getString(
-                                            R.string.register_name_digits)));
+//							etInputPsw.setKeyListener(DigitsKeyListener
+//									.getInstance(getResources().getString(
+//                                            R.string.register_name_digits)));
 						} else {
 							etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 									| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-							etInputPsw.setKeyListener(DigitsKeyListener
-									.getInstance(getResources().getString(
-                                            R.string.register_name_digits)));
+//							etInputPsw.setKeyListener(DigitsKeyListener
+//									.getInstance(getResources().getString(
+//                                            R.string.register_name_digits)));
 						}
 					}
 

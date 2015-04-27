@@ -76,10 +76,9 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                         //  mCenter.cGprsSend(mXpgWifiDevice);
                         VibratorUtil.Vibrate(getActivity(),1000);
                         iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-                        Log.i("发送数据SwitchFragment", "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
                     }else{
-                        VibratorUtil.Vibrate(getActivity(),1000);
                         btnSystem.setChecked(false);
+                        iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                     }
                 }else{
                     mCenter.alarmFlag =false;
@@ -97,19 +96,6 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         return inflater.inflate(R.layout.switch_fragment, container, false);
     }
 
-//    private void restoreStateWhenFail(String keyString) {
-//        if (keyString.equals(SWITCHKEY[0])) {
-//            Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
-//            btnSystem.setBackgroundResource(R.drawable.common_btn_normal);
-//        } else if (keyString.equals(SWITCHKEY[1])) {
-//            Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
-//            btnAlarm.setBackgroundResource(R.drawable.common_btn_normal);
-//        }
-//    }
-
-//    public interface GPSDataChangeListener{
-//        public void gpsCallBack(String lat,String lon);
-//    }
     public void reverserGeoCedec(LatLng pCenter){
         mSearch.reverseGeoCode(new ReverseGeoCodeOption()
                 .location(pCenter));
@@ -122,8 +108,6 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     @Override
     public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
         if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
-//            Toast.makeText(GeoCoderDemo.this, "抱歉，未能找到结果", Toast.LENGTH_LONG)
-//                    .show();
             return;
         }
         switch_fragment_tvLocation.setText(result.getAddress());

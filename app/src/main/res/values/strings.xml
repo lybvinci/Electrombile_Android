@@ -91,5 +91,6 @@
     <string name="user_name">user name</string>
     <string name="logout">logout</string>
     <string name="dialog_call_sure_to_logout">sure logout？</string>
+    <string name="company_name">武汉小安科技有限公司</string>
 
 </resources>

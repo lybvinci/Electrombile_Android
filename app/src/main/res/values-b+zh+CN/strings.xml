@@ -88,5 +88,6 @@
     <string name="logout">注销</string>
     <string name="dialog_call_sure_to_logout">确定要注销，返回登陆界面吗？</string>
     <string name="appInfo">安全宝 V1.0</string>
-    <string name="companyInfo">武汉小安科技有限公司是电动车防盗智能硬件领域的领跑者，专注于用最新的技术解决每一个客户的电动车安全问题。</string>
+    <string name="companyInfo">武汉小安科技有限公司是电动车防盗智能硬件领域的领跑者\n专注于用最新的技术解决每一个客户的电动车安全问题。</string>
+    <string name="company_name">武汉小安科技有限公司</string>
 </resources>

@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.utils.CoordinateConverter;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.utils.Historys;
 import com.xunce.electrombile.Base.utils.TracksManager;
@@ -35,7 +34,6 @@ import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
 import com.xunce.electrombile.service.GPSDataService;
-import com.xunce.electrombile.widget.ActionItem;
 import com.xunce.electrombile.widget.TitlePopup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RadioButton;
@@ -79,9 +77,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private SettingsFragment settingsFragment;
     public static String THE_INSTALLATION_ID;
     private ImageButton btnSettings = null;
-    private TitlePopup titlePopup;
+  //  private TitlePopup titlePopup;
     public static NotificationManager manager;
-    Handler MyHandler;
+//    Handler MyHandler;
     RadioButton rbSwitch;
     RadioButton rbMap;
     RadioButton rbSettings;
@@ -100,24 +98,23 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         setContentView(R.layout.activity_fragment);
         mCenter = CmdCenter.getInstance(this);
         m_FMer = getSupportFragmentManager();
-        MyHandler=new Handler()
-        {
-            public void handleMessage(Message msg)
-            {
-                super.handleMessage(msg);
-                Bundle bundle=msg.getData();
-                isupde=bundle.getBoolean("isupdate");
-                a=bundle.getInt("want");
-                if (isupde) {
-                    updata();
-                    isupde=false;
-                }
-            }
-        };
+//        MyHandler=new Handler()
+//        {
+//            public void handleMessage(Message msg)
+//            {
+//                super.handleMessage(msg);
+//                Bundle bundle=msg.getData();
+//                isupde=bundle.getBoolean("isupdate");
+//                a=bundle.getInt("want");
+//                if (isupde) {
+//                    upData();
+//                    isupde=false;
+//                }
+//            }
+//        };
         Checkversion();
         initNotificaton();
         initView();
-        initData();
 
         dealBottomButtonsClickEvent();
 
@@ -136,6 +133,22 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 startService(new Intent(FragmentActivity.this, GPSDataService.class));
         }
     }
+
+
+    Handler MyHandler=new Handler()
+    {
+        public void handleMessage(Message msg)
+        {
+            super.handleMessage(msg);
+            Bundle bundle=msg.getData();
+            isupde=bundle.getBoolean("isupdate");
+            a=bundle.getInt("want");
+            if (isupde) {
+                upData();
+                isupde=false;
+            }
+        }
+    };
     /**
      * 界面初始化
      */
@@ -145,58 +158,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         rbMap = (RadioButton) findViewById(R.id.rbMap);
         rbSettings = (RadioButton)findViewById(R.id.rbSettings);
         //实例化标题栏弹窗
-        titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-//        //设置按钮监听函数
-//        btnSettings = (ImageButton) findViewById(R.id.title_btn);
-//        btnSettings.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                titlePopup.show(view);
-//            }
-//        });
-//
-//        titlePopup.setItemOnClickListener(new OnItemOnClickListener() {
-//            @Override
-//            public void onItemClick(ActionItem item, int position) {
-//                switch (position) {
-//                    case SETTINGS_ITEM1:
-//                        Log.i(TAG, "clicked item 1");
-//                        break;
-//                    case SETTINGS_ITEM2:
-//                        Log.i(TAG, "clicked item 2");
-//                        Intent intentStartBinding = new Intent(FragmentActivity.this, BindingActivity.class);
-//                        startActivity(intentStartBinding);
-//                        break;
-//                    case SETTINGS_ITEM3:
-//                        Log.i(TAG, "clicked item 3");
-//                        break;
-//                    case SETTINGS_ITEM4:
-//                        Log.i(TAG, "clicked item 4");
-//                     //   AVUser.logOut();             //清除缓存用户对象
-//                        //启动登陆activity
-//                        Intent intentStartLogin = new Intent(FragmentActivity.this, LoginActivity.class);
-//                        startActivity(intentStartLogin);
-//                        //关闭当前activity
-//                        FragmentActivity.this.finish();
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//        });
+        //titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     }
 
-    /**
-     * 初始化数据
-     */
-    private void initData() {
-        //给标题栏弹窗添加子类
-        titlePopup.addAction(new ActionItem(this, "权限设置"));
-        titlePopup.addAction(new ActionItem(this, "绑定设备"));
-        titlePopup.addAction(new ActionItem(this, "使用帮助"));
-        titlePopup.addAction(new ActionItem(this, "退出登录"));
-    }
 
     /**
      * 初始化首个Fragment
@@ -311,7 +275,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     /**
      * 检查更新
      */
-    public void updata() {
+    public void upData() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("软件升级")
                 .setMessage("发现新版本,建议立即更新使用.")
@@ -459,7 +423,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     //显示常驻通知栏
     void showNotification(){
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Notification notification = new Notification(R.drawable.icon,"安全宝",System.currentTimeMillis());
+        Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
         //下面这句用来自定义通知栏
         //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
         Intent intent = new Intent(this,FragmentActivity.class);

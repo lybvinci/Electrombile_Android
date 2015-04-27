@@ -20,24 +20,24 @@
 
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/layout_phone_number"
-        android:layout_below="@+id/title"
-        android:layout_marginTop="60dp"
-        android:orientation="horizontal"
-        style="@style/clickableLayout">
-        <ImageView
-            style="@style/settings_fragment_iv"
-            android:src="@drawable/setting_tel"/>
-        <TextView
-            style="@style/clickableLayoutTextview"
-            android:text="设备手机号"/>
-    </LinearLayout>
+    <!--<LinearLayout-->
+        <!--android:id="@+id/layout_phone_number"-->
+        <!--android:layout_below="@+id/title"-->
+        <!--android:layout_marginTop="60dp"-->
+        <!--android:orientation="horizontal"-->
+        <!--style="@style/clickableLayout">-->
+        <!--<ImageView-->
+            <!--style="@style/settings_fragment_iv"-->
+            <!--android:src="@drawable/setting_tel"/>-->
+        <!--<TextView-->
+            <!--style="@style/clickableLayoutTextview"-->
+            <!--android:text="设备手机号"/>-->
+    <!--</LinearLayout>-->
 
     <LinearLayout
         android:id="@+id/layout_bind"
-        android:layout_below="@+id/layout_phone_number"
-        android:layout_marginTop="1dp"
+        android:layout_below="@+id/title"
+        android:layout_marginTop="60dp"
         style="@style/clickableLayout">
         <ImageView
             style="@style/settings_fragment_iv"
@@ -47,22 +47,22 @@
             android:text="绑定设备"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/layout_relieve_bind"
-        android:layout_below="@+id/layout_bind"
-        android:layout_marginTop="1dp"
-        style="@style/clickableLayout">
-        <ImageView
-            style="@style/settings_fragment_iv"
-            android:src="@drawable/setting_tel"/>
-        <TextView
-            style="@style/clickableLayoutTextview"
-            android:text="解除绑定"/>
-    </LinearLayout>
+    <!--<LinearLayout-->
+        <!--android:id="@+id/layout_relieve_bind"-->
+        <!--android:layout_below="@+id/layout_bind"-->
+        <!--android:layout_marginTop="1dp"-->
+        <!--style="@style/clickableLayout">-->
+        <!--<ImageView-->
+            <!--style="@style/settings_fragment_iv"-->
+            <!--android:src="@drawable/setting_tel"/>-->
+        <!--<TextView-->
+            <!--style="@style/clickableLayoutTextview"-->
+            <!--android:text="解除绑定"/>-->
+    <!--</LinearLayout>-->
 
     <LinearLayout
         android:id="@+id/layout_help"
-        android:layout_below="@+id/layout_relieve_bind"
+        android:layout_below="@+id/layout_bind"
         android:layout_marginTop="1dp"
         style="@style/clickableLayout">
         <ImageView
@@ -72,18 +72,18 @@
             style="@style/clickableLayoutTextview"
             android:text="使用帮助"/>
     </LinearLayout>
-    <LinearLayout
-        android:id="@+id/layout_login_again"
-        android:layout_below="@+id/layout_help"
-        android:layout_marginTop="1dp"
-        style="@style/clickableLayout">
-        <ImageView
-            style="@style/settings_fragment_iv"
-            android:src="@drawable/setting_tel"/>
-        <TextView
-            style="@style/clickableLayoutTextview"
-            android:text="登录设备"/>
-    </LinearLayout>
+    <!--<LinearLayout-->
+        <!--android:id="@+id/layout_login_again"-->
+        <!--android:layout_below="@+id/layout_help"-->
+        <!--android:layout_marginTop="1dp"-->
+        <!--style="@style/clickableLayout">-->
+        <!--<ImageView-->
+            <!--style="@style/settings_fragment_iv"-->
+            <!--android:src="@drawable/setting_tel"/>-->
+        <!--<TextView-->
+            <!--style="@style/clickableLayoutTextview"-->
+            <!--android:text="登录设备"/>-->
+    <!--</LinearLayout>-->
 
     <Button
         android:id="@+id/btn_logout"

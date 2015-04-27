@@ -57,7 +57,7 @@ public class BaseFragment extends Fragment{
                 loginHandler_key key = loginHandler_key.values()[msg.what];
                 switch (key){
                     case START_LOGIN:
-                        ToastUtils.showShort(getActivity().getApplicationContext(), "正在登陆设备");
+           //             ToastUtils.showShort(getActivity().getApplicationContext(), "正在登陆设备");
                         mCenter.getXPGWifiSDK().getBoundDevices(setManager.getUid(),setManager.getToken(), Configs.PRODUCT_KEY);
                         break;
                     case SUCCESS:
@@ -328,7 +328,7 @@ public class BaseFragment extends Fragment{
          *            设备对象
          */
         protected void didDisconnected(XPGWifiDevice device) {
-            ToastUtils.showLong(getActivity().getApplicationContext(),"设备连接断开，请重连");
+          //  ToastUtils.showLong(getActivity().getApplicationContext(),"设备连接断开，请重连");
         }
 
 
