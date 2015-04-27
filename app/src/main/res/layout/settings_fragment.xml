@@ -37,7 +37,7 @@
     <LinearLayout
         android:id="@+id/layout_bind"
         android:layout_below="@+id/title"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="0dp"
         style="@style/clickableLayout">
         <ImageView
             style="@style/settings_fragment_iv"

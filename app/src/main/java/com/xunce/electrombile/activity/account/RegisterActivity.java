@@ -36,6 +36,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.SignUpCallback;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
@@ -388,6 +391,8 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				Toast.makeText(this, "密码长度应为6~16", Toast.LENGTH_SHORT).show();
 				return;
 			}
+            //leancloud注册
+            loginByLeanCloud(phone, password);
 			mCenter.cRegisterPhoneUser(phone, code, password);
 			Log.e("Register", "phone=" + phone + ";code=" + code + ";password="
                     + password);
@@ -414,7 +419,23 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 
 	}
 
-	/**
+    //leancloud注册
+    private void loginByLeanCloud(String phone, String password) {
+        AVUser user = new AVUser();
+        user.setUsername(phone);
+        user.setPassword(password);
+        user.signUpInBackground(new SignUpCallback() {
+            public void done(AVException e) {
+                if (e == null) {
+                    // successfully
+                } else {
+                    // failed
+                }
+            }
+        });
+    }
+
+    /**
 	 * 处理发送验证码动作
 	 * 
 	 * @param phone

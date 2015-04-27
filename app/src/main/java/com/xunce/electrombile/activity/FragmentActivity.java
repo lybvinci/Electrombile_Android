@@ -127,7 +127,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }catch (Exception e){
             e.printStackTrace();
         }
-        showNotification();
+        showNotification("安全宝正在保护您的爱车");
         if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
             if(!GPSDataService.isRunning)
                 startService(new Intent(FragmentActivity.this, GPSDataService.class));
@@ -315,15 +315,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         exit();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.menu_set, menu);
-
-        return true;
-
-    }
-
 
     @Override
     protected void onPause() {
@@ -421,7 +412,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     }
 
     //显示常驻通知栏
-    void showNotification(){
+    public void showNotification(String text){
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
         //下面这句用来自定义通知栏
@@ -429,7 +420,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         Intent intent = new Intent(this,FragmentActivity.class);
         notification.flags = Notification.FLAG_ONGOING_EVENT;
         PendingIntent contextIntent = PendingIntent.getActivity(this,0,intent,0);
-        notification.setLatestEventInfo(getApplicationContext(),"安全宝","正在保护您的电动车",contextIntent);
+        notification.setLatestEventInfo(getApplicationContext(),"安全宝",text,contextIntent);
         notificationManager.notify(R.string.app_name, notification);
     }
     //取消显示常驻通知栏
@@ -483,10 +474,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             float Flat = bundle.getFloat("LAT");
             float Flong = bundle.getFloat("LONG");
             LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
-            if(!maptabFragment.isPlaying) {
-                maptabFragment.locateMobile(new TracksManager.TrackPoint(Calendar.getInstance().getTime(),point));
+            try {
+                if (!maptabFragment.isPlaying) {
+                    maptabFragment.locateMobile(new TracksManager.TrackPoint(Calendar.getInstance().getTime(), point));
+                }
+                switchFragment.reverserGeoCedec(point);
+            }catch (Exception e){
+                //
             }
-            switchFragment.reverserGeoCedec(point);
         }
     }
 

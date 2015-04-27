@@ -1,5 +1,9 @@
 package com.xunce.electrombile.fragment;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,8 +29,10 @@ import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.UniversalTool.VibratorUtil;
 import com.xunce.electrombile.activity.AlarmActivity;
+import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
+import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultListener {
 
@@ -74,13 +80,18 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                         mCenter.alarmFlag = true;
                         //mCenter.cGetStatus(mXpgWifiDevice);
                         //  mCenter.cGprsSend(mXpgWifiDevice);
+                        cancelNotification();
                         VibratorUtil.Vibrate(getActivity(),1000);
+                        showNotification("安全宝防盗系统已启动");
                         iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                     }else{
+                        ToastUtils.showShort(getActivity().getApplicationContext(),"请先绑定设备");
                         btnSystem.setChecked(false);
                         iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                     }
                 }else{
+                    cancelNotification();
+                    showNotification("安全宝防盗系统已关闭");
                     mCenter.alarmFlag =false;
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                 }
@@ -111,6 +122,28 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             return;
         }
         switch_fragment_tvLocation.setText(result.getAddress());
+    }
+
+    //显示常驻通知栏
+    public void showNotification(String text){
+        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(getActivity().
+                getApplicationContext()
+                .NOTIFICATION_SERVICE);
+        Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
+        //下面这句用来自定义通知栏
+        //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
+        Intent intent = new Intent(getActivity().getApplicationContext(),FragmentActivity.class);
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
+        PendingIntent contextIntent = PendingIntent.getActivity(getActivity().getApplicationContext(),0,intent,0);
+        notification.setLatestEventInfo(getActivity().getApplicationContext(),"安全宝",text,contextIntent);
+        notificationManager.notify(R.string.app_name, notification);
+    }
+    //取消显示常驻通知栏
+    void cancelNotification(){
+        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(getActivity().
+                getApplicationContext()
+                .NOTIFICATION_SERVICE);
+        notificationManager.cancel(R.string.app_name);
     }
 
 }

@@ -36,6 +36,7 @@
             android:id="@+id/etInputCode"
             android:layout_height="40dp"
             android:layout_width="60dp"
+            android:textColor="@color/base_color_text_black"
             android:background="@drawable/register_input_identifying"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="30dp"
@@ -71,6 +72,7 @@
             android:layout_weight="3"
             android:inputType="textPassword"
             android:gravity="center"
+            android:textColor="@color/base_color_text_black"
             android:background="@drawable/register_input_password"
             android:layout_marginLeft="10dp"
             android:hint="@string/password" />
