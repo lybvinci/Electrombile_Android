@@ -240,8 +240,8 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	 * Inits the views.
 	 */
 	private void initViews() {
-		tvTips = (TextView) findViewById(R.id.tvTips);
-		tvPhoneSwitch = (TextView) findViewById(R.id.tvPhoneSwitch);
+		/*tvTips = (TextView) findViewById(R.id.tvTips);
+		tvPhoneSwitch = (TextView) findViewById(R.id.tvPhoneSwitch);*/
 		etName = (EditText) findViewById(R.id.etName);
 		etInputCode = (EditText) findViewById(R.id.etInputCode);
 		etInputPsw = (EditText) findViewById(R.id.etInputPsw);
@@ -261,7 +261,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		btnGetCode.setOnClickListener(this);
 		btnReGetCode.setOnClickListener(this);
 		btnSure.setOnClickListener(this);
-		tvPhoneSwitch.setOnClickListener(this);
+		/*tvPhoneSwitch.setOnClickListener(this);*/
 		ivBack.setOnClickListener(this);
 		tbPswFlag.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -312,7 +312,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		case R.id.btnSure:
 			doRegister();
 			break;
-		case R.id.tvPhoneSwitch:
+		/*case R.id.tvPhoneSwitch:
 			if (isEmail) {
 				toogleUI(ui_statue.PHONE);
 				isEmail = false;
@@ -320,7 +320,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				toogleUI(ui_statue.EMAIL);
 				isEmail = true;
 			}
-			break;
+			break;*/
 		case R.id.ivBack:
 			onBackPressed();
 			break;
@@ -342,15 +342,15 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 			btnGetCode.setVisibility(View.VISIBLE);
 			etName.setHint("手机号");
 			etName.setText("");
-			tvTips.setVisibility(View.GONE);
+			/*tvTips.setVisibility(View.GONE);*/
 		} else if (statue == ui_statue.PHONE) {
 			llInputCode.setVisibility(View.VISIBLE);
 			llInputPsw.setVisibility(View.VISIBLE);
 			btnSure.setVisibility(View.VISIBLE);
 			btnGetCode.setVisibility(View.GONE);
 			etName.setHint("手机号");
-			tvPhoneSwitch.setText("邮箱注册");
-			tvTips.setVisibility(View.GONE);
+			/*tvPhoneSwitch.setText("邮箱注册");*/
+			/*tvTips.setVisibility(View.GONE);*/
 		} else {
 			llInputCode.setVisibility(View.GONE);
 			btnGetCode.setVisibility(View.GONE);

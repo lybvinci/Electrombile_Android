@@ -59,7 +59,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 	/**
 	 * The tv forgot.
 	 */
-	private TextView tvForgot;
+	private Button tvForgot;
 
 	/**
 	 * The btn login.
@@ -128,7 +128,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 						.show();
 				dialog.cancel();
 				break;
-
 			}
 		}
 	};
@@ -166,11 +165,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 	private void initViews() {
 		etName = (EditText) findViewById(R.id.etName);
 		etPsw = (EditText) findViewById(R.id.etPsw);
-		tvForgot = (TextView) findViewById(R.id.tvForgot);
+		tvForgot = (Button) findViewById(R.id.tvForgot);
 		btnLogin = (Button) findViewById(R.id.btnLogin);
 		btnRegister = (Button) findViewById(R.id.btnRegister);
-
-		tvForgot.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); // 下划线
 		
 		dialog = new ProgressDialog(this);
 		dialog.setMessage("登录中，请稍候...");
