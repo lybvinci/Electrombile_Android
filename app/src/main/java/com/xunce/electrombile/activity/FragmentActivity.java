@@ -1,6 +1,7 @@
 package com.xunce.electrombile.activity;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -53,6 +54,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -121,10 +124,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.xunce.electrombile.service");
         FragmentActivity.this.registerReceiver(receiver, filter);
-        //showNotification();
-        Historys.put(this);
-
-        startService(new Intent(FragmentActivity.this, GPSDataService.class));
+        showNotification();
+        if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
+            if(!GPSDataService.isRunning)
+                startService(new Intent(FragmentActivity.this, GPSDataService.class));
+        }
     }
     /**
      * 界面初始化
@@ -510,5 +514,31 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 maptabFragment.locateMobile(point);
             switchFragment.reverserGeoCedec(point);
         }
+    }
+
+    /**
+     * 判断某个服务是否正在运行的方法
+     *
+     * @param mContext
+     * @param serviceName
+     *            是包名+服务的类名（例如：net.loonggg.testbackstage.TestService）
+     * @return true代表正在运行，false代表服务没有正在运行
+     */
+    public boolean isServiceWork(Context mContext, String serviceName) {
+        boolean isWork = false;
+        ActivityManager myAM = (ActivityManager) mContext
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> myList = myAM.getRunningServices(40);
+        if (myList.size() <= 0) {
+            return false;
+        }
+        for (int i = 0; i < myList.size(); i++) {
+            String mName = myList.get(i).service.getClassName().toString();
+            if (mName.equals(serviceName)) {
+                isWork = true;
+                break;
+            }
+        }
+        return isWork;
     }
 }

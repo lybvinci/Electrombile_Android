@@ -43,9 +43,6 @@ public class BaseFragment extends Fragment{
 
         private static String TAG = "BaseFragmet:";
 
-    //Test  一会删除
-    public TextView tv_distance;
-
         protected enum loginHandler_key{
             START_LOGIN,
             SUCCESS,
@@ -120,7 +117,6 @@ public class BaseFragment extends Fragment{
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //tv_distance = (TextView) getActivity().findViewById(R.id.distance);
     }
 
     //handler 处理事件
@@ -219,7 +215,6 @@ public class BaseFragment extends Fragment{
                 double distance = 0;
                 if (pointOld != null) {
                     distance = DistanceUtil.getDistance(pointOld, pointNew);
-                    tv_distance.setText("" + distance);
                     Log.i(TAG, distance + "PPPPP");
                 }
                 if( pointOld == null && mCenter.alarmFlag) {

@@ -49,6 +49,7 @@ public class GPSDataService extends Service{
     private LatLng pointNew;
     private float fLat;
     private float fLong;
+    public static boolean isRunning = false;
 
     //handler 处理事件
     private enum handler_key {
@@ -90,7 +91,6 @@ public class GPSDataService extends Service{
             mXpgWifiDevice.setListener(deviceListener);
         }
         getData.start();
-//        Handler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -112,11 +112,6 @@ public class GPSDataService extends Service{
                 case SHOUDONGREC:
                     receivedManual();
                     break;
-//                case SHOUDONGTIME:
-//                    LogUtil.log.i( "SHOUDONGTIME");
-//                    timeGetData();
-//                  //  updateLocation();
-//                    break;
             }
         }
 
@@ -141,7 +136,7 @@ public class GPSDataService extends Service{
                 if(pointOld == null && mCenter.alarmFlag) {
                     pointOld = pointNew;
                 }
-                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag && AlarmActivity.instance == null) {
+                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 500) && mCenter.alarmFlag && AlarmActivity.instance == null) {
                     pointOld = null;
                     wakeUpAndUnlock(GPSDataService.this);
                     Intent intent = new Intent(GPSDataService.this, AlarmActivity.class);
@@ -163,7 +158,7 @@ public class GPSDataService extends Service{
         if(pointOld == null && mCenter.alarmFlag) {
             pointOld = pointNew;
         }
-        if (distance > 0.5 && mCenter.alarmFlag && AlarmActivity.instance == null) {
+        if (distance > 100 && mCenter.alarmFlag && AlarmActivity.instance == null) {
             pointOld = null;
             wakeUpAndUnlock(this);
             Intent intent = new Intent(this, AlarmActivity.class);
@@ -223,9 +218,6 @@ public class GPSDataService extends Service{
     public void updateLocation(){
         if(setManager.getDid() != null) {
             final String httpAPI = "http://api.gizwits.com/app/devdata/" + setManager.getDid() + "/latest";
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
             HttpClient client = new DefaultHttpClient();
             HttpGet get = new HttpGet(httpAPI);
             get.addHeader("Content-Type", "application/json");
@@ -244,33 +236,16 @@ public class GPSDataService extends Service{
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                //  Handler.sendEmptyMessage(handler_key.SHOUDONGTIME.ordinal());
             }
-            //      }
-//        }).start();
         }
     }
 
-//    private void timeGetData(){
-//
-//        new Thread() {
-//            public void run() {
-//                try {
-//
-//                    sleep(60000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }finally {
-//                    updateLocation();
-//                }
-//            }
-//        }.start();
-//    }
-
     private boolean isStart = true;
+
     Thread getData = new Thread(){
         @Override
         public void run() {
+            isRunning = true;
             while(true){
                     updateLocation();
                     try {
@@ -278,7 +253,6 @@ public class GPSDataService extends Service{
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                Log.i(TAG,"xianchengqidong");
             }
         }
     };

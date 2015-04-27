@@ -71,7 +71,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                 if(compoundButton.isChecked()){
                     if(mXpgWifiDevice !=null) {
                         mCenter.alarmFlag = true;
-                        mCenter.cGetStatus(mXpgWifiDevice);
+                        //mCenter.cGetStatus(mXpgWifiDevice);
                         //  mCenter.cGprsSend(mXpgWifiDevice);
                         iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                         Log.i("发送数据SwitchFragment", "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
@@ -94,51 +94,15 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         return inflater.inflate(R.layout.switch_fragment, container, false);
     }
 
-//    @Override
-//    public void onClick(View view) {
-//        int id = view.getId();
-//        switch (id) {
-////            case R.id.btn_SystemState:
-////                systemBtnClicked();
-////                break;
-//
-//            default:
-//                break;
+//    private void restoreStateWhenFail(String keyString) {
+//        if (keyString.equals(SWITCHKEY[0])) {
+//            Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
+//            btnSystem.setBackgroundResource(R.drawable.common_btn_normal);
+//        } else if (keyString.equals(SWITCHKEY[1])) {
+//            Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
+//            btnAlarm.setBackgroundResource(R.drawable.common_btn_normal);
 //        }
 //    }
-
-    public void systemBtnClicked(){
-        mCenter.alarmFlag = true;
-        mCenter.cGetStatus(mXpgWifiDevice);
-      //  mCenter.cGprsSend(mXpgWifiDevice);
-        Log.i("发送数据SwitchFragment","qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
-    }
-
-    public void remoteAlarmClicked(){
-        mCenter.cUnbindDevice(setManager.getUid(),setManager.getToken(),setManager.getDid(),setManager.getPassCode());
-        mCenter.cDisconnect(mXpgWifiDevice);
-    }
-
-    public void testBtnClicked(){
-        mCenter.cGetStatus(mXpgWifiDevice);
-    }
-
-
-    private void chengeStateWhenSuc(String keyString) {
-        Button btn = null;
-        btn = btnSystem;
-        btn.setBackgroundColor(Color.YELLOW);
-    }
-
-    private void restoreStateWhenFail(String keyString) {
-        if (keyString.equals(SWITCHKEY[0])) {
-            Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
-            btnSystem.setBackgroundResource(R.drawable.common_btn_normal);
-        } else if (keyString.equals(SWITCHKEY[1])) {
-            Toast.makeText(getActivity().getApplicationContext(), "网络错误，请检查网络设置", Toast.LENGTH_SHORT).show();
-            btnAlarm.setBackgroundResource(R.drawable.common_btn_normal);
-        }
-    }
 
 //    public interface GPSDataChangeListener{
 //        public void gpsCallBack(String lat,String lon);
