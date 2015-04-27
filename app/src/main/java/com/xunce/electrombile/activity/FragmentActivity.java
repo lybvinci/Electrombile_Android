@@ -123,7 +123,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         receiver = new MyReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.xunce.electrombile.service");
-        FragmentActivity.this.registerReceiver(receiver, filter);
+        try {
+            FragmentActivity.this.registerReceiver(receiver, filter);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         showNotification();
         if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
             if(!GPSDataService.isRunning)
@@ -505,7 +509,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     public class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG,"我的接收调用了？？？？？？");
+          //  Log.i(TAG,"我的接收调用了？？？？？？");
             Bundle bundle=intent.getExtras();
             float Flat = bundle.getFloat("LAT");
             float Flong = bundle.getFloat("LONG");

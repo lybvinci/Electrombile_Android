@@ -304,10 +304,10 @@ public class BaseFragment extends Fragment{
         protected void didReceiveData(XPGWifiDevice device,
                                       ConcurrentHashMap<String, Object> dataMap, int result) {
             this.deviceDataMap = dataMap;
-            Log.i("switchFragment","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            Log.i("device:::",device.toString());
-            Log.i("dataMap:::",dataMap.toString());
-            Log.i("result",result+"");
+//            Log.i("switchFragment","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+//            Log.i("device:::",device.toString());
+//            Log.i("dataMap:::",dataMap.toString());
+//            Log.i("result",result+"");
             fragmentHandler.sendEmptyMessage(handler_key.RECEIVED.ordinal());
         }
         /**

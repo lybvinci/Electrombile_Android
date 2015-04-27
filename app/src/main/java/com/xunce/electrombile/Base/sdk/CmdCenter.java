@@ -162,6 +162,7 @@ public class CmdCenter {
 	public void cLogout() {
 		Log.e(TAG, "cLogout:uesrid=" + mSettingManager.getUid());
 		xpgWifiGCC.userLogout(mSettingManager.getUid());
+        mSettingManager.cleanAll();
 	}
 
 	/**

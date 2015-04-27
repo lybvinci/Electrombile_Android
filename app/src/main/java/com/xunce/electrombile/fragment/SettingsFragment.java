@@ -25,6 +25,7 @@ import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
+import com.xunce.electrombile.service.GPSDataService;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -81,9 +82,6 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                     if (mXpgWifiDevice.isConnected()) {
                         mCenter.cUnbindDevice(setManager.getUid(), setManager.getToken(), setManager.getDid(), setManager.getPassCode());
                         mCenter.cDisconnect(mXpgWifiDevice);
-                        // mXpgWifiDevice = null;
-                        // BaseActivity.mXpgWifiDevice = null;
-                        //systemBtnClicked();
                     }else{
                         ToastUtils.showShort(getActivity().getApplicationContext(), "请尝试连接网络或先绑定设备");
                     }
@@ -92,8 +90,6 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 }
                 break;
             case R.id.layout_phone_number:
-                //systemBtnClicked();
-              //  mCenter.cWrite(mXpgWifiDevice,"Lat","123456789");
                 mCenter.cGetStatus(mXpgWifiDevice);
                 break;
             case R.id.layout_help:
@@ -102,12 +98,11 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
 
                 break;
             case R.id.btn_logout:
-                //systemBtnClicked();
                 mCenter.cLogout();
-                setManager.cleanAll();
+//                setManager.cleanAll();
                 Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(intentStartLogin);
-                //关闭当前activity
+                getActivity().stopService(new Intent(getActivity().getApplicationContext(), GPSDataService.class));
                 getActivity().finish();
                 break;
             case R.id.layout_login_again:
@@ -132,7 +127,6 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
 
     @Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
 		//((TextView)getView().findViewById(R.id.tvTop)).setText("设置");
 	}

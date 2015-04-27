@@ -24,6 +24,8 @@ import com.xunce.electrombile.activity.AlarmActivity;
 import com.xunce.electrombile.fragment.BaseFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
 import com.xunce.electrombile.xpg.common.useful.JSONUtils;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
+import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -216,7 +218,7 @@ public class GPSDataService extends Service{
 
     //手动获取数据
     public void updateLocation(){
-        if(setManager.getDid() != null) {
+        if(setManager.getDid() != null && NetworkUtils.isNetworkConnected(this)) {
             final String httpAPI = "http://api.gizwits.com/app/devdata/" + setManager.getDid() + "/latest";
             HttpClient client = new DefaultHttpClient();
             HttpGet get = new HttpGet(httpAPI);
@@ -237,6 +239,8 @@ public class GPSDataService extends Service{
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else{
+            ToastUtils.showShort(this,"网络连接失败");
         }
     }
 
