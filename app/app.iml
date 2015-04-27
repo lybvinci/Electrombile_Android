@@ -85,18 +85,27 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+<<<<<<< HEAD
     <orderEntry type="library" exported="" name="feedback_v6" level="project" />
     <orderEntry type="library" exported="" name="XPGWiFiSDK" level="project" />
     <orderEntry type="library" exported="" name="Java-WebSocket-1.2.0-leancloud" level="project" />
+=======
+>>>>>>> parent of d5043b1... 登陆界面和注册界面
     <orderEntry type="library" exported="" name="fastjson" level="project" />
+    <orderEntry type="library" exported="" name="android-async-http-1.4.6" level="project" />
+    <orderEntry type="library" exported="" name="weibo.sdk.android.sso" level="project" />
+    <orderEntry type="library" exported="" name="Java-WebSocket-1.2.0-leancloud" level="project" />
+    <orderEntry type="library" exported="" name="BaiduLBS_Android" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.0.0" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-22.0.0" level="project" />
+    <orderEntry type="library" exported="" name="XPGWiFiSDK" level="project" />
     <orderEntry type="library" exported="" name="ZxingScanner" level="project" />
+<<<<<<< HEAD
     <orderEntry type="library" exported="" name="avoscloud-sdk-v3.1.5" level="project" />
     <orderEntry type="library" exported="" name="BaiduLBS_Android" level="project" />
+=======
+>>>>>>> parent of d5043b1... 登陆界面和注册界面
     <orderEntry type="library" exported="" name="qq.sdk.1.6.1" level="project" />
-    <orderEntry type="library" exported="" name="weibo.sdk.android.sso" level="project" />
-    <orderEntry type="library" exported="" name="android-async-http-1.4.6" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-22.0.0" level="project" />
   </component>
 </module>
 

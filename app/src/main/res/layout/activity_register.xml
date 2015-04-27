@@ -11,11 +11,18 @@
 
         <ImageView
             android:id="@+id/ivBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             android:padding="10dp"
-            android:src="@drawable/return_icon"/>
+            android:src="@drawable/return_icon" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="欢迎注册"
+            android:layout_centerInParent="true"
+            android:textSize="25sp"/>
 <!--
         <ImageView
             android:id="@+id/ivStep"
@@ -25,59 +32,44 @@
             android:src="@drawable/step_register" /> -->
     </RelativeLayout>
 
-    <!--<TextView
+    <TextView
         android:id="@+id/tvTips"
         android:gravity="center"
         android:layout_margin="10dp"
         android:textColor="@color/blue"
         android:text="@string/register_tips1"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />-->
+        android:layout_height="wrap_content" />
 
     <EditText
         android:id="@+id/etName"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/register_input_password"
-        android:layout_marginTop="100dp"
-        android:gravity="center"
+        style="@style/EditTextTheme"
+        android:layout_marginTop="30dp"
         android:hint="@string/register_phone_num" />
 
     <Button
         android:id="@+id/btnGetCode"
-        android:layout_width="100dp"
-        android:layout_height="22dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="30dp"
-        android:background="@drawable/register_getverification" />
+        style="@style/ButtonBlue"
+        android:text="@string/forget_password_get_verifycode" />
 
     <LinearLayout
         android:id="@+id/llInputCode"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="30dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal" >
 
         <EditText
             android:id="@+id/etInputCode"
-            android:layout_height="40dp"
-            android:layout_width="60dp"
-            android:background="@drawable/register_input_identifying"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="30dp"
-            android:layout_weight="3"
-            android:gravity="center"
+            style="@style/EditTextTheme"
+            android:layout_weight="1"
             android:hint="@string/forget_password_verifycode" />
 
         <Button
             android:id="@+id/btnReGetCode"
-            android:layout_width="50dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="30dp"
-            android:background="@drawable/register_button_regetcode"
+            android:background="@drawable/button_blue_short"
             android:text="@string/forget_password_get_verifycode_again"
             android:textColor="@android:color/background_light"
             android:textSize="14sp" />
@@ -85,30 +77,26 @@
 
     <LinearLayout
         android:id="@+id/llInputPsw"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="15dp"
-        android:background="@drawable/register_input_password"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/login_input_box"
         android:gravity="center_vertical"
         android:orientation="horizontal" >
 
         <EditText
-            android:layout_height="40dp"
-            android:layout_width="60dp"
             android:id="@+id/etInputPsw"
+            style="@style/EditTextTheme"
             android:digits="@string/register_name_digits"
-            android:layout_weight="3"
+            android:layout_weight="1"
             android:inputType="textPassword"
-            android:gravity="center"
-            android:background="@drawable/register_input_password"
-            android:layout_marginLeft="10dp"
+            android:background="@android:color/transparent"
             android:hint="@string/password" />
 
         <ToggleButton
             android:id="@+id/tbPswFlag"
             android:layout_width="50dp"
             android:layout_height="24dp"
-            android:layout_marginRight="35dp"
             android:background="@drawable/toggle_selector"
             android:textOff=""
             android:textOn="" />
@@ -116,13 +104,10 @@
 
     <Button
         android:id="@+id/btnSure"
-        android:layout_height="30dp"
-        android:layout_width="70dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="15dp"
-        android:background="@drawable/register_button_makesure" />
+        style="@style/ButtonBlue"
+        android:text="@string/confirm" />
 
-    <!--<TextView
+    <TextView
         android:id="@+id/tvPhoneSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -130,6 +115,6 @@
         android:layout_margin="20dp"
         android:text="@string/register_use_email"
         android:textColor="@color/blue"
-        android:textSize="25sp" /> -->
+        android:textSize="25sp" />
 
 </LinearLayout>
