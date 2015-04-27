@@ -2,53 +2,67 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_big"
-    android:gravity="center_horizontal"
+    android:background="@drawable/bg_login"
+    android:gravity="center"
     android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:src="@drawable/logo2" />
 
     <EditText
         android:id="@+id/etName"
         style="@style/EditTextTheme"
-        android:layout_marginTop="190dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:gravity="center"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:drawableLeft="@drawable/login_icon_name"
         android:hint="@string/login_name_hint" />
 
     <EditText
         android:id="@+id/etPsw"
         style="@style/EditTextTheme"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
         android:inputType="textPassword"
-        android:gravity="center"
+        android:drawableLeft="@drawable/login_icon_key"
         android:hint="@string/password" />
 
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:layout_marginTop="10dp">
-    <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="80dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="28dp"
-        android:background="@drawable/login_button_newuser"/>
+    <TextView
+        android:id="@+id/tvForgot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:text="@string/login_forget_password"
+        android:textColor="@color/blue"
+        android:textSize="14sp" />
 
     <Button
         android:id="@+id/btnLogin"
-        android:layout_width="85dp"
-        android:layout_height="29dp"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/login_botton" />
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:background="@drawable/login_bt"
+        android:text="@string/login"
+        android:textColor="@android:color/black" />
 
     <Button
-        android:id="@+id/tvForgot"
-        android:layout_width="80dp"
-        android:layout_height="20dp"
-        android:layout_marginLeft="28dp"
-        android:background="@drawable/login_button_forgetpassword"/>
-</LinearLayout>
+        android:id="@+id/btnRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:background="@drawable/login_bt"
+        android:text="@string/register"
+        android:textColor="@android:color/black" />
+
 </LinearLayout>
