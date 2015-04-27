@@ -4,14 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.format.Time;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -19,9 +14,6 @@ import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
-import android.view.View.OnCreateContextMenuListener;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.Toast;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
@@ -29,14 +21,13 @@ import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
+import com.xunce.electrombile.Base.TracksData;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.fragment.MaptabFragment;
-import com.xunce.electrombile.xpg.common.useful.DateUtil;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by heyukun on 2015/4/18.
@@ -90,13 +80,16 @@ public class RecordActivity extends Activity{
     SimpleDateFormat sdfWithSecond;
     SimpleDateFormat sdf;
 
+    //需要跳过的个数
+    int totalSkip;
+    List<AVObject> totalAVObjects;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
-        initView();
-        setCustonViewVisibility(false);
-        m_listview.setVisibility(View.INVISIBLE);
+
 
         tracksManager = new TracksManager(getApplicationContext());
         can = Calendar.getInstance();
@@ -108,6 +101,19 @@ public class RecordActivity extends Activity{
         sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
 
+        totalAVObjects = new ArrayList<AVObject>();
+        initView();
+        setCustonViewVisibility(false);
+        m_listview.setVisibility(View.INVISIBLE);
+
+        if(TracksData.getInstance().getTracksData().size() != 0){
+            Log.i(TAG, "TracksData.getInstance().getTracksData().size()" + TracksData.getInstance().getTracksData().size());
+            m_listview.setVisibility(View.VISIBLE);
+            tracksManager.clearTracks();
+            tracksManager.setTracksData(TracksData.getInstance().getTracksData());
+            Log.i(TAG, "TrackManager size:" + tracksManager.getTracks().size());
+            updateListView();
+        }
     }
 
     private void initView(){
@@ -142,8 +148,10 @@ public class RecordActivity extends Activity{
                 GregorianCalendar gcEnd = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
                 gcEnd.set(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) + 1, 0, 0, 0);
                 endT = gcEnd.getTime();
-
-                findCloud(startT, endT);
+                totalSkip = 0;
+                if(totalAVObjects != null)
+                    totalAVObjects.clear();
+                findCloud(startT, endT, 0);
             }
         });
         btnTwoDay = (Button)findViewById(R.id.btn_twoday);
@@ -167,7 +175,10 @@ public class RecordActivity extends Activity{
                 endT = gcEnd.getTime();
 
                 //get data form cloud
-                findCloud(startT, endT);
+                totalSkip = 0;
+                if(totalAVObjects != null)
+                    totalAVObjects.clear();
+                findCloud(startT, endT, 0);
             }
         });
         btnBegin = (Button)findViewById(R.id.btn_begin);
@@ -187,10 +198,13 @@ public class RecordActivity extends Activity{
                 startT= gcStart.getTime();
 
                 GregorianCalendar gcEnd = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
-                gcEnd.set(dpEnd.getYear(), dpEnd.getMonth(), dpEnd.getDayOfMonth(), 0, 0, 0);
+                gcEnd.set(dpEnd.getYear(), dpEnd.getMonth(), dpEnd.getDayOfMonth() + 1, 0, 0, 0);
                 endT = gcEnd.getTime();
 
-                findCloud(startT, endT);
+                totalSkip = 0;
+                if(totalAVObjects != null)
+                    totalAVObjects.clear();
+                findCloud(startT, endT, 0);
             }
         });
 
@@ -239,14 +253,22 @@ public class RecordActivity extends Activity{
 
                     }
                 }).create();
+
+
+//        tracksManager.setTracksData(TracksData.getInstance().getTracksData());
+//        updateListView();
     }
 
-    private void findCloud(Date st, Date et) {
+    private void findCloud(final Date st, final Date et, int skip) {
+        Log.i(TAG, "st:" + st.toString() + "++++" + "et" + et.toString() + "++++" + "skip:" + skip);
+        totalSkip += skip;
+        final int finalSkip = totalSkip;
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1000);
         query.whereEqualTo("did",sm.getDid());
         query.whereGreaterThanOrEqualTo("createdAt", startT);
         query.whereLessThan("createdAt", endT);
+        query.setSkip(finalSkip);
         //query.whereEqualTo("objectId", "553c92b0e4b034be7f0d6532");
         //watiDialog = ProgressDialog.show(this, "正在查询数据，请稍后…");
         watiDialog.setMessage("正在查询数据，请稍后…");
@@ -263,12 +285,28 @@ public class RecordActivity extends Activity{
                         watiDialog.dismiss();
                         return;
                     }
-                    tracksManager.clearTracks();
-                    List<AVObject> gpsData = avObjects;
-                    tracksManager.setTranks(gpsData);
-                    updateListView();
-                    watiDialog.dismiss();
-                    listItemAdapter.notifyDataSetChanged();
+                    for(AVObject thisObject: avObjects){
+                        totalAVObjects.add(thisObject);
+                    }
+                    if(avObjects.size() >= 1000){
+                        findCloud(st, et, 1000);
+                    }
+                    if((totalAVObjects.size() > 1000) && (avObjects.size() < 1000) ||
+                            (totalSkip == 0) && (avObjects.size() < 1000)){
+                        tracksManager.clearTracks();
+
+//                        //清楚本地数据
+                        TracksData.getInstance().getTracksData().clear();
+                        tracksManager.setTranks(totalAVObjects);
+
+//                        //更新本地数据
+                        TracksData.getInstance().setTracksData(tracksManager.getTracks());
+
+                        updateListView();
+                        watiDialog.dismiss();
+                        listItemAdapter.notifyDataSetChanged();
+                    }
+
                 }else{
                     dialog.setTitle("查询失败");
                     dialog.show();

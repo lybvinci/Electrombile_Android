@@ -21,7 +21,7 @@ import java.util.TimeZone;
 public class TracksManager {
     //private ArrayList<ArrayList<LatLng>> tracks;
     private final String TAG = "TracksManager";
-    private ArrayList<ArrayList<TrackPoint>> tracks;
+    private  ArrayList<ArrayList<TrackPoint>> tracks;
 
     private final String KET_TIME = "createdAt";
     private final String KET_LONG = "lon";
@@ -52,7 +52,11 @@ public class TracksManager {
         return tracks.get(position);
     }
 
-    public ArrayList<ArrayList<TrackPoint>> getTracks(){
+    public void setTracksData(ArrayList<ArrayList<TrackPoint>> data){
+        tracks = data;
+    }
+
+    public  ArrayList<ArrayList<TrackPoint>> getTracks(){
         return tracks;
     }
 
