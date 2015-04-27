@@ -5,8 +5,11 @@ import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -83,6 +86,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     protected CmdCenter mCenter;
 
+    //接收广播
+    private MyReceiver receiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,9 +116,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
         dealBottomButtonsClickEvent();
 
-
+        //注册广播
+        receiver = new MyReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.xunce.electrombile.service");
+        FragmentActivity.this.registerReceiver(receiver, filter);
         //showNotification();
         Historys.put(this);
+
+        startService(new Intent(FragmentActivity.this, GPSDataService.class));
     }
     /**
      * 界面初始化
@@ -342,14 +354,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     protected void onPause() {
         super.onPause();
-        startService(new Intent(FragmentActivity.this, GPSDataService.class));
+//        startService(new Intent(FragmentActivity.this, GPSDataService.class));
         Log.i("退出","ooooooooo");
     }
 
     @Override
     protected void onResume() {
         ISSTARTED = true;
-        stopService(new Intent(FragmentActivity.this, GPSDataService.class));
+      //  stopService(new Intent(FragmentActivity.this, GPSDataService.class));
         super.onResume();
     }
 
@@ -486,6 +498,17 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         switchFragment.reverserGeoCedec(desLat);
     }
 
-
-
+    public class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG,"我的接收调用了？？？？？？");
+            Bundle bundle=intent.getExtras();
+            float Flat = bundle.getFloat("LAT");
+            float Flong = bundle.getFloat("LONG");
+            LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
+            if(!maptabFragment.isPlaying)
+                maptabFragment.locateMobile(point);
+            switchFragment.reverserGeoCedec(point);
+        }
+    }
 }

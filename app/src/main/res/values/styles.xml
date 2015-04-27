@@ -76,4 +76,9 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@drawable/bg_login</item>
     </style>
+
+    <style name="settings_fragment_iv">
+        <item name="android:layout_width">35dp</item>
+        <item name="android:layout_height">55dp</item>
+    </style>
 </resources>
