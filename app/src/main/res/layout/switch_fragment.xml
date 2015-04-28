@@ -15,8 +15,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="安全宝"
-            android:textColor="#ffffff"
-            android:textSize="20sp" />
+            android:textColor="@color/black"
+            android:textSize="25sp" />
 
     </RelativeLayout>
     <LinearLayout
@@ -29,7 +29,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:src="@drawable/switch_fragment_map_location"/>
         <TextView
             android:layout_width="wrap_content"
@@ -37,6 +37,7 @@
             android:id="@+id/switch_fragment_tvLocation"
             android:text="当前位置"
             android:textSize="20sp"
+            android:textColor="@color/black"
             android:layout_gravity="center_vertical"
             android:singleLine="true"/>
     </LinearLayout>

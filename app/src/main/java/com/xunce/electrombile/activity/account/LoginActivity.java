@@ -22,6 +22,7 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -29,6 +30,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.avos.avoscloud.LogUtil;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
@@ -59,7 +61,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 	/**
 	 * The tv forgot.
 	 */
-	private TextView tvForgot;
+	private Button tvForgot;
 
 	/**
 	 * The btn login.
@@ -128,7 +130,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 						.show();
 				dialog.cancel();
 				break;
-
 			}
 		}
 	};
@@ -166,11 +167,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 	private void initViews() {
 		etName = (EditText) findViewById(R.id.etName);
 		etPsw = (EditText) findViewById(R.id.etPsw);
-		tvForgot = (TextView) findViewById(R.id.tvForgot);
+		tvForgot = (Button) findViewById(R.id.tvForgot);
 		btnLogin = (Button) findViewById(R.id.btnLogin);
 		btnRegister = (Button) findViewById(R.id.btnRegister);
-
-		tvForgot.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); // 下划线
 		
 		dialog = new ProgressDialog(this);
 		dialog.setMessage("登录中，请稍候...");
@@ -245,6 +244,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 			msg.what = handler_key.LOGIN_FAIL.ordinal();
 			msg.obj = errorMessage;
 			handler.sendMessage(msg);
+            Log.i("loginActivity",errorMessage.toString());
 		}
 	}
 

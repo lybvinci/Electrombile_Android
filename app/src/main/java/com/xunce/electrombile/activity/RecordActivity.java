@@ -294,6 +294,7 @@ public class RecordActivity extends Activity{
                         totalAVObjects.add(thisObject);
                     }
                     if(avObjects.size() >= 1000){
+                        Log.d(TAG, "data more than 1000");
                         findCloud(st, et, 1000);
                     }
                     if((totalAVObjects.size() > 1000) && (avObjects.size() < 1000) ||

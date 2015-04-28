@@ -74,6 +74,7 @@ public class TracksManager {
         if(objects == null) return;
         AVObject lastSavedObject = null;
         LatLng lastSavedPoint = null;
+        int counts = 0;
         ArrayList<TrackPoint> dataList = new ArrayList<TrackPoint>();
         for(AVObject thisObject: objects){
 
@@ -91,7 +92,8 @@ public class TracksManager {
 //                    LatLng pTmp = mCenter.convertPoint(new LatLng(mCenter.parseGPSData((float)thisObject.getDouble(KET_LAT)), mCenter.parseGPSData((float)thisObject.getDouble(KET_LONG))));
 //                    dataList.add(new TrackPoint(thisObject.getCreatedAt(), pTmp));
 //                }
-                Log.i("******", thisObject.getDouble(KET_LAT) + "==?" + lastSavedObject.getDouble(KET_LAT));
+                Log.i("******", thisObject.getDouble(KET_LAT) + "==?" + lastSavedObject.getDouble(KET_LAT) + "-----counts:" + counts++);
+                counts = 0;
                 continue;
             }
 

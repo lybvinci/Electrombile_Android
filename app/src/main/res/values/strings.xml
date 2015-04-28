@@ -41,7 +41,7 @@
     <string name="networkErrorSet">network is not available,please set</string>
     <string name="networkSet">network setting</string>
     <string name="skip">skip</string>
-    <string name="appInfo">Security Guard V1.0</string>
+    <string name="appInfo">Security Guard V1.7</string>
     <string name="companyInfo">Wuhan Xiaoan technology co., LTD</string>
     <string name="wifi_first">please connect to wifi</string>
     <string name="wifi_name">Wi-Fi name</string>
@@ -91,5 +91,6 @@
     <string name="user_name">user name</string>
     <string name="logout">logout</string>
     <string name="dialog_call_sure_to_logout">sure logout？</string>
+    <string name="company_name">武汉小安科技有限公司</string>
 
 </resources>

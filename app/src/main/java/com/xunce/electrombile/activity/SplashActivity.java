@@ -70,7 +70,7 @@ public class SplashActivity extends BaseActivity {
                 @Override
                 public void run() {
                     //判断是否有账号登陆
-                    if (StringUtils.isEmpty(setManager.getToken())) {
+                    if (StringUtils.isEmpty(setManager.getUserName())) {
                         //未有账号登陆
                         IntentUtils.getInstance().startActivity(SplashActivity.this,LoginActivity.class);
                         SplashActivity.this.finish();

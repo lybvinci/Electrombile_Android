@@ -36,6 +36,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.SignUpCallback;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
@@ -108,7 +111,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	/**
 	 * The iv back.
 	 */
-	private ImageView ivBack;
+//	private ImageView ivBack;
 
 	/**
 	 * The iv step.
@@ -240,8 +243,8 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	 * Inits the views.
 	 */
 	private void initViews() {
-		tvTips = (TextView) findViewById(R.id.tvTips);
-		tvPhoneSwitch = (TextView) findViewById(R.id.tvPhoneSwitch);
+		/*tvTips = (TextView) findViewById(R.id.tvTips);
+		tvPhoneSwitch = (TextView) findViewById(R.id.tvPhoneSwitch);*/
 		etName = (EditText) findViewById(R.id.etName);
 		etInputCode = (EditText) findViewById(R.id.etInputCode);
 		etInputPsw = (EditText) findViewById(R.id.etInputPsw);
@@ -250,7 +253,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		btnSure = (Button) findViewById(R.id.btnSure);
 		llInputCode = (LinearLayout) findViewById(R.id.llInputCode);
 		llInputPsw = (LinearLayout) findViewById(R.id.llInputPsw);
-		ivBack = (ImageView) findViewById(R.id.ivBack);
+	//	ivBack = (ImageView) findViewById(R.id.ivBack);
 		tbPswFlag = (ToggleButton) findViewById(R.id.tbPswFlag);
 		toogleUI(ui_statue.DEFAULT);
 		dialog = new ProgressDialog(this);
@@ -261,8 +264,8 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		btnGetCode.setOnClickListener(this);
 		btnReGetCode.setOnClickListener(this);
 		btnSure.setOnClickListener(this);
-		tvPhoneSwitch.setOnClickListener(this);
-		ivBack.setOnClickListener(this);
+		/*tvPhoneSwitch.setOnClickListener(this);*/
+	//	ivBack.setOnClickListener(this);
 		tbPswFlag.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
@@ -271,15 +274,15 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				if (isChecked) {
 					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-					etInputPsw.setKeyListener(DigitsKeyListener
-							.getInstance(getResources().getString(
-                                    R.string.register_name_digits)));
+//					etInputPsw.setKeyListener(DigitsKeyListener
+//							.getInstance(getResources().getString(
+//                                    R.string.register_name_digits)));
 				} else {
 					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-					etInputPsw.setKeyListener(DigitsKeyListener
-							.getInstance(getResources().getString(
-                                    R.string.register_name_digits)));
+//					etInputPsw.setKeyListener(DigitsKeyListener
+//							.getInstance(getResources().getString(
+//                                    R.string.register_name_digits)));
 				}
 
 			}
@@ -312,7 +315,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		case R.id.btnSure:
 			doRegister();
 			break;
-		case R.id.tvPhoneSwitch:
+		/*case R.id.tvPhoneSwitch:
 			if (isEmail) {
 				toogleUI(ui_statue.PHONE);
 				isEmail = false;
@@ -320,10 +323,10 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				toogleUI(ui_statue.EMAIL);
 				isEmail = true;
 			}
-			break;
-		case R.id.ivBack:
-			onBackPressed();
-			break;
+			break;*/
+//		case R.id.ivBack:
+//			onBackPressed();
+//			break;
 		}
 
 	}
@@ -342,15 +345,15 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 			btnGetCode.setVisibility(View.VISIBLE);
 			etName.setHint("手机号");
 			etName.setText("");
-			tvTips.setVisibility(View.GONE);
+			/*tvTips.setVisibility(View.GONE);*/
 		} else if (statue == ui_statue.PHONE) {
 			llInputCode.setVisibility(View.VISIBLE);
 			llInputPsw.setVisibility(View.VISIBLE);
 			btnSure.setVisibility(View.VISIBLE);
 			btnGetCode.setVisibility(View.GONE);
 			etName.setHint("手机号");
-			tvPhoneSwitch.setText("邮箱注册");
-			tvTips.setVisibility(View.GONE);
+			/*tvPhoneSwitch.setText("邮箱注册");*/
+			/*tvTips.setVisibility(View.GONE);*/
 		} else {
 			llInputCode.setVisibility(View.GONE);
 			btnGetCode.setVisibility(View.GONE);
@@ -388,6 +391,8 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				Toast.makeText(this, "密码长度应为6~16", Toast.LENGTH_SHORT).show();
 				return;
 			}
+            //leancloud注册
+            loginByLeanCloud(phone, password);
 			mCenter.cRegisterPhoneUser(phone, code, password);
 			Log.e("Register", "phone=" + phone + ";code=" + code + ";password="
                     + password);
@@ -414,7 +419,23 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 
 	}
 
-	/**
+    //leancloud注册
+    private void loginByLeanCloud(String phone, String password) {
+        AVUser user = new AVUser();
+        user.setUsername(phone);
+        user.setPassword(password);
+        user.signUpInBackground(new SignUpCallback() {
+            public void done(AVException e) {
+                if (e == null) {
+                    // successfully
+                } else {
+                    // failed
+                }
+            }
+        });
+    }
+
+    /**
 	 * 处理发送验证码动作
 	 * 
 	 * @param phone

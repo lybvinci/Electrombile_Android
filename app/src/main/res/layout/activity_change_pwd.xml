@@ -33,7 +33,6 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="30dp"
-        android:digits="@string/register_name_digits"
         android:background="@drawable/login_input_box"
         android:hint="@string/old_password"
         android:inputType="textPassword" />
@@ -44,7 +43,6 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
-        android:digits="@string/register_name_digits"
         android:background="@drawable/login_input_box"
         android:hint="@string/new_password"
         android:inputType="textPassword" />

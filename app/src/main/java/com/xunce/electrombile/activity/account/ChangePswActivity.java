@@ -103,23 +103,23 @@ public class ChangePswActivity extends BaseActivity implements OnClickListener {
                             | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                     etPswNew.setInputType(InputType.TYPE_CLASS_TEXT
                             | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                    etPswOld.setKeyListener(DigitsKeyListener
-							.getInstance(getResources().getString(
-                                    R.string.register_name_digits)));
-                    etPswNew.setKeyListener(DigitsKeyListener
-							.getInstance(getResources().getString(
-                                    R.string.register_name_digits)));
+//                    etPswOld.setKeyListener(DigitsKeyListener
+//							.getInstance(getResources().getString(
+//                                    R.string.register_name_digits)));
+//                    etPswNew.setKeyListener(DigitsKeyListener
+//							.getInstance(getResources().getString(
+//                                    R.string.register_name_digits)));
                 } else {
                     etPswOld.setInputType(InputType.TYPE_CLASS_TEXT
                             | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                     etPswNew.setInputType(InputType.TYPE_CLASS_TEXT
                             | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                    etPswOld.setKeyListener(DigitsKeyListener
-							.getInstance(getResources().getString(
-                                    R.string.register_name_digits)));
-                    etPswNew.setKeyListener(DigitsKeyListener
-							.getInstance(getResources().getString(
-                                    R.string.register_name_digits)));
+//                    etPswOld.setKeyListener(DigitsKeyListener
+//							.getInstance(getResources().getString(
+//                                    R.string.register_name_digits)));
+//                    etPswNew.setKeyListener(DigitsKeyListener
+//							.getInstance(getResources().getString(
+//                                    R.string.register_name_digits)));
                 }
 
             }

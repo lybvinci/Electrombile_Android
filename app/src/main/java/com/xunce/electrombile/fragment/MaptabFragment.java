@@ -1,7 +1,10 @@
 package com.xunce.electrombile.fragment;
 
 
+import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,7 +36,6 @@ import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
-import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.RecordActivity;
 
@@ -42,8 +44,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -51,17 +51,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.TimeZone;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+
 import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
-import com.xunce.electrombile.receiver.IncomingReceiver;
 import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 
 public class MaptabFragment extends Fragment {
@@ -79,11 +71,10 @@ public class MaptabFragment extends Fragment {
     private final String httpBase= "http://api.gizwits.com/app/devdata/";
     public static MapView mMapView;
     private BaiduMap mBaiduMap;
-    Button btnChengeMode;
     Button btnLocation;
     Button btnRecord;
-    Button btnPlayOrPause;
-    View btnLine;
+    Button btnPlay;
+    Button btnPause;
     Button btnClearTrack;
 
     //maptabFragment 维护一组历史轨迹坐标列表
@@ -158,31 +149,34 @@ public class MaptabFragment extends Fragment {
         });
 
         //开始/暂停播放按钮
-        btnPlayOrPause = (Button)v.findViewById(R.id.btn_play_or_pause);
-        btnPlayOrPause.setVisibility(View.INVISIBLE);
-        btnPlayOrPause.setOnClickListener(new View.OnClickListener() {
+        btnPlay = (Button)v.findViewById(R.id.btn_play);
+        btnPlay.setVisibility(View.INVISIBLE);
+        btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //若没有播放线程，先创建
-                if(m_playThread == null){
+                if (m_playThread == null) {
                     m_playThread = new PlayRecordThread(1000);
                     m_playThread.start();
                 }
-
-                //若在暂停状态，则开始(继续)播放
-                if(m_playThread.PAUSE) {
-                    btnPlayOrPause.setText("暂停");
                     continuePlay();
-                }
-                else {
-                    btnPlayOrPause.setText("开始");
-                    pausePlay();
-                }
             }
         });
 
-        btnLine = (View) v.findViewById(R.id.map_btn_line);
-        btnLine.setVisibility(View.INVISIBLE);
+        btnPause = (Button)v.findViewById(R.id.btn_pause);
+        btnPause.setVisibility(View.INVISIBLE);
+        btnPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //若没有播放线程，先创建
+                if (m_playThread == null) {
+                    m_playThread = new PlayRecordThread(1000);
+                    m_playThread.start();
+                }
+                pausePlay();
+            }
+        });
+
         //定位电动车按钮
         btnLocation = (Button)v.findViewById(R.id.btn_location);
 
@@ -201,7 +195,7 @@ public class MaptabFragment extends Fragment {
         btnRecord.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                clearData();
+                clearDataAndView();
 
                 Intent intent = new Intent(getActivity().getApplicationContext(),RecordActivity.class);
                 startActivity(intent);
@@ -214,13 +208,29 @@ public class MaptabFragment extends Fragment {
         btnClearTrack.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                clearData();
+                AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                        .setTitle("退出历史轨迹查看模式？")
+                        .setPositiveButton("取消",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+
+                                    }
+                                }).setNegativeButton("退出", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                clearDataAndView();
+
+                            }
+                        }).create();
+                dialog.show();
 
             }
         });
     }
 
-    private void clearData() {
+    private void clearDataAndView() {
         //清除轨迹
         if(tracksOverlay != null)
             tracksOverlay.remove();
@@ -325,15 +335,14 @@ public class MaptabFragment extends Fragment {
     private void enterPlayTrackMode(){
         isPlaying = true;
         btnClearTrack.setVisibility(View.VISIBLE);
-        btnPlayOrPause.setVisibility(View.VISIBLE);
-        btnLine.setVisibility(View.VISIBLE);
+        btnPlay.setVisibility(View.VISIBLE);
+        btnPause.setVisibility(View.VISIBLE);
     }
     private void exitPlayTrackMode(){
         isPlaying = false;
         btnClearTrack.setVisibility(View.INVISIBLE);
-        btnPlayOrPause.setVisibility(View.INVISIBLE);
-        btnPlayOrPause.setText("开始");
-        btnLine.setVisibility(View.INVISIBLE);
+        btnPlay.setVisibility(View.INVISIBLE);
+        btnPause.setVisibility(View.INVISIBLE);
     }
     //暂停更新地图
     public void pauseMapUpdate(){

@@ -22,7 +22,7 @@
         <item name="android:orientation">vertical</item>
     </style>
     <style name="TopLayout">
-        <item name="android:layout_height">60dp</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:background">@drawable/top_tall</item>
         <item name="android:orientation">horizontal</item>
@@ -30,9 +30,9 @@
     </style>
 
     <style name="EditTextTheme" parent="NoMarginEditTextTheme">
-        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginRight">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
         <item name="android:layout_marginLeft">10dp</item>
         <item name="android:textColor">@color/black</item>
     </style>
@@ -44,10 +44,10 @@
         <item name="android:layout_gravity">center_horizontal</item>
     </style>
     <style name="NoMarginEditTextTheme">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">40dp</item>
-        <item name="android:background">@drawable/login_input_box</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:background">@drawable/inputbox_background</item>
     </style>
     <style name="noBackgroundDialog" parent="android:style/Theme.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -61,7 +61,7 @@
     </style>
     <style name="clickableLayoutTextview">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">55dp</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">20dp</item>
         <item name="android:paddingBottom">20dp</item>
         <item name="android:paddingLeft">20dp</item>
@@ -74,6 +74,17 @@
     </style>
     <style name="loginActivity">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@drawable/bg_login</item>
+        <item name="android:windowBackground">@drawable/login_bd</item>
+    </style>
+    <style name="registerActivity">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/layout_register_bd</item>
+    </style>
+
+    <style name="settings_fragment_iv">
+        <item name="android:layout_width">35dp</item>
+        <item name="android:layout_height">35dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_marginLeft">10dp</item>
     </style>
 </resources>

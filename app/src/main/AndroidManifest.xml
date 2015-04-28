@@ -82,31 +82,38 @@
         </activity>
         <activity
             android:name=".activity.account.RegisterActivity"
+            android:theme="@style/registerActivity"
             android:label="RegisterActivity" >
         </activity>
         <activity
             android:name=".activity.account.ChangePswActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:label="ChangePswActivity" >
         </activity>
         <activity
             android:name=".activity.BindingActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:label="@string/title_activity_binding" >
         </activity>
         <activity
             android:name=".activity.account.ForgetPswActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:label="@string/title_activity_forget" >
         </activity>
         <activity
             android:name=".activity.SettingsActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:label="@string/title_activity_settings" >
         </activity>
         <activity
             android:name=".activity.FragmentActivity"
             android:label="@string/title_activity_fragment"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".activity.ScannerActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:label="Scanner" >
         </activity>
         <activity
@@ -116,14 +123,17 @@
         </activity>
         <activity
             android:name=".activity.AlarmActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:label="Alarm" >
         </activity>
         <activity
             android:name=".activity.RecordActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:label="Record" >
         </activity>
         <activity
             android:name=".activity.HelpActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:label="Help" >
         </activity>
 
