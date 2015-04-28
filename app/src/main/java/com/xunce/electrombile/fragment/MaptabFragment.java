@@ -42,6 +42,7 @@ import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.activity.RecordActivity;
 
 import org.apache.http.HttpResponse;
@@ -167,7 +168,7 @@ public class MaptabFragment extends Fragment {
                     m_playThread = new PlayRecordThread(1000);
                     m_playThread.start();
                 }
-                    continuePlay();
+                continuePlay();
             }
         });
 
@@ -250,7 +251,7 @@ public class MaptabFragment extends Fragment {
         //电动车标志回到当前位置
         updateLocation();
 
-        //清除轨迹数据
+        //清除轨迹数
 //        trackDataList.clear();
 
         //退出播放轨迹模式
@@ -406,7 +407,8 @@ public class MaptabFragment extends Fragment {
 
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1);
-        query.whereEqualTo("did", new SettingManager(getActivity().getApplicationContext()).getDid());
+        String did = new SettingManager(getActivity().getApplicationContext()).getDid();
+        query.whereEqualTo("did",did) ;
         query.whereLessThanOrEqualTo("createdAt", Calendar.getInstance().getTime());
         query.orderByDescending("createdAt");
         query.findInBackground(new FindCallback<AVObject>() {
@@ -427,56 +429,6 @@ public class MaptabFragment extends Fragment {
                 }
             }
         });
-
-//        final String httpAPI = "http://api.gizwits.com/app/devdata/" + settingManager.getDid() + "/latest";
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                HttpClient client = new DefaultHttpClient();
-//                HttpGet get = new HttpGet(httpAPI);
-//                get.addHeader("Content-Type", "application/json");
-//                get.addHeader("X-Gizwits-Application-Id", Configs.APPID);
-//                LatLng point;
-//                try {
-//                    HttpResponse response = client.execute(get);
-//                    if(response.getStatusLine().getStatusCode() == 200){
-//                        String resultJson = EntityUtils.toString(response.getEntity());
-//
-//                        String date = JSONUtils.ParseJSON(resultJson, "updated_at");
-//                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//                        sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-//                        Date d = null;
-//                        try {
-//                            d = sdf.parse(sdf.format(Long.parseLong(date) * 1000));
-//                        } catch (ParseException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                        String resultLong = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "long");
-//                        String resultLat = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "lat");
-//                        float fLat = mCenter.parseGPSData(resultLat);
-//                        float fLong = mCenter.parseGPSData(resultLong);
-//                        LatLng p = mCenter.convertPoint(new LatLng(fLat, fLong));
-//                        point= mCenter.convertPoint(new LatLng(fLat, fLong));
-//
-//
-//                        TrackPoint latestTP = new TrackPoint(d, point);
-//                        //向主线程发出消息，地图定位成功
-//                        Message msg = Message.obtain();
-//                        msg.what = handleKey.LOCATEMESSAGE.ordinal();
-//                        msg.obj = latestTP;
-//                        playHandler.sendMessage(msg);
-//                    }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    //向主线程发出消息，地图定位成功
-//                    Message msg = Message.obtain();
-//                    msg.what = handleKey.LOCATEMESSAGE.ordinal();
-//                    msg.obj = null;
-//                    playHandler.sendMessage(msg);
-//                }
-//            }
-//        }).start();
     }
 
     private void drawLine(){
@@ -509,8 +461,8 @@ public class MaptabFragment extends Fragment {
                 for (TrackPoint pt : trackDataList) {
                     if(isTimeToDie) return;
                     //暂停播放
-                    synchronized (PlayRecordThread.class) {
-                        while (PAUSE) ;
+                    synchronized (FragmentActivity.class) {
+                        while (PAUSE && (!isTimeToDie)) ;
                     }
                     //向主线程发出消息，移动地图中心点
                     Message msg = Message.obtain();
@@ -520,7 +472,7 @@ public class MaptabFragment extends Fragment {
 
                     try {
                         //TODO::periodMilli可变，更改速度
-                        synchronized (PlayRecordThread.class) {
+                        synchronized (FragmentActivity.class) {
                             sleep(periodMilli);
                         }
                     } catch (InterruptedException e) {
@@ -569,6 +521,7 @@ public class MaptabFragment extends Fragment {
     };
 
     private void continuePlay(){
+        if(m_playThread!= null)
             m_playThread.PAUSE = false;
     };
 }

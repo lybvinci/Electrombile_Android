@@ -269,7 +269,9 @@ public class RecordActivity extends Activity{
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1000);
         //"gxu88Pd4tyQvzNPUgfWX29"
-        query.whereEqualTo("did",sm.getDid());
+        String did = sm.getDid();
+        Log.i(TAG, "did+++++" + did);
+        query.whereEqualTo("did","9xTndXaRJGCooc8c7Ey9wd");
         query.whereGreaterThanOrEqualTo("createdAt", startT);
         query.whereLessThan("createdAt", endT);
         query.setSkip(finalSkip);
