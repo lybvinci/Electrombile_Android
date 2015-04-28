@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.avos.avoscloud.AVObject;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 
 import java.text.SimpleDateFormat;
@@ -26,7 +27,7 @@ public class TracksManager {
     private final String KET_TIME = "createdAt";
     private final String KET_LONG = "lon";
     private final String KET_LAT = "lat";
-    private final long MAX_TIMEINRVAL = 10 * 60;//十分钟
+    private final long MAX_TIMEINRVAL = 60 * 60;//十分钟
     private CmdCenter mCenter;
 
     public  static class TrackPoint {
@@ -72,13 +73,20 @@ public class TracksManager {
         Log.i("Track managet-----", "setTranks" + objects.size());
         if(objects == null) return;
         AVObject lastSavedObject = null;
+        LatLng lastSavedPoint = null;
         ArrayList<TrackPoint> dataList = new ArrayList<TrackPoint>();
         for(AVObject thisObject: objects){
 
+            double lat = thisObject.getDouble(KET_LAT);
+            double lon = thisObject.getDouble(KET_LONG);
+
+            //百度地图的LatLng类对输入有限制，如果longitude过大，则会导致结果不正确
+            LatLng oldPoint = new LatLng(mCenter.parseGPSData((float)lat), mCenter.parseGPSData((float)lon));
+            LatLng bdPoint = mCenter.convertPoint(oldPoint);
 
             //如果本次循环数据跟上一个已保存的数据坐标相同，则跳过
-            if(lastSavedObject != null && (thisObject.getDouble(KET_LAT) == lastSavedObject.getDouble(KET_LAT))
-                    && (thisObject.getDouble(KET_LONG) == lastSavedObject.getDouble(KET_LONG))){
+
+            if(lastSavedObject != null && DistanceUtil.getDistance(lastSavedPoint, bdPoint) < 100){
 //                if(dataList.size() <= 1){
 //                    LatLng pTmp = mCenter.convertPoint(new LatLng(mCenter.parseGPSData((float)thisObject.getDouble(KET_LAT)), mCenter.parseGPSData((float)thisObject.getDouble(KET_LONG))));
 //                    dataList.add(new TrackPoint(thisObject.getCreatedAt(), pTmp));
@@ -105,14 +113,6 @@ public class TracksManager {
                     "lon" + thisObject.getDouble(KET_LONG) +
                     "time" + sdf.format(thisObject.getCreatedAt().getTime()));
 
-            double lat = thisObject.getDouble(KET_LAT);
-            double lon = thisObject.getDouble(KET_LONG);
-
-            //百度地图的LatLng类对输入有限制，如果longitude过大，则会导致结果不正确
-            LatLng oldPoint = new LatLng(mCenter.parseGPSData((float)lat), mCenter.parseGPSData((float)lon));
-            LatLng bdPoint = mCenter.convertPoint(oldPoint);
-
-
             TrackPoint p = new TrackPoint(thisObject.getCreatedAt(), bdPoint);
             if(isOutOfHubei(bdPoint)){
                 Log.i(TAG, "out range");
@@ -120,6 +120,7 @@ public class TracksManager {
             }
             dataList.add(p);
             lastSavedObject = thisObject;
+            lastSavedPoint = bdPoint;
 
         }
 
