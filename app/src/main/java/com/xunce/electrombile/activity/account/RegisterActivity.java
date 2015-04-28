@@ -225,7 +225,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				break;
 
 			case TOAST:
-				ToastUtils.showShort(RegisterActivity.this,msg.what);
+                ToastUtils.showShort(RegisterActivity.this, (String) msg.obj);
 				dialog.cancel();
 				break;
 			}
@@ -243,8 +243,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	 * Inits the views.
 	 */
 	private void initViews() {
-		/*tvTips = (TextView) findViewById(R.id.tvTips);
-		tvPhoneSwitch = (TextView) findViewById(R.id.tvPhoneSwitch);*/
 		etName = (EditText) findViewById(R.id.etName);
 		etInputCode = (EditText) findViewById(R.id.etInputCode);
 		etInputPsw = (EditText) findViewById(R.id.etInputPsw);
@@ -264,8 +262,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		btnGetCode.setOnClickListener(this);
 		btnReGetCode.setOnClickListener(this);
 		btnSure.setOnClickListener(this);
-		/*tvPhoneSwitch.setOnClickListener(this);*/
-	//	ivBack.setOnClickListener(this);
 		tbPswFlag.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
@@ -274,15 +270,9 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				if (isChecked) {
 					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-//					etInputPsw.setKeyListener(DigitsKeyListener
-//							.getInstance(getResources().getString(
-//                                    R.string.register_name_digits)));
 				} else {
 					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-//					etInputPsw.setKeyListener(DigitsKeyListener
-//							.getInstance(getResources().getString(
-//                                    R.string.register_name_digits)));
 				}
 
 			}
@@ -315,18 +305,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		case R.id.btnSure:
 			doRegister();
 			break;
-		/*case R.id.tvPhoneSwitch:
-			if (isEmail) {
-				toogleUI(ui_statue.PHONE);
-				isEmail = false;
-			} else {
-				toogleUI(ui_statue.EMAIL);
-				isEmail = true;
-			}
-			break;*/
-//		case R.id.ivBack:
-//			onBackPressed();
-//			break;
 		}
 
 	}
@@ -391,8 +369,8 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				Toast.makeText(this, "密码长度应为6~16", Toast.LENGTH_SHORT).show();
 				return;
 			}
-            //leancloud注册
-            loginByLeanCloud(phone, password);
+            setManager.setUserName(phone);
+            setManager.setPassword(password);
 			mCenter.cRegisterPhoneUser(phone, code, password);
 			Log.e("Register", "phone=" + phone + ";code=" + code + ";password="
                     + password);
@@ -424,6 +402,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
         AVUser user = new AVUser();
         user.setUsername(phone);
         user.setPassword(password);
+        user.setMobilePhoneNumber(phone);
         user.signUpInBackground(new SignUpCallback() {
             public void done(AVException e) {
                 if (e == null) {
@@ -442,7 +421,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	 *            the phone
 	 */
 	private void sendVerifyCode(final String phone) {
-		// TODO Auto-generated method stub
 		dialog.show();
 		btnReGetCode.setEnabled(false);
 		btnReGetCode.setBackgroundResource(R.drawable.button_gray_short);
@@ -452,7 +430,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				handler.sendEmptyMessage(handler_key.TICK_TIME.ordinal());
 			}
 		}, 1000, 1000);
@@ -472,6 +449,8 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		Log.i("error message uid token", error + " " + errorMessage + " " + uid
                 + " " + token);
 		if (!uid.equals("") && !token.equals("")) {// 注册成功
+            //leancloud注册
+            loginByLeanCloud(setManager.getUserName(), setManager.getPassword());
 			Message msg = new Message();
 			msg.what = handler_key.REG_SUCCESS.ordinal();
 			msg.obj = "注册成功";

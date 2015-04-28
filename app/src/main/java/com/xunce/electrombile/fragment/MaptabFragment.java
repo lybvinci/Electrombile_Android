@@ -469,7 +469,6 @@ public class MaptabFragment extends Fragment {
                     msg.what = handleKey.CHANGEPOINT.ordinal();
                     msg.obj = pt;
                     playHandler.sendMessage(msg);
-
                     try {
                         //TODO::periodMilli可变，更改速度
                         synchronized (FragmentActivity.class) {

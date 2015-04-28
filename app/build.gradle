@@ -31,7 +31,7 @@ dependencies {
 android{
         signingConfigs {
             debug {
-                storeFile file("C:\\Users/Administrator\\.android\\debug.keystore")
+         //       storeFile file("C:\\Users/Administrator\\.android\\debug.keystore")
             }
         }
 }
