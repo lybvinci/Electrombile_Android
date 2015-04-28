@@ -4,28 +4,25 @@ import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.FindCallback;
 import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
-import com.xtremeprog.xpgconnect.XPGWifiDevice;
-import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
 import com.xunce.electrombile.Base.config.Configs;
-import com.xunce.electrombile.Base.config.JsonKeys;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.activity.AlarmActivity;
-import com.xunce.electrombile.fragment.BaseFragment;
-import com.xunce.electrombile.fragment.SwitchFragment;
 import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -34,8 +31,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Created by lybvinci on 2015/4/25.
@@ -44,14 +43,16 @@ public class GPSDataService extends Service{
 
     private final static String TAG = "GPSDataService";
     private CmdCenter mCenter;
-    private ConcurrentHashMap<String, Object> deviceDataMap;
-    private XPGWifiDevice mXpgWifiDevice;
     private SettingManager setManager;
     LatLng pointOld = null;
     private LatLng pointNew;
     private float fLat;
     private float fLong;
+    private String date;
     public static boolean isRunning = false;
+
+    private final String KET_LONG = "lon";
+    private final String KET_LAT = "lat";
 
     //handler 处理事件
     private enum handler_key {
@@ -61,15 +62,10 @@ public class GPSDataService extends Service{
         ALARM,
         /** 设备断开连接 */
         DISCONNECTED,
-        /** 接收到设备的数据 */
-        RECEIVED,
         /** 获取设备状态 */
         GET_STATUE,
-
         //手动获取数据
         SHOUDONGREC,
-        //手动刷新时间
-     //   SHOUDONGTIME,
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -86,19 +82,14 @@ public class GPSDataService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        mXpgWifiDevice = BaseFragment.mXpgWifiDevice;
-        if(mXpgWifiDevice != null) {
-            Log.i(TAG,"设备正常启动后台");
-            mXpgWifiDevice.setListener(deviceListener);
-        }
+        Log.i(TAG,"设备正常启动后台");
         getData.start();
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
-        isStart = false;
+        isRunning = false;
         super.onDestroy();
     }
 
@@ -108,43 +99,9 @@ public class GPSDataService extends Service{
             super.handleMessage(msg);
             handler_key key = handler_key.values()[msg.what];
             switch (key) {
-                case RECEIVED:
-                    receivedMQTT();
-                    break;
                 case SHOUDONGREC:
                     receivedManual();
                     break;
-            }
-        }
-
-        //接收推送 判断情况
-        private void receivedMQTT() {
-            Log.i("switchfragment", "RECEIVED XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-            if (deviceDataMap.get("data") != null) {
-                Log.i("info", (String) deviceDataMap.get("data"));
-                String data = (String) deviceDataMap.get("data");
-                HashMap<String, String> hm = mCenter.parseAllData(data);
-                float latData = mCenter.parseGPSData(hm.get(JsonKeys.LAT));
-                float longData = mCenter.parseGPSData(hm.get(JsonKeys.LONG));
-                Log.i(TAG,latData + "PPPPP");
-                Log.i(TAG,longData + "OOOO");
-                LatLng pointNewTemp = new LatLng(latData, longData);
-                LatLng pointNew = mCenter.convertPoint(pointNewTemp);
-                double distance = 0;
-                if(pointOld != null) {
-                    distance = DistanceUtil.getDistance(pointOld, pointNew);
-                    Log.i(TAG,distance + "LLLL");
-                }
-                if(pointOld == null && setManager.getAlarmFlag()) {
-                    pointOld = pointNew;
-                }
-                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) &&setManager.getAlarmFlag() && AlarmActivity.instance == null) {
-                    pointOld = null;
-                    wakeUpAndUnlock(GPSDataService.this);
-                    Intent intent = new Intent(GPSDataService.this, AlarmActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    getApplication().startActivity(intent);
-                }
             }
         }
     };
@@ -173,32 +130,9 @@ public class GPSDataService extends Service{
         Intent intent = new Intent();
         intent.putExtra("LAT",fLat);
         intent.putExtra("LONG",fLong);
+        intent.putExtra("DATE",date);
         intent.setAction("com.xunce.electrombile.service");
         sendBroadcast(intent);
-    }
-
-    /**
-     * XPGWifiDeviceListener
-     * <p/>
-     * 设备属性监听器。 设备连接断开、获取绑定参数、获取设备信息、控制和接受设备信息相关.
-     */
-    private XPGWifiDeviceListener deviceListener = new XPGWifiDeviceListener() {
-
-        @Override
-        public void didReceiveData(XPGWifiDevice device,
-                                   ConcurrentHashMap<String, Object> dataMap, int result) {
-            GPSDataService.this.didReceiveData(device, dataMap, result);
-        }
-    };
-
-    private void didReceiveData(XPGWifiDevice device,
-                                ConcurrentHashMap<String, Object> dataMap, int result) {
-        this.deviceDataMap = dataMap;
-        Log.i("switchFragment", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-        Log.i("device:::", device.toString());
-        Log.i("dataMap:::", dataMap.toString());
-        Log.i("result", result + "");
-        Handler.sendEmptyMessage(handler_key.RECEIVED.ordinal());
     }
 
     public void wakeUpAndUnlock(Context context){
@@ -216,44 +150,15 @@ public class GPSDataService extends Service{
         wl.release();
     }
 
-    //手动获取数据
-    public void updateLocation(){
-        if(setManager.getDid() != null && NetworkUtils.isNetworkConnected(this)) {
-            final String httpAPI = "http://api.gizwits.com/app/devdata/" + setManager.getDid() + "/latest";
-            HttpClient client = new DefaultHttpClient();
-            HttpGet get = new HttpGet(httpAPI);
-            get.addHeader("Content-Type", "application/json");
-            get.addHeader("X-Gizwits-Application-Id", Configs.APPID);
-            try {
-                HttpResponse response = client.execute(get);
-                if (response.getStatusLine().getStatusCode() == 200) {
-                    String resultJson = EntityUtils.toString(response.getEntity());
-                    String resultLong = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "long");
-                    String resultLat = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "lat");
-                    fLat = mCenter.parseGPSData(resultLat);
-                    fLong = mCenter.parseGPSData(resultLong);
-                    pointNew = mCenter.convertPoint(new LatLng(fLat, fLong));
-                    LogUtil.log.i("GPSDDDDDDDDDDDDDDDD" + pointNew.toString());
-                    Handler.sendEmptyMessage(handler_key.SHOUDONGREC.ordinal());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }else{
-         //   ToastUtils.showShort(this,"网络连接失败");
-        }
-    }
-
-    private boolean isStart = true;
 
     Thread getData = new Thread(){
         @Override
         public void run() {
             isRunning = true;
             while(true){
-                    updateLocation();
+                    getLatestData();
                     try {
-                        sleep(60000);
+                        sleep(30000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -261,6 +166,30 @@ public class GPSDataService extends Service{
         }
     };
 
+    public void getLatestData(){
+        AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
+        query.setLimit(1);
+        query.whereEqualTo("did", setManager.getDid());
+        query.whereLessThan("createdAt", Calendar.getInstance().getTime());
+        query.orderByDescending("createdAt");
+        query.findInBackground(new FindCallback<AVObject>() {
+            @Override
+            public void done(List<AVObject> avObjects, AVException e) {
+                Log.i(TAG, e + "");
+                if (e == null) {
+                    AVObject avObject = avObjects.get(0);
+                    fLat = mCenter.parseGPSData((float) avObject.getDouble(KET_LAT));
+                    fLong = mCenter.parseGPSData((float) avObject.getDouble(KET_LONG));
+                    SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+                    date = sdfWithSecond.format(avObject.getCreatedAt());
 
+                    pointNew = mCenter.convertPoint(new LatLng(fLat, fLong));
+                    LogUtil.log.i("GPSDDDDDDDDDDDDDDDD" + pointNew.toString());
+                    Handler.sendEmptyMessage(handler_key.SHOUDONGREC.ordinal());
+                }
+            }
+        });
+    }
 }
 

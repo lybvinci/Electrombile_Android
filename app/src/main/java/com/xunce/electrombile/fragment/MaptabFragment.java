@@ -18,6 +18,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.FindCallback;
+import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
@@ -49,6 +54,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -59,6 +65,8 @@ import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 public class MaptabFragment extends Fragment {
 
     private static String TAG = "MaptabFragment:";
+    private final String KET_LONG = "lon";
+    private final String KET_LAT = "lat";
 
     //播放线程消息类型
     enum handleKey{
@@ -395,55 +403,80 @@ public class MaptabFragment extends Fragment {
 
     //return longitude and latitude data,if no data, returns null
     public void updateLocation(){
-        final String httpAPI = "http://api.gizwits.com/app/devdata/" + settingManager.getDid() + "/latest";
-        new Thread(new Runnable() {
+
+        AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
+        query.setLimit(1);
+        query.whereEqualTo("did", new SettingManager(getActivity().getApplicationContext()).getDid());
+        query.whereLessThanOrEqualTo("createdAt", Calendar.getInstance().getTime());
+        query.orderByDescending("createdAt");
+        query.findInBackground(new FindCallback<AVObject>() {
             @Override
-            public void run() {
-                HttpClient client = new DefaultHttpClient();
-                HttpGet get = new HttpGet(httpAPI);
-                get.addHeader("Content-Type", "application/json");
-                get.addHeader("X-Gizwits-Application-Id", Configs.APPID);
-                LatLng point;
-                try {
-                    HttpResponse response = client.execute(get);
-                    if(response.getStatusLine().getStatusCode() == 200){
-                        String resultJson = EntityUtils.toString(response.getEntity());
-
-                        String date = JSONUtils.ParseJSON(resultJson, "updated_at");
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-                        Date d = null;
-                        try {
-                            d = sdf.parse(sdf.format(Long.parseLong(date) * 1000));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                        String resultLong = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "long");
-                        String resultLat = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "lat");
-                        float fLat = mCenter.parseGPSData(resultLat);
-                        float fLong = mCenter.parseGPSData(resultLong);
-                        LatLng p = mCenter.convertPoint(new LatLng(fLat, fLong));
-                        point= mCenter.convertPoint(new LatLng(fLat, fLong));
-
-
-                        TrackPoint latestTP = new TrackPoint(d, point);
-                        //向主线程发出消息，地图定位成功
-                        Message msg = Message.obtain();
-                        msg.what = handleKey.LOCATEMESSAGE.ordinal();
-                        msg.obj = latestTP;
-                        playHandler.sendMessage(msg);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+            public void done(List<AVObject> avObjects, AVException e) {
+                Log.i(TAG, e + "");
+                if (e == null) {
+                    AVObject avObject = avObjects.get(0);
+                    float fLat = mCenter.parseGPSData((float) avObject.getDouble(KET_LAT));
+                    float fLong = mCenter.parseGPSData((float) avObject.getDouble(KET_LONG));
+                    Date date = avObject.getCreatedAt();
+                    TrackPoint ppp = new TrackPoint(date, mCenter.convertPoint(new LatLng(fLat, fLong)));
                     //向主线程发出消息，地图定位成功
                     Message msg = Message.obtain();
                     msg.what = handleKey.LOCATEMESSAGE.ordinal();
-                    msg.obj = null;
+                    msg.obj = ppp;
                     playHandler.sendMessage(msg);
                 }
             }
-        }).start();
+        });
+
+//        final String httpAPI = "http://api.gizwits.com/app/devdata/" + settingManager.getDid() + "/latest";
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                HttpClient client = new DefaultHttpClient();
+//                HttpGet get = new HttpGet(httpAPI);
+//                get.addHeader("Content-Type", "application/json");
+//                get.addHeader("X-Gizwits-Application-Id", Configs.APPID);
+//                LatLng point;
+//                try {
+//                    HttpResponse response = client.execute(get);
+//                    if(response.getStatusLine().getStatusCode() == 200){
+//                        String resultJson = EntityUtils.toString(response.getEntity());
+//
+//                        String date = JSONUtils.ParseJSON(resultJson, "updated_at");
+//                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                        sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+//                        Date d = null;
+//                        try {
+//                            d = sdf.parse(sdf.format(Long.parseLong(date) * 1000));
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        String resultLong = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "long");
+//                        String resultLat = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "lat");
+//                        float fLat = mCenter.parseGPSData(resultLat);
+//                        float fLong = mCenter.parseGPSData(resultLong);
+//                        LatLng p = mCenter.convertPoint(new LatLng(fLat, fLong));
+//                        point= mCenter.convertPoint(new LatLng(fLat, fLong));
+//
+//
+//                        TrackPoint latestTP = new TrackPoint(d, point);
+//                        //向主线程发出消息，地图定位成功
+//                        Message msg = Message.obtain();
+//                        msg.what = handleKey.LOCATEMESSAGE.ordinal();
+//                        msg.obj = latestTP;
+//                        playHandler.sendMessage(msg);
+//                    }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                    //向主线程发出消息，地图定位成功
+//                    Message msg = Message.obtain();
+//                    msg.what = handleKey.LOCATEMESSAGE.ordinal();
+//                    msg.obj = null;
+//                    playHandler.sendMessage(msg);
+//                }
+//            }
+//        }).start();
     }
 
     private void drawLine(){

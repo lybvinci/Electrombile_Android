@@ -66,13 +66,15 @@
             android:value="LnfIE5HKF0zbDiZmm8ZiVIch" />
             <!--debug LnfIE5HKF0zbDiZmm8ZiVIch-->
             <!--android:value="eyVZSbgbfVGt9Y0BaKaYY5vF" />-->
+        <!--  debug  LnfIE5HKF0zbDiZmm8ZiVIch-->
+        <!--release eyVZSbgbfVGt9Y0BaKaYY5vF-->
+
         <activity
             android:name=".activity.SplashActivity"
             android:label="@string/app_name"
             android:theme="@style/splashActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
