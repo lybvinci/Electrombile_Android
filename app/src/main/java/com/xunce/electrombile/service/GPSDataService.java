@@ -135,10 +135,10 @@ public class GPSDataService extends Service{
                     distance = DistanceUtil.getDistance(pointOld, pointNew);
                     Log.i(TAG,distance + "LLLL");
                 }
-                if(pointOld == null && mCenter.alarmFlag) {
+                if(pointOld == null && setManager.getAlarmFlag()) {
                     pointOld = pointNew;
                 }
-                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag && AlarmActivity.instance == null) {
+                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) &&setManager.getAlarmFlag() && AlarmActivity.instance == null) {
                     pointOld = null;
                     wakeUpAndUnlock(GPSDataService.this);
                     Intent intent = new Intent(GPSDataService.this, AlarmActivity.class);
@@ -157,16 +157,16 @@ public class GPSDataService extends Service{
             distance = DistanceUtil.getDistance(pointOld, pointNew);
             Log.i(TAG, distance + "LLLL");
         }
-        if(pointOld == null && mCenter.alarmFlag) {
+        if(pointOld == null && setManager.getAlarmFlag()) {
             pointOld = pointNew;
         }
-        if (distance > 100 && mCenter.alarmFlag && AlarmActivity.instance == null) {
+        if (distance > 100 && setManager.getAlarmFlag() && AlarmActivity.instance == null) {
             pointOld = null;
             wakeUpAndUnlock(this);
             Intent intent = new Intent(this, AlarmActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getApplication().startActivity(intent);
-            mCenter.alarmFlag = false;
+            setManager.setAlarmFlag(false);
         }
 
         //发送广播，通知主界面

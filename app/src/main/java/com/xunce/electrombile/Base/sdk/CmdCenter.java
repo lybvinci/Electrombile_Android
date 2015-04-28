@@ -67,7 +67,7 @@ public class CmdCenter {
 	private SettingManager mSettingManager;
 
     //报警用的标志位
-    public static boolean alarmFlag = false;
+
 
 	/**
 	 * Instantiates a new cmd center.

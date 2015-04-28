@@ -221,12 +221,12 @@ public class BaseFragment extends Fragment{
                     distance = DistanceUtil.getDistance(pointOld, pointNew);
                     Log.i(TAG, distance + "PPPPP");
                 }
-                if( pointOld == null && mCenter.alarmFlag) {
+                if( pointOld == null && setManager.getAlarmFlag()) {
                     pointOld = pointNew;
-                    Log.i(TAG, mCenter.alarmFlag + "    PPPPP");
+           //         Log.i(TAG, mCenter.alarmFlag + "    PPPPP");
                 }
                 if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100)
-                        && mCenter.alarmFlag
+                        && setManager.getAlarmFlag()
                         && AlarmActivity.instance == null) {
                     pointOld = null;
                     Intent intent = new Intent(getActivity().getApplicationContext(), AlarmActivity.class);
