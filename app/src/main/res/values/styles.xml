@@ -1,6 +1,9 @@
 <resources>
 
     <!-- Base application theme. -->
+    <style name="App2Theme" parent="android:Theme.Holo.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+    </style>
     <style name="AppTheme" parent="android:Theme.Holo.Light.NoActionBar">
         <!-- Customize your theme here. -->
     </style>
@@ -9,25 +12,20 @@
     </style>
     <style name="footbar">
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/base_color_text_black</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">marquee</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:button">@null</item>
-        <item name="android:background">@color/transparent</item>
-        <item name="android:gravity">bottom|center_horizontal</item>
-        <item name="android:paddingBottom">2dp</item>
+        <item name="android:gravity">center</item>
+
     </style>
 
     <style name="main_bottom_item">
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_height">54dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:orientation">vertical</item>
     </style>
     <style name="TopLayout">
-        <item name="android:layout_height">60dp</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:background">@drawable/top_tall</item>
         <item name="android:orientation">horizontal</item>
@@ -35,10 +33,11 @@
     </style>
 
     <style name="EditTextTheme" parent="NoMarginEditTextTheme">
-        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginRight">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
         <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:textColor">@color/black</item>
     </style>
     <style name="ButtonBlue">
         <item name="android:layout_height">wrap_content</item>
@@ -48,13 +47,57 @@
         <item name="android:layout_gravity">center_horizontal</item>
     </style>
     <style name="NoMarginEditTextTheme">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/login_input_box</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:background">@drawable/inputbox_background</item>
     </style>
     <style name="noBackgroundDialog" parent="android:style/Theme.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>
+    </style>
+    <style name="clickableLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/layout_selector</item>
+        <item name="android:clickable">true</item>
+    </style>
+    <style name="clickableLayoutTextview">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:paddingBottom">20dp</item>
+        <item name="android:paddingLeft">20dp</item>
+    </style>
+
+    <style name="splashActivity">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+    <style name="loginActivity">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/login_bd</item>
+    </style>
+
+    <style name="recordActivity">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <!--<style name="usualAct">-->
+        <!--<item name="windowNoTitle">true</item>-->
+    <!--</style>-->
+
+    <style name="registerActivity">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/layout_register_bd</item>
+    </style>
+
+    <style name="settings_fragment_iv">
+        <item name="android:layout_width">35dp</item>
+        <item name="android:layout_height">35dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_marginLeft">10dp</item>
     </style>
 </resources>

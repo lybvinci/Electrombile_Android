@@ -1,15 +1,16 @@
 package com.xunce.electrombile.activity;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -19,29 +20,25 @@ import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Menu;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.xtremeprog.xpgconnect.XPGWifiDevice;
-import com.xtremeprog.xpgconnect.XPGWifiDeviceListener;
-import com.xtremeprog.xpgconnect.XPGWifiSDKListener;
-import com.xtremeprog.xpgconnect.XPGWifiSSID;
+import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
+import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.Base.utils.Historys;
+import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.Updata.UpdateAppService;
-import com.xunce.electrombile.activity.account.LoginActivity;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
-import com.xunce.electrombile.widget.ActionItem;
-import com.xunce.electrombile.widget.TitlePopup;
-import android.view.ViewGroup.LayoutParams;
+import com.xunce.electrombile.service.GPSDataService;
+
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import com.xunce.electrombile.widget.TitlePopup.OnItemOnClickListener;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -56,11 +53,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Calendar;
 
 
 /**
@@ -82,288 +77,83 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private SettingsFragment settingsFragment;
     public static String THE_INSTALLATION_ID;
     private ImageButton btnSettings = null;
-    private TitlePopup titlePopup;
+  //  private TitlePopup titlePopup;
     public static NotificationManager manager;
-    Handler MyHandler;
+//    Handler MyHandler;
     RadioButton rbSwitch;
     RadioButton rbMap;
+    RadioButton rbSettings;
     boolean isupde;int a=0;
     //退出使用
     private boolean isExit = false;
 
-    //SDK 机制云相关
-    private CmdCenter mCenter;
-    private XPGWifiDevice mXpgWifiDevice;
-    private ConcurrentHashMap<String, Object> deviceDataMap;
+    protected CmdCenter mCenter;
+
+    //接收广播
+    private MyReceiver receiver;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fragment);
-
-        //mCenter = CmdCenter.getInstance(this.getApplicationContext());
-        mCenter = CmdCenter.getInstance(getApplicationContext());
-        // 每次返回activity都要注册一次sdk监听器，保证sdk状态能正确回调
-        mCenter.getXPGWifiSDK().setListener(sdkListener);
-        // 每次返回activity都要注册一次sdk监听器，保证sdk状态能正确回调
-        mXpgWifiDevice = BaseActivity.mXpgWifiDevice;
-        if(mXpgWifiDevice != null)
-            mXpgWifiDevice.setListener(deviceListener);
-
+        mCenter = CmdCenter.getInstance(this);
         m_FMer = getSupportFragmentManager();
-        MyHandler=new Handler()
-        {
-            public void handleMessage(Message msg)
-            {
-                super.handleMessage(msg);
-                Bundle bundle=msg.getData();
-                isupde=bundle.getBoolean("isupdate");
-                a=bundle.getInt("want");
-                if (isupde) {
-                    updata();isupde=false;
-                }
-            }
-        };
-        Checkversion();
+//        MyHandler=new Handler()
+//        {
+//            public void handleMessage(Message msg)
+//            {
+//                super.handleMessage(msg);
+//                Bundle bundle=msg.getData();
+//                isupde=bundle.getBoolean("isupdate");
+//                a=bundle.getInt("want");
+//                if (isupde) {
+//                    upData();
+//                    isupde=false;
+//                }
+//            }
+//        };
+        checkVersion();
         initNotificaton();
         initView();
-        initData();
 
         dealBottomButtonsClickEvent();
 
-
-        //showNotification();
-        Historys.put(this);
+        //注册广播
+        registerBroadCast();
+       // showNotification("安全宝正在保护您的爱车");
+        if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
+            if(!GPSDataService.isRunning)
+                startService(new Intent(FragmentActivity.this, GPSDataService.class));
+        }
     }
-    /**
-     * XPGWifiSDKListener
-     * <p/>
-     * sdk监听器。 配置设备上线、注册登录用户、搜索发现设备、用户绑定和解绑设备相关.
-     */
-    private XPGWifiSDKListener sdkListener = new XPGWifiSDKListener() {
 
-        @Override
-        public void didBindDevice(int error, String errorMessage, String did) {
-            FragmentActivity.this.didBindDevice(error, errorMessage, did);
+    private void registerBroadCast() {
+        receiver = new MyReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.xunce.electrombile.service");
+        try {
+            FragmentActivity.this.registerReceiver(receiver, filter);
+        }catch (Exception e){
+            e.printStackTrace();
         }
+    }
 
-        @Override
-        public void didChangeUserEmail(int error, String errorMessage) {
-            FragmentActivity.this.didChangeUserEmail(error, errorMessage);
+
+    Handler MyHandler=new Handler()
+    {
+        public void handleMessage(Message msg)
+        {
+            super.handleMessage(msg);
+            Bundle bundle=msg.getData();
+            isupde=bundle.getBoolean("isupdate");
+            a=bundle.getInt("want");
+            if (isupde) {
+                upData();
+                isupde=false;
+            }
         }
-
-        @Override
-        public void didChangeUserPassword(int error, String errorMessage) {
-            FragmentActivity.this.didChangeUserPassword(error, errorMessage);
-        }
-
-        @Override
-        public void didChangeUserPhone(int error, String errorMessage) {
-            FragmentActivity.this.didChangeUserPhone(error, errorMessage);
-        }
-
-        @Override
-        public void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
-
-            FragmentActivity.this.didDiscovered(error, devicesList);
-        }
-
-        @Override
-        public void didGetSSIDList(int error, List<XPGWifiSSID> ssidInfoList) {
-            FragmentActivity.this.didGetSSIDList(error, ssidInfoList);
-        }
-
-        @Override
-        public void didRegisterUser(int error, String errorMessage, String uid,
-                                    String token) {
-            FragmentActivity.this.didRegisterUser(error, errorMessage, uid, token);
-        }
-
-        @Override
-        public void didRequestSendVerifyCode(int error, String errorMessage) {
-            FragmentActivity.this.didRequestSendVerifyCode(error, errorMessage);
-        }
-
-        @Override
-        public void didSetDeviceWifi(int error, XPGWifiDevice device) {
-            FragmentActivity.this.didSetDeviceWifi(error, device);
-        }
-
-        @Override
-        public void didUnbindDevice(int error, String errorMessage, String did) {
-            FragmentActivity.this.didUnbindDevice(error, errorMessage, did);
-        }
-
-        @Override
-        public void didUserLogin(int error, String errorMessage, String uid,
-                                 String token) {
-            FragmentActivity.this.didUserLogin(error, errorMessage, uid, token);
-        }
-
-        @Override
-        public void didUserLogout(int error, String errorMessage) {
-            FragmentActivity.this.didUserLogout(error, errorMessage);
-        }
-
     };
-    /**
-     * 用户登出回调借口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didUserLogout(int error, String errorMessage) {
-
-    }
-
-    /**
-     * 用户登陆回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     * @param uid
-     *            用户id
-     * @param token
-     *            授权令牌
-     */
-    protected void didUserLogin(int error, String errorMessage, String uid,
-                                String token) {
-
-    }
-
-    /**
-     * 设备解除绑定回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     * @param did
-     *            设备注册id
-     */
-    protected void didUnbindDevice(int error, String errorMessage, String did) {
-
-    }
-
-    /**
-     * 设备配置结果回调.
-     *
-     * @param error
-     *            结果代码
-     * @param device
-     *            设备对象
-     */
-    protected void didSetDeviceWifi(int error, XPGWifiDevice device) {
-
-    }
-
-    /**
-     * 请求手机验证码回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didRequestSendVerifyCode(int error, String errorMessage) {
-
-    }
-
-    /**
-     * 注册用户结果回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     * @param uid
-     *            the 用户id
-     * @param token
-     *            the 授权令牌
-     */
-    protected void didRegisterUser(int error, String errorMessage, String uid,
-                                   String token) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /**
-     * 获取ssid列表回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param ssidInfoList
-     *            ssid列表
-     */
-    protected void didGetSSIDList(int error, List<XPGWifiSSID> ssidInfoList) {
-
-    }
-
-    /**
-     * 搜索设备回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param devicesList
-     *            设备列表
-     */
-    protected void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
-
-    }
-
-    /**
-     * 更换注册手机号码回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didChangeUserPhone(int error, String errorMessage) {
-
-    }
-
-    /**
-     * 更换密码回调接口.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didChangeUserPassword(int error, String errorMessage) {
-
-    }
-
-    /**
-     * 更换注册邮箱.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     */
-    protected void didChangeUserEmail(int error, String errorMessage) {
-
-    }
-
-    /**
-     * 绑定设备结果回调.
-     *
-     * @param error
-     *            结果代码
-     * @param errorMessage
-     *            错误信息
-     * @param did
-     *            设备注册id
-     */
-    protected void didBindDevice(int error, String errorMessage, String did) {
-
-    }
-
     /**
      * 界面初始化
      */
@@ -371,60 +161,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         initFragment();
         rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
         rbMap = (RadioButton) findViewById(R.id.rbMap);
-
+        rbSettings = (RadioButton)findViewById(R.id.rbSettings);
         //实例化标题栏弹窗
-        titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-        //设置按钮监听函数
-        btnSettings = (ImageButton) findViewById(R.id.title_btn);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                titlePopup.show(view);
-            }
-        });
-
-        titlePopup.setItemOnClickListener(new OnItemOnClickListener() {
-            @Override
-            public void onItemClick(ActionItem item, int position) {
-                switch (position) {
-                    case SETTINGS_ITEM1:
-                        Log.i(TAG, "clicked item 1");
-                        break;
-                    case SETTINGS_ITEM2:
-                        Log.i(TAG, "clicked item 2");
-                        Intent intentStartBinding = new Intent(FragmentActivity.this, BindingActivity.class);
-                        startActivity(intentStartBinding);
-                        break;
-                    case SETTINGS_ITEM3:
-                        Log.i(TAG, "clicked item 3");
-                        break;
-                    case SETTINGS_ITEM4:
-                        Log.i(TAG, "clicked item 4");
-                     //   AVUser.logOut();             //清除缓存用户对象
-                        //启动登陆activity
-                        Intent intentStartLogin = new Intent(FragmentActivity.this, LoginActivity.class);
-                        startActivity(intentStartLogin);
-                        //关闭当前activity
-                        FragmentActivity.this.finish();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
+        //titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     }
 
-    /**
-     * 初始化数据
-     */
-    private void initData() {
-        //给标题栏弹窗添加子类
-        titlePopup.addAction(new ActionItem(this, "权限设置"));
-        titlePopup.addAction(new ActionItem(this, "绑定设备"));
-        titlePopup.addAction(new ActionItem(this, "使用帮助"));
-        titlePopup.addAction(new ActionItem(this, "退出登录"));
-    }
 
     /**
      * 初始化首个Fragment
@@ -446,7 +187,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         //ft.addToBackStack("settingsFragment");
 
         ft.commit();
-
     }
 
     /**
@@ -463,9 +203,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
                 //界面切换
                 rbSwitch.setChecked(true);
-                rbMap.setChecked(false);
                 rbSwitch.setTextColor(getResources().getColor(R.color.blue));
+                rbMap.setChecked(false);
                 rbMap.setTextColor(Color.BLACK);
+                rbSettings.setChecked(false);
+                rbSettings.setTextColor(Color.BLACK);
 
 
                 //从backstack中弹出
@@ -473,8 +215,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
                 FragmentTransaction ft = m_FMer.beginTransaction();
                 ft.show(switchFragment);
-                ft.setTransition(FragmentTransaction.TRANSIT_ENTER_MASK);
-                //ft.hide(settingsFragment);
+                ft.hide(settingsFragment);
                 ft.hide(maptabFragment);
                 ft.commit();
 
@@ -494,13 +235,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 rbMap.setTextColor(getResources().getColor(R.color.blue));
                 rbSwitch.setChecked(false);
                 rbSwitch.setTextColor(Color.BLACK);
+                rbSettings.setChecked(false);
+                rbSettings.setTextColor(Color.BLACK);
 
                 //从backstack中弹出
                 //popAllFragmentsExceptTheBottomOne();
 
                 FragmentTransaction ft = m_FMer.beginTransaction();
                 ft.hide(switchFragment);
-                //ft.hide(settingsFragment);
+                ft.hide(settingsFragment);
                 ft.show(maptabFragment);
                 //ft.addToBackStack("mapFragment");
                 ft.commit();
@@ -510,28 +253,34 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             }
         });
 
-//        findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
-//                    Log.e("", "set clicked");
-//                    return;
-//                }
-//                popAllFragmentsExceptTheBottomOne();
-//                FragmentTransaction ft = m_FMer.beginTransaction();
-//                ft.hide(switchFragment);
-//                ft.show(settingsFragment);
-//                ft.hide(maptabFragment);
-//                ft.addToBackStack("settingsFragment");
-//                ft.commit();
-//            }
-//        });
+        findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
+                    Log.e("", "set clicked");
+                    return;
+                }
+
+                rbMap.setChecked(false);
+                rbMap.setTextColor(Color.BLACK);
+                rbSwitch.setChecked(false);
+                rbSwitch.setTextColor(Color.BLACK);
+                rbSettings.setChecked(true);
+                rbSettings.setTextColor(getResources().getColor(R.color.blue));
+
+                FragmentTransaction ft = m_FMer.beginTransaction();
+                ft.hide(switchFragment);
+                ft.show(settingsFragment);
+                ft.hide(maptabFragment);
+                ft.commit();
+            }
+        });
     }
 
     /**
      * 检查更新
      */
-    public void updata() {
+    public void upData() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("软件升级")
                 .setMessage("发现新版本,建议立即更新使用.")
@@ -565,38 +314,42 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     /**
      * 处理返回按钮
      */
-    @Override
-    public void onBackPressed() {
-        exit();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        //this.finish();
+//      //  exit();
+//    }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.menu_set, menu);
-
-        return true;
-
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            moveTaskToBack(false);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
+
 
 
     @Override
     protected void onPause() {
         super.onPause();
+//        startService(new Intent(FragmentActivity.this, GPSDataService.class));
+        Log.i("退出","ooooooooo");
     }
 
     @Override
     protected void onResume() {
         ISSTARTED = true;
+      //  stopService(new Intent(FragmentActivity.this, GPSDataService.class));
         super.onResume();
-        if(mXpgWifiDevice != null)
-            mXpgWifiDevice.setListener(deviceListener);
-        mCenter.getXPGWifiSDK().setListener(sdkListener);
     }
 
     @Override
     protected void onDestroy() {
         ISSTARTED = false;
+        cancelNotification();
+        unregisterReceiver(receiver);
         super.onDestroy();
     }
 
@@ -604,8 +357,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         manager = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
     }
 
-    public void Checkversion() {
-
+    public void checkVersion() {
+            Log.i("updata version","aaaaaaaaaaaaa");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -613,7 +366,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 Bundle bundle=new Bundle();
                 boolean isupdate;
                 String baseUrl = "http://fir.im/api/v2/app/version/%s?token=%s";
-                String checkUpdateUrl = String.format(baseUrl, "5531cb8eddfef0bb3e000a78", "6d5d9e60e56f11e492cf97620aa3a7444608b774");
+                String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 HttpClient httpClient = new DefaultHttpClient();
                 //请求超时
                 httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
@@ -637,6 +390,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         if (pi != null) {
                             int currentVersionCode = pi.versionCode;
                             String currentVersionName = pi.versionName;
+                            Log.i("当前版本",currentVersionCode+"");
+                            Log.i("查看版本",firVersionCode+"");
                             if (firVersionCode > currentVersionCode) {
                                 //需要更新
                                 Log.i("infox", "need update");
@@ -675,15 +430,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     }
 
     //显示常驻通知栏
-    void showNotification(){
+    public void showNotification(String text){
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Notification notification = new Notification(R.drawable.icon,"安全宝",System.currentTimeMillis());
+        Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
         //下面这句用来自定义通知栏
         //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
         Intent intent = new Intent(this,FragmentActivity.class);
         notification.flags = Notification.FLAG_ONGOING_EVENT;
         PendingIntent contextIntent = PendingIntent.getActivity(this,0,intent,0);
-        notification.setLatestEventInfo(getApplicationContext(),"安全宝","正在保护您的电动车",contextIntent);
+        notification.setLatestEventInfo(getApplicationContext(),"安全宝",text,contextIntent);
         notificationManager.notify(R.string.app_name, notification);
     }
     //取消显示常驻通知栏
@@ -718,150 +473,59 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }
     };
 
-
-
-    //handler 处理事件
-    private enum handler_key {
-
-        /** 更新UI界面 */
-        UPDATE_UI,
-
-        /** 显示警告*/
-        ALARM,
-
-        /** 设备断开连接 */
-        DISCONNECTED,
-
-        /** 接收到设备的数据 */
-        RECEIVED,
-
-        /** 获取设备状态 */
-        GET_STATUE,
+    @Override
+    public void gpsCallBack(LatLng desLat) {
+        //传递数据给地图的Fragment
+        //如果正在播放轨迹，则更新位置
+        if(!maptabFragment.isPlaying)
+            maptabFragment.locateMobile(new TracksManager.TrackPoint(Calendar.getInstance().getTime(),desLat));
+//        maptabFragment.currentTrack.time = Calendar.getInstance().getTime();
+//        maptabFragment.currentTrack.point = desLat;
+        switchFragment.reverserGeoCedec(desLat);
     }
 
-    private HashMap<String, String> GPS_Data;
-    private Handler fragmentHandler = new Handler(){
-        public void handMessage(Message msg){
-            super.handleMessage(msg);
-            handler_key key= handler_key.values()[msg.what];
-            switch (key){
-                case RECEIVED:
-                    if (deviceDataMap.get("data") != null) {
-                        Log.i("info", (String) deviceDataMap.get("data"));
-                    }
-                    if (deviceDataMap.get("alters") != null) {
-                        Log.i("info", (String) deviceDataMap.get("alters"));
-                        // 返回主线程处理报警数据刷新
-                    }
-                    if (deviceDataMap.get("faults") != null) {
-                        Log.i("info", (String) deviceDataMap.get("faults"));
-                        // 返回主线程处理错误数据刷新
-                    }
-                    if(deviceDataMap.get("binary") != null){
-                        byte[] binary = (byte[]) deviceDataMap.get("binary");
-                        Log.i("info:::::", binary.toString());
-                        String ChuanTouData = mCenter.cParseString(binary);
-                        if(ChuanTouData.equals("SET_TIMER_OK")){
-                            ToastUtils.showShort(FragmentActivity.this, "GPS定时发送设置成功");
-                        }
-                        else if(ChuanTouData.equals("SET_SOS_OK")){
-                            ToastUtils.showShort(FragmentActivity.this,"管理员设置成功");
-                        }
-                        else if(ChuanTouData.equals("DEL_SOS_OK")){
-                            ToastUtils.showShort(FragmentActivity.this,"删除管理员成功");
-                        }
-                        else if(ChuanTouData.equals("SET_SAVING_OK")){
-                            ToastUtils.showShort(FragmentActivity.this,"模式设置成功");
-                        }
-                        else if(ChuanTouData.equals("RESET_OK")){
-                            ToastUtils.showShort(FragmentActivity.this,"重启设备成功");
-                        }
-                        else{
-                            GPS_Data = new HashMap<String, String>();
-                            GPS_Data = mCenter.parseGps(ChuanTouData);
-                        }
-
-                    }
-                    break;
-                case GET_STATUE:
-                    break;
-                case UPDATE_UI:
-                    break;
-                case ALARM:
-                    break;
-                case DISCONNECTED:
-                    break;
+    public class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+          //  Log.i(TAG,"我的接收调用了？？？？？？");
+            Bundle bundle=intent.getExtras();
+            float Flat = bundle.getFloat("LAT");
+            float Flong = bundle.getFloat("LONG");
+            LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
+            try {
+                if (!maptabFragment.isPlaying) {
+                    maptabFragment.locateMobile(new TracksManager.TrackPoint(Calendar.getInstance().getTime(), point));
+                }
+                switchFragment.reverserGeoCedec(point);
+            }catch (Exception e){
+                //
             }
         }
-    };
-    /**
-     * XPGWifiDeviceListener
-     * <p/>
-     * 设备属性监听器。 设备连接断开、获取绑定参数、获取设备信息、控制和接受设备信息相关.
-     */
-    protected XPGWifiDeviceListener deviceListener = new XPGWifiDeviceListener() {
-
-        @Override
-        public void didDeviceOnline(XPGWifiDevice device, boolean isOnline) {
-            FragmentActivity.this.didDeviceOnline(device, isOnline);
-        }
-
-        @Override
-        public void didDisconnected(XPGWifiDevice device) {
-            FragmentActivity.this.didDisconnected(device);
-        }
-
-        @Override
-        public void didReceiveData(XPGWifiDevice device,
-                                   ConcurrentHashMap<String, Object> dataMap, int result) {
-            FragmentActivity.this.didReceiveData(device, dataMap, result);
-        }
-
-    };
-    /**
-     * 接收指令回调
-     * <p/>
-     * sdk接收到模块传入的数据回调该接口.
-     *
-     * @param device
-     *            设备对象
-     * @param dataMap
-     *            json数据表
-     * @param result
-     *            状态代码
-     */
-    protected void didReceiveData(XPGWifiDevice device,
-                                  ConcurrentHashMap<String, Object> dataMap, int result) {
-        this.deviceDataMap = dataMap;
-        Log.i("FragmentActivity","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-        Log.i("device:::",device.toString());
-        Log.i("dataMap:::",dataMap.toString());
-        Log.i("result",result+"");
-        fragmentHandler.sendEmptyMessage(handler_key.RECEIVED.ordinal());
-    }
-    /**
-     * 设备上下线通知.
-     *
-     * @param device
-     *            设备对象
-     * @param isOnline
-     *            上下线状态
-     */
-    protected void didDeviceOnline(XPGWifiDevice device, boolean isOnline) {
-        Log.i("设备在线",isOnline + "");
-    }
-    /**
-     * 断开连接回调接口.
-     *
-     * @param device
-     *            设备对象
-     */
-    protected void didDisconnected(XPGWifiDevice device) {
-        Log.i("设备未连接",device + "");
     }
 
-    @Override
-    public void gpsCallBack(String lat, String lon) {
-        //传递数据给地图的Fragment
+    /**
+     * 判断某个服务是否正在运行的方法
+     *
+     * @param mContext
+     * @param serviceName
+     *            是包名+服务的类名（例如：net.loonggg.testbackstage.TestService）
+     * @return true代表正在运行，false代表服务没有正在运行
+     */
+    public boolean isServiceWork(Context mContext, String serviceName) {
+        boolean isWork = false;
+        ActivityManager myAM = (ActivityManager) mContext
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> myList = myAM.getRunningServices(40);
+        if (myList.size() <= 0) {
+            return false;
+        }
+        for (int i = 0; i < myList.size(); i++) {
+            String mName = myList.get(i).service.getClassName().toString();
+            if (mName.equals(serviceName)) {
+                isWork = true;
+                break;
+            }
+        }
+        return isWork;
     }
 }

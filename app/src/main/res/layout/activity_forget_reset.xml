@@ -2,11 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/layout_register_bd">
 
     <RelativeLayout
         android:id="@+id/rlTop"
-        style="@style/TopLayout">
+       android:layout_height="40dp"
+        android:background="@color/lightblue"
+        android:layout_width="match_parent">
 
         <ImageView
             android:id="@+id/ivBack"
@@ -32,11 +35,13 @@
         android:id="@+id/etName"
         style="@style/EditTextTheme"
         android:layout_marginTop="30dp"
+        android:gravity="center"
         android:hint="@string/forget_password_hint1" />
 
     <Button
         android:id="@+id/btnGetCode"
         style="@style/ButtonBlue"
+        android:layout_marginTop="40dp"
         android:text="@string/forget_password_get_verifycode" />
 
     <LinearLayout
@@ -49,13 +54,16 @@
         <EditText
             android:id="@+id/etInputCode"
             style="@style/EditTextTheme"
+            android:layout_marginTop="30dp"
             android:layout_weight="1"
+            android:gravity="center"
             android:hint="@string/forget_password_verifycode" />
 
         <Button
             android:id="@+id/btnReGetCode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
             android:background="@drawable/button_blue_short"
             android:text="@string/forget_password_get_verifycode_again"
             android:textColor="@android:color/background_light"
@@ -76,7 +84,6 @@
             android:id="@+id/etInputPsw"
             style="@style/EditTextTheme"
             android:layout_weight="1"
-            android:digits="@string/register_name_digits"
             android:background="@android:color/transparent"
             android:hint="@string/password" />
 
@@ -93,6 +100,15 @@
         android:id="@+id/btnSure"
         style="@style/ButtonBlue"
         android:text="@string/confirm" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="160dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:text="@string/company_name"/>
 
 
 </LinearLayout>

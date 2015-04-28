@@ -7,34 +7,8 @@
     <RelativeLayout
         android:id="@+id/aboveLayout"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="#dbdbdb">
-        <RelativeLayout
-            android:id="@+id/title"
-            android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:background="#ff1d252c"
-            android:gravity="center_vertical" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="安全宝"
-                android:textColor="#ffffff"
-                android:textSize="20sp" />
-
-            <ImageButton
-                android:id="@+id/title_btn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/btn_settings"
-                android:onClick="btnmainright"/>
-        </RelativeLayout>
-
+        android:layout_height="match_parent"
+        android:background="@color/gainsboro">
         <LinearLayout
             android:id="@+id/fragmentRoot"
             android:layout_width="fill_parent"
@@ -45,7 +19,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@android:color/holo_blue_dark"
+            android:background="@color/transparent"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -56,10 +30,8 @@
                     android:id="@+id/rbSwitch"
                     style="@style/footbar"
                     android:drawableTop="@drawable/switch_icon"
-                    android:text="开关"
-                    android:textSize="18sp"
-                    android:textColor="@color/blue"
-                    android:checked="true"/>
+                    android:checked="true"
+                    android:paddingTop="10dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -70,22 +42,21 @@
                     android:id="@+id/rbMap"
                     style="@style/footbar"
                     android:drawableTop="@drawable/map_icon"
-                    android:text="地图"
-                    android:textSize="18sp"
+                    android:paddingTop="10dp"
                     android:checked="false"/>
             </LinearLayout>
 
 
-            <!--<LinearLayout
+            <LinearLayout
                 android:id="@+id/bottomItemCurrentBg3"
                 style="@style/main_bottom_item" >
 
                 <RadioButton
                     android:id="@+id/rbSettings"
-                    style="@style/footbar"
-                    android:paddingTop="8dp"
-                    android:text="设置" />
-            </LinearLayout>-->
+                    android:paddingTop="10dp"
+                    android:drawableTop="@drawable/setting_icon"
+                    style="@style/footbar"/>
+            </LinearLayout>
 
         </LinearLayout>
     </RelativeLayout>

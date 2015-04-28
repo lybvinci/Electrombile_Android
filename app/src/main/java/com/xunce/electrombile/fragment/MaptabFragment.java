@@ -1,6 +1,10 @@
 package com.xunce.electrombile.fragment;
 
 
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,11 +16,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
@@ -27,6 +33,9 @@ import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.xunce.electrombile.Base.config.Configs;
+import com.xunce.electrombile.Base.sdk.CmdCenter;
+import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.RecordActivity;
 
@@ -35,50 +44,62 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.TimeZone;
+
+import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
+import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 
 public class MaptabFragment extends Fragment {
 
     private static String TAG = "MaptabFragment:";
 
     //播放线程消息类型
-    private final int CHANGEPOINT = 1;
-    private final int PAUSEPLAY = 2;
+    enum handleKey{
+        CHANGEPOINT,
+        LOCATEMESSAGE,
+        HIDEINFOWINDOW,
+    }
 
     //获取位置信息的http接口
-    private final String httpBase= "http://electrombile.huakexunce.com/position";
+    private final String httpBase= "http://api.gizwits.com/app/devdata/";
     public static MapView mMapView;
     private BaiduMap mBaiduMap;
-    Button btnChengeMode;
     Button btnLocation;
     Button btnRecord;
-    Button btnPlayOrPause;
+    Button btnPlay;
+    Button btnPause;
     Button btnClearTrack;
 
     //maptabFragment 维护一组历史轨迹坐标列表
-    public static List<LatLng> trackDataList;
+    public static List<TrackPoint> trackDataList;
 
     PlayRecordThread m_playThread;
 
     //电动车标志
     Marker markerMobile;
     MarkerOptions option2;
+    public TrackPoint currentTrack;
 
     //轨迹图层
     Overlay tracksOverlay;
 
-    private boolean isPlaying = false;
+    //正在播放轨迹标志
+    public boolean isPlaying = false;
 
+    private CmdCenter mCenter;
+    SettingManager settingManager;
+
+    TextView tvUpdateTime;
+    TextView tvStatus;
+    InfoWindow mInfoWindow;
+    View markerView;
 
     @Override
     public void onCreate (Bundle savedInstanceState){
@@ -89,7 +110,19 @@ public class MaptabFragment extends Fragment {
         //注意该方法要再setContentView方法之前实现
         SDKInitializer.initialize(this.getActivity().getApplicationContext());
 
-        trackDataList = new ArrayList<LatLng>();
+        trackDataList = new ArrayList<TrackPoint>();
+        settingManager = new SettingManager(getActivity().getApplicationContext());
+
+        mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
+        currentTrack = new TrackPoint(new Date(), 0, 0);
+
+        LayoutInflater inflater = (LayoutInflater)getActivity().getApplicationContext()
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        markerView = inflater.inflate(R.layout.view_marker, null);
+        tvUpdateTime = (TextView)markerView.findViewById(R.id.tv_updateTime);
+        tvStatus = (TextView)markerView.findViewById(R.id.tv_statuse);
+
+
     }
 
 	@Override
@@ -106,38 +139,53 @@ public class MaptabFragment extends Fragment {
         mMapView = (MapView) v.findViewById(R.id.bmapView);
         mBaiduMap = mMapView.getMap();
 
+        mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+            public boolean onMarkerClick(final Marker marker) {
+                if(marker == markerMobile){
+                    mBaiduMap.hideInfoWindow();
+                }
+                return true;
+            }
+        });
+
         //开始/暂停播放按钮
-        btnPlayOrPause = (Button)v.findViewById(R.id.btn_play_or_pause);
-        btnPlayOrPause.setVisibility(View.INVISIBLE);
-        btnPlayOrPause.setOnClickListener(new View.OnClickListener() {
+        btnPlay = (Button)v.findViewById(R.id.btn_play);
+        btnPlay.setVisibility(View.INVISIBLE);
+        btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //若没有播放线程，先创建
-                if(m_playThread == null){
+                if (m_playThread == null) {
                     m_playThread = new PlayRecordThread(1000);
                     m_playThread.start();
                 }
-
-                //若在暂停状态，则开始(继续)播放
-                if(m_playThread.PAUSE) {
-                    btnPlayOrPause.setText("暂停");
                     continuePlay();
+            }
+        });
+
+        btnPause = (Button)v.findViewById(R.id.btn_pause);
+        btnPause.setVisibility(View.INVISIBLE);
+        btnPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //若没有播放线程，先创建
+                if (m_playThread == null) {
+                    m_playThread = new PlayRecordThread(1000);
+                    m_playThread.start();
                 }
-                else {
-                    btnPlayOrPause.setText("开始");
-                    pausePlay();
-                }
+                pausePlay();
             }
         });
 
         //定位电动车按钮
         btnLocation = (Button)v.findViewById(R.id.btn_location);
+
         btnLocation.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 if(mBaiduMap != null){
                     //LatLng point = getLatestLocation();
-                    locateMobile(getRealtimePos());
+                    updateLocation();
                 }
             }
         });
@@ -147,6 +195,8 @@ public class MaptabFragment extends Fragment {
         btnRecord.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                clearDataAndView();
+
                 Intent intent = new Intent(getActivity().getApplicationContext(),RecordActivity.class);
                 startActivity(intent);
             }
@@ -158,24 +208,46 @@ public class MaptabFragment extends Fragment {
         btnClearTrack.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                //清除轨迹
-                tracksOverlay.remove();
-                //结束播放线程
-                if(m_playThread != null){
-                    m_playThread.isTimeToDie = true;
-                }
-                m_playThread = null;
+                AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                        .setTitle("退出历史轨迹查看模式？")
+                        .setPositiveButton("取消",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
 
-                //电动车标志回到当前位置
-                markerMobile.setPosition(getRealtimePos());
+                                    }
+                                }).setNegativeButton("退出", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                clearDataAndView();
 
-                //清除轨迹数据
-                trackDataList.clear();
+                            }
+                        }).create();
+                dialog.show();
 
-                //退出播放轨迹模式
-                exitPlayTrackMode();
             }
         });
+    }
+
+    private void clearDataAndView() {
+        //清除轨迹
+        if(tracksOverlay != null)
+            tracksOverlay.remove();
+        //结束播放线程
+        if(m_playThread != null){
+            m_playThread.isTimeToDie = true;
+        }
+        m_playThread = null;
+
+        //电动车标志回到当前位置
+        updateLocation();
+
+        //清除轨迹数据
+//        trackDataList.clear();
+
+        //退出播放轨迹模式
+        exitPlayTrackMode();
     }
 
     @Override
@@ -203,7 +275,7 @@ public class MaptabFragment extends Fragment {
             //将电动车位置移至中心
             MapStatus mMapStatus = new MapStatus.Builder()
                     .target(point)
-                    .zoom(mBaiduMap.getMapStatus().zoom / (float)1.3)
+                    .zoom(mBaiduMap.getMapStatus().zoom * new Double(1.5).floatValue())
                     .build();
             //float a = mBaiduMap.getMapStatus().zoom;
             //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
@@ -215,7 +287,7 @@ public class MaptabFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
-		((TextView)getView().findViewById(R.id.tvTop)).setText("地图");
+		//((TextView)getView().findViewById(R.id.tvTop)).setText("地图");
 	}
 
     @Override
@@ -245,6 +317,8 @@ public class MaptabFragment extends Fragment {
 
         //检查历史轨迹列表，若不为空，则需要绘制轨迹
         if(trackDataList.size() > 0){
+            if(tracksOverlay != null) tracksOverlay.remove();
+            locateMobile(trackDataList.get(0));
             enterPlayTrackMode();
             drawLine();
         }
@@ -259,13 +333,16 @@ public class MaptabFragment extends Fragment {
     }
 
     private void enterPlayTrackMode(){
+        isPlaying = true;
         btnClearTrack.setVisibility(View.VISIBLE);
-        btnPlayOrPause.setVisibility(View.VISIBLE);
+        btnPlay.setVisibility(View.VISIBLE);
+        btnPause.setVisibility(View.VISIBLE);
     }
     private void exitPlayTrackMode(){
+        isPlaying = false;
         btnClearTrack.setVisibility(View.INVISIBLE);
-        btnPlayOrPause.setVisibility(View.INVISIBLE);
-        btnPlayOrPause.setText("开始");
+        btnPlay.setVisibility(View.INVISIBLE);
+        btnPause.setVisibility(View.INVISIBLE);
     }
     //暂停更新地图
     public void pauseMapUpdate(){
@@ -280,13 +357,13 @@ public class MaptabFragment extends Fragment {
     }
 
     //将地图中心移到某点
-    private void locateMobile(LatLng point){
+    public void locateMobile(TrackPoint track){
         /**
          *设定中心点坐标
          */
         //定义地图状态
         MapStatus mMapStatus = new MapStatus.Builder()
-                .target(point)
+                .target(track.point)
                 .zoom(mBaiduMap.getMapStatus().zoom)
                 .build();
         //float a = mBaiduMap.getMapStatus().zoom;
@@ -294,75 +371,90 @@ public class MaptabFragment extends Fragment {
         MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
         //改变地图状态
         mBaiduMap.animateMapStatus(mMapStatusUpdate);
-        markerMobile.setPosition(point);
+        markerMobile.setPosition(track.point);
+
+        //显示悬浮窗，一定时间后消失
+        mBaiduMap.hideInfoWindow();
+        mInfoWindow = new InfoWindow(markerView, track.point, -90);
+
+        SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        tvUpdateTime.setText(sdfWithSecond.format(track.time));
+        mBaiduMap.showInfoWindow(mInfoWindow);
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                playHandler.sendEmptyMessage(handleKey.HIDEINFOWINDOW.ordinal());
+//            }
+//        }, 1000);
+
+        //更新当前轨迹
+        currentTrack = track;
     }
 
-    public JSONArray getHttp(final String httpBase){
-        FutureTask<JSONArray> task = new FutureTask<JSONArray>(
-                new Callable<JSONArray>() {
-                    @Override
-                    public JSONArray call() throws Exception {
-                        HttpClient client = new DefaultHttpClient();
-                        HttpGet get = new HttpGet(httpBase);
-                        try {
-                            HttpResponse response = client.execute(get);
-                            if(response.getStatusLine().getStatusCode() == 200){
-                                String result = EntityUtils.toString(response.getEntity());
-                                return new JSONArray(result);
-                            }
-                            return null;
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            return null;
-                        }
-                    }
-                });
 
-        new Thread(task).start();
-
-        try {
-            //wait the result of http get, if wait for more than 5 secs, return null
-            return task.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return null;
-        } catch (TimeoutException e) {
-            return null;
-        }
-    }
-
-    private LatLng getRealtimePos(){
-        return new LatLng(30.5171, 114.4392);
-    }
 
     //return longitude and latitude data,if no data, returns null
-    public LatLng getLatestLocation(){
-        LatLng location;
-        JSONObject jsonObject;
-        JSONArray m_JSONArray = getHttp(httpBase);
-        if(m_JSONArray == null){
-            Log.e("","m_JSONArray is null" );
-            return null;
-        }
-        try {
-            jsonObject = m_JSONArray.getJSONObject(m_JSONArray.length() - 1);
-            double longt = jsonObject.getDouble("longitude");
-            double lat = jsonObject.getDouble("latitude");
-            location = new LatLng(lat,longt);
-            return location;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public void updateLocation(){
+        final String httpAPI = "http://api.gizwits.com/app/devdata/" + settingManager.getDid() + "/latest";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient client = new DefaultHttpClient();
+                HttpGet get = new HttpGet(httpAPI);
+                get.addHeader("Content-Type", "application/json");
+                get.addHeader("X-Gizwits-Application-Id", Configs.APPID);
+                LatLng point;
+                try {
+                    HttpResponse response = client.execute(get);
+                    if(response.getStatusLine().getStatusCode() == 200){
+                        String resultJson = EntityUtils.toString(response.getEntity());
+
+                        String date = JSONUtils.ParseJSON(resultJson, "updated_at");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+                        Date d = null;
+                        try {
+                            d = sdf.parse(sdf.format(Long.parseLong(date) * 1000));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        String resultLong = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "long");
+                        String resultLat = JSONUtils.ParseJSON(JSONUtils.ParseJSON(resultJson, "attr"), "lat");
+                        float fLat = mCenter.parseGPSData(resultLat);
+                        float fLong = mCenter.parseGPSData(resultLong);
+                        LatLng p = mCenter.convertPoint(new LatLng(fLat, fLong));
+                        point= mCenter.convertPoint(new LatLng(fLat, fLong));
+
+
+                        TrackPoint latestTP = new TrackPoint(d, point);
+                        //向主线程发出消息，地图定位成功
+                        Message msg = Message.obtain();
+                        msg.what = handleKey.LOCATEMESSAGE.ordinal();
+                        msg.obj = latestTP;
+                        playHandler.sendMessage(msg);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //向主线程发出消息，地图定位成功
+                    Message msg = Message.obtain();
+                    msg.what = handleKey.LOCATEMESSAGE.ordinal();
+                    msg.obj = null;
+                    playHandler.sendMessage(msg);
+                }
+            }
+        }).start();
     }
 
     private void drawLine(){
+        ArrayList<LatLng> points = new ArrayList<LatLng>();
+        for(TrackPoint tp:trackDataList){
+            points.add(tp.point);
+        }
         //构建用户绘制多边形的Option对象
         OverlayOptions polylineOption = new PolylineOptions()
-                .points(trackDataList)
+                .points(points)
                 .width(5)
                 .color(0xAA00FF00);
         //在地图上添加多边形Option，用于显示
@@ -382,7 +474,7 @@ public class MaptabFragment extends Fragment {
         public void run() {
             super.run();
             while(!isTimeToDie) {
-                for (LatLng pt : trackDataList) {
+                for (TrackPoint pt : trackDataList) {
                     if(isTimeToDie) return;
                     //暂停播放
                     synchronized (PlayRecordThread.class) {
@@ -390,7 +482,7 @@ public class MaptabFragment extends Fragment {
                     }
                     //向主线程发出消息，移动地图中心点
                     Message msg = Message.obtain();
-                    msg.what = CHANGEPOINT;
+                    msg.what = handleKey.CHANGEPOINT.ordinal();
                     msg.obj = pt;
                     playHandler.sendMessage(msg);
 
@@ -413,15 +505,34 @@ public class MaptabFragment extends Fragment {
     private Handler playHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch(msg.what){
+            handleKey key = handleKey.values()[msg.what];
+            switch(key){
                 case CHANGEPOINT:
-                    locateMobile((LatLng) msg.obj);
+                    locateMobile((TrackPoint) msg.obj);
                     break;
+                case LOCATEMESSAGE:{
+                    if(msg.obj!= null){
+                        locateMobile((TrackPoint) msg.obj);
+                        break;
+                    }else{
+                        Toast.makeText(getActivity().getApplicationContext(),
+                                "定位数据获取失败，请重试或检查网络",Toast.LENGTH_LONG).show();
+                        break;
+                    }
+
+                }
+                case HIDEINFOWINDOW:{
+                    mBaiduMap.hideInfoWindow();
+                    break;
+                }
+
             }
+
         }
     };
 
     private void pausePlay(){
+        if(m_playThread!= null)
             m_playThread.PAUSE = true;
     };
 

@@ -1,7 +1,104 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:backgroundTint="#ff1d252c">
 
-    <include layout="@layout/top_title" />
+    <RelativeLayout
+        android:id="@+id/title"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:background="#bfbfbf"
+        android:gravity="center_vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="安全宝"
+            android:textColor="@color/black"
+            android:textSize="25sp" />
+
+    </RelativeLayout>
+
+    <!--<LinearLayout-->
+        <!--android:id="@+id/layout_phone_number"-->
+        <!--android:layout_below="@+id/title"-->
+        <!--android:layout_marginTop="60dp"-->
+        <!--android:orientation="horizontal"-->
+        <!--style="@style/clickableLayout">-->
+        <!--<ImageView-->
+            <!--style="@style/settings_fragment_iv"-->
+            <!--android:src="@drawable/setting_tel"/>-->
+        <!--<TextView-->
+            <!--style="@style/clickableLayoutTextview"-->
+            <!--android:text="设备手机号"/>-->
+    <!--</LinearLayout>-->
+
+    <LinearLayout
+        android:id="@+id/layout_bind"
+        android:layout_below="@+id/title"
+        android:layout_marginTop="0dp"
+        style="@style/clickableLayout">
+        <ImageView
+            style="@style/settings_fragment_iv"
+            android:src="@drawable/setting_bangdingshebei"/>
+        <TextView
+            style="@style/clickableLayoutTextview"
+            android:text="绑定设备"
+            android:textColor="@color/black"/>
+    </LinearLayout>
+
+    <!--<LinearLayout-->
+        <!--android:id="@+id/layout_relieve_bind"-->
+        <!--android:layout_below="@+id/layout_bind"-->
+        <!--android:layout_marginTop="1dp"-->
+        <!--style="@style/clickableLayout">-->
+        <!--<ImageView-->
+            <!--style="@style/settings_fragment_iv"-->
+            <!--android:src="@drawable/setting_tel"/>-->
+        <!--<TextView-->
+            <!--style="@style/clickableLayoutTextview"-->
+            <!--android:text="解除绑定"/>-->
+    <!--</LinearLayout>-->
+
+    <LinearLayout
+        android:id="@+id/layout_help"
+        android:layout_below="@+id/layout_bind"
+        android:layout_marginTop="1dp"
+        style="@style/clickableLayout">
+        <ImageView
+            style="@style/settings_fragment_iv"
+            android:src="@drawable/setting_help"/>
+        <TextView
+            style="@style/clickableLayoutTextview"
+            android:text="使用帮助"
+            android:textColor="@color/black"/>
+    </LinearLayout>
+    <!--<LinearLayout-->
+        <!--android:id="@+id/layout_login_again"-->
+        <!--android:layout_below="@+id/layout_help"-->
+        <!--android:layout_marginTop="1dp"-->
+        <!--style="@style/clickableLayout">-->
+        <!--<ImageView-->
+            <!--style="@style/settings_fragment_iv"-->
+            <!--android:src="@drawable/setting_tel"/>-->
+        <!--<TextView-->
+            <!--style="@style/clickableLayoutTextview"-->
+            <!--android:text="登录设备"/>-->
+    <!--</LinearLayout>-->
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="80dp"
+        android:text="退出登录"
+        android:background="@drawable/special_btn"
+        android:textColor="@color/black"
+        android:textSize="20sp"/>
 
 </RelativeLayout>

@@ -20,6 +20,10 @@ package com.xunce.electrombile.Base.sdk;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.xunce.electrombile.Base.utils.TracksManager;
+
+import java.util.ArrayList;
+
 // TODO: Auto-generated Javadoc
 
 /**
@@ -70,6 +74,11 @@ public class SettingManager {
     private final String DID = "did";
     private final String PASSCODE = "passCode";
 
+    //TracksData
+    private final String TRACKSDATA = "tracksData";
+
+    public final  String  ALARMFLAG = "alarmFlag";
+
 	/**
 	 * Instantiates a new setting manager.
 	 *
@@ -107,6 +116,13 @@ public class SettingManager {
 
 	}
 
+    public void setAlarmFlag(boolean alarmFlag) {
+        spf.edit().putBoolean(ALARMFLAG, alarmFlag).commit();
+    }
+    public boolean getAlarmFlag() {
+        return spf.getBoolean(ALARMFLAG, false);
+    }
+
 	/**
 	 * Gets the user name.
 	 *
@@ -124,6 +140,7 @@ public class SettingManager {
 	public void setPhoneNumber(String phoneNumber) {
 		spf.edit().putString(PHONE_NUM, phoneNumber).commit();
 	}
+
 
 	/**
 	 * Gets the phone number.
@@ -151,6 +168,7 @@ public class SettingManager {
 	public String getPassword() {
 		return spf.getString(PASSWORD, "");
 	}
+
 
 	/**
 	 * Sets the token.
