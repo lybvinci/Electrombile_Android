@@ -59,11 +59,14 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 //systemBtnClicked();
                 if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())){
                     if(mXpgWifiDevice == null) {
-                        // if(mXpgWifiDevice.isBind(setManager.getUid())){
                         Log.i(TAG, "clicked item layout_relieve_bind");
+                        setManager.cleanDevice();
                         Intent intentStartBinding = new Intent(getActivity().getApplicationContext(), BindingActivity.class);
                         startActivity(intentStartBinding);
                     }else{
+//                        Log.i("UIDDDDD",setManager.getDid());
+//                        Log.i("tkeonDDD",setManager.getToken());
+                        System.out.println(setManager.getDid() +"aaaaaaaaaaa");
                         ToastUtils.showShort(getActivity().getApplicationContext(),"设备已绑定");
                     }
                 }else{

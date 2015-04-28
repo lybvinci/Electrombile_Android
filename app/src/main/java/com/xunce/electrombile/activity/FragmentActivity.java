@@ -20,7 +20,6 @@ import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -34,8 +33,7 @@ import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
 import com.xunce.electrombile.service.GPSDataService;
-import com.xunce.electrombile.widget.TitlePopup;
-import android.view.ViewGroup.LayoutParams;
+
 import android.widget.RadioButton;
 import android.widget.Toast;
 
@@ -112,7 +110,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 //                }
 //            }
 //        };
-        Checkversion();
+        checkVersion();
         initNotificaton();
         initView();
 
@@ -346,8 +344,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         manager = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
     }
 
-    public void Checkversion() {
-
+    public void checkVersion() {
+            Log.i("updata version","aaaaaaaaaaaaa");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -355,7 +353,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 Bundle bundle=new Bundle();
                 boolean isupdate;
                 String baseUrl = "http://fir.im/api/v2/app/version/%s?token=%s";
-                String checkUpdateUrl = String.format(baseUrl, "5502fccbd030b8c74e000524", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
+                String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 HttpClient httpClient = new DefaultHttpClient();
                 //请求超时
                 httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
@@ -379,6 +377,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         if (pi != null) {
                             int currentVersionCode = pi.versionCode;
                             String currentVersionName = pi.versionName;
+                            Log.i("当前版本",currentVersionCode+"");
+                            Log.i("查看版本",firVersionCode+"");
                             if (firVersionCode > currentVersionCode) {
                                 //需要更新
                                 Log.i("infox", "need update");

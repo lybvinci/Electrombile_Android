@@ -20,6 +20,10 @@ package com.xunce.electrombile.Base.sdk;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.xunce.electrombile.Base.utils.TracksManager;
+
+import java.util.ArrayList;
+
 // TODO: Auto-generated Javadoc
 
 /**
@@ -69,6 +73,9 @@ public class SettingManager {
     //did
     private final String DID = "did";
     private final String PASSCODE = "passCode";
+
+    //TracksData
+    private final String TRACKSDATA = "tracksData";
 
 	/**
 	 * Instantiates a new setting manager.
@@ -151,6 +158,7 @@ public class SettingManager {
 	public String getPassword() {
 		return spf.getString(PASSWORD, "");
 	}
+
 
 	/**
 	 * Sets the token.

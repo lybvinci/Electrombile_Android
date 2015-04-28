@@ -87,33 +87,33 @@
         </activity>
         <activity
             android:name=".activity.account.ChangePswActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/App2Theme"
             android:label="ChangePswActivity" >
         </activity>
         <activity
             android:name=".activity.BindingActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/App2Theme"
             android:label="@string/title_activity_binding" >
         </activity>
         <activity
             android:name=".activity.account.ForgetPswActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/App2Theme"
             android:label="@string/title_activity_forget" >
         </activity>
         <activity
             android:name=".activity.SettingsActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/App2Theme"
             android:label="@string/title_activity_settings" >
         </activity>
         <activity
             android:name=".activity.FragmentActivity"
             android:label="@string/title_activity_fragment"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/App2Theme"
             android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".activity.ScannerActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/App2Theme"
             android:label="Scanner" >
         </activity>
         <activity
@@ -123,17 +123,17 @@
         </activity>
         <activity
             android:name=".activity.AlarmActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/App2Theme"
             android:label="Alarm" >
         </activity>
         <activity
             android:name=".activity.RecordActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/App2Theme"
             android:label="Record" >
         </activity>
         <activity
             android:name=".activity.HelpActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
+            android:theme="@style/App2Theme"
             android:label="Help" >
         </activity>
 

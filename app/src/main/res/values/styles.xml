@@ -1,6 +1,9 @@
 <resources>
 
     <!-- Base application theme. -->
+    <style name="App2Theme" parent="android:Theme.Holo.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+    </style>
     <style name="AppTheme" parent="android:Theme.Holo.Light.NoActionBar">
         <!-- Customize your theme here. -->
     </style>
@@ -76,6 +79,16 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@drawable/login_bd</item>
     </style>
+
+    <style name="recordActivity">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <!--<style name="usualAct">-->
+        <!--<item name="windowNoTitle">true</item>-->
+    <!--</style>-->
+
     <style name="registerActivity">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@drawable/layout_register_bd</item>

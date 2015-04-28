@@ -151,7 +151,7 @@ public class MaptabFragment extends Fragment {
             public boolean onMarkerClick(final Marker marker) {
                 if(marker == markerMobile){
                     mBaiduMap.hideInfoWindow();
-                  //  mBaiduMap.
+
                 }
                 return true;
             }
@@ -232,7 +232,7 @@ public class MaptabFragment extends Fragment {
         updateLocation();
 
         //清除轨迹数据
-        trackDataList.clear();
+//        trackDataList.clear();
 
         //退出播放轨迹模式
         exitPlayTrackMode();
