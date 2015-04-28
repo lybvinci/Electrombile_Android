@@ -47,5 +47,8 @@ gdb.setup
 .project
 .classpath
 .settings
+
+#Android Studio
+.idea
 # Eclipse NDK
 .cproject
