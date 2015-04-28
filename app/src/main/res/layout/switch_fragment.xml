@@ -37,7 +37,7 @@
             android:id="@+id/switch_fragment_tvLocation"
             android:text="当前位置"
             android:textSize="20sp"
-            android:textColor="@color/black"
+            android:textColor="@color/blue"
             android:layout_gravity="center_vertical"
             android:singleLine="true"/>
     </LinearLayout>

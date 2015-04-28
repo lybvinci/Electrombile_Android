@@ -225,7 +225,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				break;
 
 			case TOAST:
-				ToastUtils.showShort(RegisterActivity.this, (String) msg.obj);
+				ToastUtils.showShort(RegisterActivity.this,"电话已注册");
 				dialog.cancel();
 				break;
 			}

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.xtremeprog.xpgconnect.XPGWifiDevice;
 import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.List;
@@ -156,10 +157,10 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         if (requestCode == 0x01 && resultCode == 0x02 && data != null) {
             if (data.getExtras().containsKey("result")) {
                 String text = data.getExtras().getString("result");
-                if (text.contains("product_key=") & text.contains("did=")
-                        && text.contains("passcode=")) {
-                    did = getParamFomeUrl(text,"did");
-                    passcode = getParamFomeUrl(text,"passcode");
+                if (text.contains("did")
+                        && text.contains("passcode")) {
+                    did = JSONUtils.ParseJSON(text,"did");
+                    passcode = JSONUtils.ParseJSON(text,"passcode");
                     Log.i("",did+"#######"+passcode);
                     et_did.setText(did);
                     setManager.setDid(did);
@@ -173,19 +174,19 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
-    private String getParamFomeUrl(String url, String param) {
-        String product_key = "";
-        int startindex = url.indexOf(param + "=");
-        startindex += (param.length() + 1);
-        String subString = url.substring(startindex);
-        int endindex = subString.indexOf("&");
-        if (endindex == -1) {
-            product_key = subString;
-        } else {
-            product_key = subString.substring(0, endindex);
-        }
-        return product_key;
-    }
+//    private String getParamFomeUrl(String url, String param) {
+//        String product_key = "";
+//        int startindex = url.indexOf(param + "=");
+//        startindex += (param.length() + 1);
+//        String subString = url.substring(startindex);
+//        int endindex = subString.indexOf("&");
+//        if (endindex == -1) {
+//            product_key = subString;
+//        } else {
+//            product_key = subString.substring(0, endindex);
+//        }
+//        return product_key;
+//    }
 
     @Override
     protected void didBindDevice(int error, String errorMessage, String did) {

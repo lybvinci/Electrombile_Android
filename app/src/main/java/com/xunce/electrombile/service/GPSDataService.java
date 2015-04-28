@@ -138,7 +138,7 @@ public class GPSDataService extends Service{
                 if(pointOld == null && mCenter.alarmFlag) {
                     pointOld = pointNew;
                 }
-                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 500) && mCenter.alarmFlag && AlarmActivity.instance == null) {
+                if ((!hm.get(JsonKeys.ALARM).equals("0") || distance > 100) && mCenter.alarmFlag && AlarmActivity.instance == null) {
                     pointOld = null;
                     wakeUpAndUnlock(GPSDataService.this);
                     Intent intent = new Intent(GPSDataService.this, AlarmActivity.class);
@@ -240,7 +240,7 @@ public class GPSDataService extends Service{
                 e.printStackTrace();
             }
         }else{
-            ToastUtils.showShort(this,"网络连接失败");
+         //   ToastUtils.showShort(this,"网络连接失败");
         }
     }
 
