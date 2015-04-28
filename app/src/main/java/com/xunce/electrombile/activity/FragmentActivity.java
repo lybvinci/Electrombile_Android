@@ -20,6 +20,7 @@ import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -311,11 +312,21 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     /**
      * 处理返回按钮
      */
+//    @Override
+//    public void onBackPressed() {
+//        //this.finish();
+//      //  exit();
+//    }
+
     @Override
-    public void onBackPressed() {
-        //this.finish();
-        exit();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            moveTaskToBack(false);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
+
 
 
     @Override

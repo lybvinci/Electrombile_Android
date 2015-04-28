@@ -107,6 +107,7 @@
         </activity>
         <activity
             android:name=".activity.FragmentActivity"
+            android:launchMode="singleTask"
             android:label="@string/title_activity_fragment"
             android:theme="@style/App2Theme"
             android:screenOrientation="portrait">
