@@ -15,6 +15,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -70,31 +71,42 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         btnSystem = (ToggleButton) getActivity().findViewById(R.id.btn_SystemState);
+
         switch_fragment_tvLocation = (TextView) getActivity().findViewById(R.id.switch_fragment_tvLocation);
         iv_SystemState = (ImageView) getActivity().findViewById(R.id.iv_SystemState);
+        if(setManager.getAlarmFlag()){
+            showNotification("安全宝防盗系统已启动");
+            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+            btnSystem.setChecked(false);
+        }else{
+            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+            btnSystem.setChecked(true);
+        }
         btnSystem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                safeBtn(compoundButton);
+                safeBtn(b);
             }
         });
-        if(setManager.getAlarmFlag()){
-            Log.d(TAG, "setManager.getAlarmFlag()");
-            showNotification("安全宝防盗系统已启动");
-            btnSystem.setChecked(false);
-            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-        }
+
       }
 
-    private void safeBtn(CompoundButton compoundButton) {
-        if(compoundButton.isChecked()){
-            Log.d(TAG, "compoundButton.isChecked()");
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    private void safeBtn(boolean b) {
+        if(!b){
+            Log.i("SBBBBBBBBBBB","sbbbbbbbbbbbbbbbbbbbb");
+            //按下以后，isChecked 就是true 就是已经按下了。
+            //如果有网络
             if(NetworkUtils.isNetworkConnected(getActivity())) {
                 Log.d(TAG, "check net success!");
                 if (mXpgWifiDevice != null) {
                     Log.d(TAG, "device success!");
                     setManager.setAlarmFlag(true);
-                  //  mCenter.alarmFlag = true;
                     cancelNotification();
                     VibratorUtil.Vibrate(getActivity(), 700);
                     showNotification("安全宝防盗系统已启动");
@@ -127,6 +139,8 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                 }
         }else{
+                btnSystem.setChecked(true);
+                iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                 ToastUtils.showShort(getActivity().getApplicationContext(), "请等待设备绑定");
             }
         }
@@ -136,6 +150,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView called!");
+
         return inflater.inflate(R.layout.switch_fragment, container, false);
     }
 
