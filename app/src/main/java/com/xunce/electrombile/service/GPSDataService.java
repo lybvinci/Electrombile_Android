@@ -111,13 +111,13 @@ public class GPSDataService extends Service{
         LogUtil.log.i( "SHOUDONGREC");
         double distance = 0;
         if(pointOld != null) {
-            distance = DistanceUtil.getDistance(pointOld, pointNew);
+            distance = Math.abs(DistanceUtil.getDistance(pointOld, pointNew));
             Log.i(TAG, distance + "LLLL");
         }
         if(pointOld == null && setManager.getAlarmFlag()) {
             pointOld = pointNew;
         }
-        if (distance > 100 && setManager.getAlarmFlag() && AlarmActivity.instance == null) {
+        if (distance > 200 && setManager.getAlarmFlag() && AlarmActivity.instance == null) {
             pointOld = null;
             wakeUpAndUnlock(this);
             Intent intent = new Intent(this, AlarmActivity.class);
