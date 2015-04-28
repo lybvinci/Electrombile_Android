@@ -63,8 +63,9 @@
         </service>
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="WC6WG01m63c8FCbjlmFi4T9k" />
-
+            android:value="LnfIE5HKF0zbDiZmm8ZiVIch" />
+            <!--debug LnfIE5HKF0zbDiZmm8ZiVIch-->
+            <!--android:value="eyVZSbgbfVGt9Y0BaKaYY5vF" />-->
         <activity
             android:name=".activity.SplashActivity"
             android:label="@string/app_name"

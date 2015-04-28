@@ -1,5 +1,6 @@
 package com.xunce.electrombile.fragment;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -57,14 +58,28 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     //textview 设置当前位置
     private TextView switch_fragment_tvLocation;
 
+    private LocationTVClickedListener locationTVClickedListener;
 
+
+    public interface LocationTVClickedListener{
+        public void locationTVClicked();
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try{
+            locationTVClickedListener =(LocationTVClickedListener)activity;
+        }catch(ClassCastException e){
+            throw new ClassCastException(activity.toString()+"must implement OnArticleSelectedListener");
+        }
+    }
     @Override
     public void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
         // 初始化搜索模块，注册事件监听
         mSearch = GeoCoder.newInstance();
         mSearch.setOnGetGeoCodeResultListener(this);
-
     }
 
     @Override
@@ -73,6 +88,12 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         btnSystem = (ToggleButton) getActivity().findViewById(R.id.btn_SystemState);
 
         switch_fragment_tvLocation = (TextView) getActivity().findViewById(R.id.switch_fragment_tvLocation);
+        switch_fragment_tvLocation.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                locationTVClickedListener.locationTVClicked();
+            }
+        });
         iv_SystemState = (ImageView) getActivity().findViewById(R.id.iv_SystemState);
         if(setManager.getAlarmFlag()){
             showNotification("安全宝防盗系统已启动");

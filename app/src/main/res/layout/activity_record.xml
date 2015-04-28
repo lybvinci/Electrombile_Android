@@ -9,8 +9,8 @@
     <RelativeLayout
         android:id="@+id/title"
         android:layout_width="fill_parent"
-        android:layout_height="40dp"
-        android:background="#ff1d252c"
+        android:layout_height="60dp"
+        android:background="#bfbfbf"
         android:gravity="center_vertical" >
         <TextView
             android:layout_width="wrap_content"
@@ -18,7 +18,7 @@
             android:layout_centerInParent="true"
             android:text="历史记录"
             android:textColor="#ffffff"
-            android:textSize="20sp" />
+            android:textSize="25sp" />
     </RelativeLayout>
 
     <LinearLayout

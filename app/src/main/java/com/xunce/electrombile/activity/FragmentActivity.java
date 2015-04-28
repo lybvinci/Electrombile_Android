@@ -26,7 +26,6 @@ import android.widget.ImageButton;
 
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
-import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.Base.utils.Historys;
 import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
@@ -56,13 +55,14 @@ import java.io.UnsupportedEncodingException;
 
 import java.util.List;
 import java.util.Calendar;
+import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 
 
 /**
  * Created by heyukun on 2015/3/24.
  */
 
-public class FragmentActivity extends android.support.v4.app.FragmentActivity implements SwitchFragment.GPSDataChangeListener{
+public class FragmentActivity extends android.support.v4.app.FragmentActivity implements SwitchFragment.GPSDataChangeListener,LocationTVClickedListener {
     private static String TAG = "FragmentActivity:";
     public static boolean ISSTARTED = false;
     //设置菜单条目
@@ -91,6 +91,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     //接收广播
     private MyReceiver receiver;
+
 
 
     @Override
@@ -196,85 +197,93 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         findViewById(R.id.rbSwitch).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (m_FMer.findFragmentByTag("switchFragment") != null &&
-                        m_FMer.findFragmentByTag("switchFragment").isVisible()) {
-                    return;
-                }
+                switchTabClicked();
 
-                //界面切换
-                rbSwitch.setChecked(true);
-                rbSwitch.setTextColor(getResources().getColor(R.color.blue));
-                rbMap.setChecked(false);
-                rbMap.setTextColor(Color.BLACK);
-                rbSettings.setChecked(false);
-                rbSettings.setTextColor(Color.BLACK);
-
-
-                //从backstack中弹出
-                //popAllFragmentsExceptTheBottomOne();
-
-                FragmentTransaction ft = m_FMer.beginTransaction();
-                ft.show(switchFragment);
-                ft.hide(settingsFragment);
-                ft.hide(maptabFragment);
-                ft.commit();
-
-                //停止更新位置信息
-                maptabFragment.pauseMapUpdate();
             }
         });
 
         findViewById(R.id.rbMap).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (m_FMer.findFragmentByTag("mapFragment").isVisible()) {
-                    Log.e("", "map clicked");
-                    return;
-                }
-                rbMap.setChecked(true);
-                rbMap.setTextColor(getResources().getColor(R.color.blue));
-                rbSwitch.setChecked(false);
-                rbSwitch.setTextColor(Color.BLACK);
-                rbSettings.setChecked(false);
-                rbSettings.setTextColor(Color.BLACK);
+                mapTabClicked();
 
-                //从backstack中弹出
-                //popAllFragmentsExceptTheBottomOne();
-
-                FragmentTransaction ft = m_FMer.beginTransaction();
-                ft.hide(switchFragment);
-                ft.hide(settingsFragment);
-                ft.show(maptabFragment);
-                //ft.addToBackStack("mapFragment");
-                ft.commit();
-
-                //开始更新位置信息
-                maptabFragment.resumeMapUpdate();
             }
         });
 
         findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
-                    Log.e("", "set clicked");
-                    return;
-                }
-
-                rbMap.setChecked(false);
-                rbMap.setTextColor(Color.BLACK);
-                rbSwitch.setChecked(false);
-                rbSwitch.setTextColor(Color.BLACK);
-                rbSettings.setChecked(true);
-                rbSettings.setTextColor(getResources().getColor(R.color.blue));
-
-                FragmentTransaction ft = m_FMer.beginTransaction();
-                ft.hide(switchFragment);
-                ft.show(settingsFragment);
-                ft.hide(maptabFragment);
-                ft.commit();
+                settingsTabClicked();
             }
         });
+    }
+
+    private void settingsTabClicked() {
+        if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
+            Log.e("", "set clicked");
+            return;
+        }
+
+        rbMap.setChecked(false);
+        rbMap.setTextColor(Color.BLACK);
+        rbSwitch.setChecked(false);
+        rbSwitch.setTextColor(Color.BLACK);
+        rbSettings.setChecked(true);
+        rbSettings.setTextColor(getResources().getColor(R.color.blue));
+
+        FragmentTransaction ft = m_FMer.beginTransaction();
+        ft.hide(switchFragment);
+        ft.show(settingsFragment);
+        ft.hide(maptabFragment);
+        ft.commit();
+    }
+
+    private void mapTabClicked() {
+        if (m_FMer.findFragmentByTag("mapFragment").isVisible()) {
+            Log.e("", "map clicked");
+            return;
+        }
+        rbMap.setChecked(true);
+        rbMap.setTextColor(getResources().getColor(R.color.blue));
+        rbSwitch.setChecked(false);
+        rbSwitch.setTextColor(Color.BLACK);
+        rbSettings.setChecked(false);
+        rbSettings.setTextColor(Color.BLACK);
+
+        //从backstack中弹出
+        //popAllFragmentsExceptTheBottomOne();
+
+        FragmentTransaction ft = m_FMer.beginTransaction();
+        ft.hide(switchFragment);
+        ft.hide(settingsFragment);
+        ft.show(maptabFragment);
+        //ft.addToBackStack("mapFragment");
+        ft.commit();
+    }
+
+    private void switchTabClicked() {
+        if (m_FMer.findFragmentByTag("switchFragment") != null &&
+                m_FMer.findFragmentByTag("switchFragment").isVisible()) {
+            return;
+        }
+
+        //界面切换
+        rbSwitch.setChecked(true);
+        rbSwitch.setTextColor(getResources().getColor(R.color.blue));
+        rbMap.setChecked(false);
+        rbMap.setTextColor(Color.BLACK);
+        rbSettings.setChecked(false);
+        rbSettings.setTextColor(Color.BLACK);
+
+
+        //从backstack中弹出
+        //popAllFragmentsExceptTheBottomOne();
+
+        FragmentTransaction ft = m_FMer.beginTransaction();
+        ft.show(switchFragment);
+        ft.hide(settingsFragment);
+        ft.hide(maptabFragment);
+        ft.commit();
     }
 
     /**
@@ -482,6 +491,12 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 //        maptabFragment.currentTrack.time = Calendar.getInstance().getTime();
 //        maptabFragment.currentTrack.point = desLat;
         switchFragment.reverserGeoCedec(desLat);
+    }
+
+    @Override
+    public void locationTVClicked() {
+        mapTabClicked();
+
     }
 
     public class MyReceiver extends BroadcastReceiver {

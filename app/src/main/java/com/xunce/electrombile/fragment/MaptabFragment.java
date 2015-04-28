@@ -209,23 +209,22 @@ public class MaptabFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                        .setTitle("退出历史轨迹查看模式？")
-                        .setPositiveButton("取消",
+                        .setTitle("确定要退出历史轨迹查看模式？")
+                        .setPositiveButton("否",
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();
 
                                     }
-                                }).setNegativeButton("退出", new DialogInterface.OnClickListener() {
+                                }).setNegativeButton("是", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 clearDataAndView();
-
+                                updateLocation();
                             }
                         }).create();
                 dialog.show();
-
             }
         });
     }

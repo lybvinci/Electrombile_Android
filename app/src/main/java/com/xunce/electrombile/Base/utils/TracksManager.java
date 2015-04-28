@@ -87,7 +87,7 @@ public class TracksManager {
 
             //如果本次循环数据跟上一个已保存的数据坐标相同，则跳过
 
-            if(lastSavedObject != null && DistanceUtil.getDistance(lastSavedPoint, bdPoint) < 100){
+            if(lastSavedObject != null && DistanceUtil.getDistance(lastSavedPoint, bdPoint) < 30){
 //                if(dataList.size() <= 1){
 //                    LatLng pTmp = mCenter.convertPoint(new LatLng(mCenter.parseGPSData((float)thisObject.getDouble(KET_LAT)), mCenter.parseGPSData((float)thisObject.getDouble(KET_LONG))));
 //                    dataList.add(new TrackPoint(thisObject.getCreatedAt(), pTmp));

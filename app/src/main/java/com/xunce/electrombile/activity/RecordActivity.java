@@ -259,6 +259,7 @@ public class RecordActivity extends Activity{
 //        updateListView();
     }
 
+
     private void findCloud(final Date st, final Date et, int skip) {
 
 
@@ -267,6 +268,7 @@ public class RecordActivity extends Activity{
         final int finalSkip = totalSkip;
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1000);
+        //"gxu88Pd4tyQvzNPUgfWX29"
         query.whereEqualTo("did",sm.getDid());
         query.whereGreaterThanOrEqualTo("createdAt", startT);
         query.whereLessThan("createdAt", endT);
@@ -363,10 +365,11 @@ public class RecordActivity extends Activity{
 
             //计算路程
             double distance = 0;
-            for(int j = 0; j < trackList.size() - 2; j++){
+            for(int j = 0; j < trackList.size() - 1; j++){
                 LatLng m_start = trackList.get(j).point;
                 LatLng m_end = trackList.get(j +1).point;
                 distance += DistanceUtil.getDistance(m_start, m_end);
+
             }
             int distanceKM = (int)(distance / 1000);
             int diatanceM = (int)(distance - distanceKM * 1000);

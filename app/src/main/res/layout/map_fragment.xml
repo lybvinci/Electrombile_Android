@@ -34,45 +34,47 @@
         android:layout_alignParentBottom="true">
         <Button
             android:id="@+id/btn_play"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="80dp"
-            android:background="@drawable/btn_play"/>
+            android:layout_marginRight="10dp"
+            android:background="@drawable/selector_btn_play"/>
         <Button
             android:id="@+id/btn_pause"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="80dp"
-            android:background="@drawable/btn_pause"/>
+            android:background="@drawable/selector_btn_pause"/>
         <Button
             android:id="@+id/btn_cancel_track"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_alignTop="@+id/btn_play_or_pause"
             android:layout_marginBottom="80dp"
-            android:background="@drawable/btn_cancel"/>
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/selector_btn_cancel"/>
     </LinearLayout>
 
 
     <Button
         android:id="@+id/btn_location"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentLeft="true"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="80dp"
-        android:layout_marginLeft="10dp"
-        android:background="@drawable/bg_location"/>
+        android:layout_marginRight="10dp"
+        android:background="@drawable/selector_btn_location"/>
 
     <Button
         android:id="@+id/btn_record"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentLeft="true"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="140dp"
-        android:layout_marginLeft="10dp"
-        android:background="@drawable/bg_record"/>
+        android:layout_marginBottom="150dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/selector_btn_record"/>
 </RelativeLayout>
