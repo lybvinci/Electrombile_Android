@@ -79,6 +79,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             }
         });
         if(setManager.getAlarmFlag()){
+            Log.d(TAG, "setManager.getAlarmFlag()");
             showNotification("安全宝防盗系统已启动");
             btnSystem.setChecked(false);
             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
@@ -87,8 +88,11 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
 
     private void safeBtn(CompoundButton compoundButton) {
         if(compoundButton.isChecked()){
+            Log.d(TAG, "compoundButton.isChecked()");
             if(NetworkUtils.isNetworkConnected(getActivity())) {
+                Log.d(TAG, "check net success!");
                 if (mXpgWifiDevice != null) {
+                    Log.d(TAG, "device success!");
                     setManager.setAlarmFlag(true);
                   //  mCenter.alarmFlag = true;
                     cancelNotification();
@@ -96,6 +100,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                     showNotification("安全宝防盗系统已启动");
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                 } else {
+                    Log.d(TAG, "device failed!");
                     ToastUtils.showShort(getActivity().getApplicationContext(), "请先绑定设备");
                     btnSystem.setChecked(false);
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
@@ -107,6 +112,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                 iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
             }
         }else {
+            Log.d(TAG, "compoundButton notChecked()");
             if (mXpgWifiDevice != null)
             {
                 if (NetworkUtils.isNetworkConnected(getActivity())) {
