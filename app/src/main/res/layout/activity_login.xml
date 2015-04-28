@@ -31,23 +31,30 @@
     <Button
         android:id="@+id/btnRegister"
         android:layout_width="80dp"
-        android:layout_height="20dp"
+        android:layout_height="35dp"
         android:layout_marginTop="2dp"
         android:layout_marginRight="28dp"
-        android:background="@drawable/login_button_newuser"/>
+        android:text="新用户"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:background="@drawable/common_btn_white"/>
 
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="85dp"
         android:layout_height="29dp"
+        android:text="登陆"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/login_botton" />
+        android:background="@drawable/common_btn" />
     <Button
         android:id="@+id/tvForgot"
         android:layout_width="80dp"
-        android:layout_height="20dp"
+        android:layout_height="35dp"
         android:layout_marginLeft="28dp"
-        android:background="@drawable/login_button_forgetpassword"/>
+        android:text="忘记密码"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:background="@drawable/common_btn_white"/>
 </LinearLayout>
     <ImageView
         android:layout_width="120dp"

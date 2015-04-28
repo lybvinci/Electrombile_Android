@@ -119,6 +119,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         dealBottomButtonsClickEvent();
 
         //注册广播
+        registerBroadCast();
+        showNotification("安全宝正在保护您的爱车");
+        if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
+            if(!GPSDataService.isRunning)
+                startService(new Intent(FragmentActivity.this, GPSDataService.class));
+        }
+    }
+
+    private void registerBroadCast() {
         receiver = new MyReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.xunce.electrombile.service");
@@ -126,11 +135,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             FragmentActivity.this.registerReceiver(receiver, filter);
         }catch (Exception e){
             e.printStackTrace();
-        }
-        showNotification("安全宝正在保护您的爱车");
-        if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
-            if(!GPSDataService.isRunning)
-                startService(new Intent(FragmentActivity.this, GPSDataService.class));
         }
     }
 
@@ -334,6 +338,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     protected void onDestroy() {
         ISSTARTED = false;
         cancelNotification();
+        unregisterReceiver(receiver);
         super.onDestroy();
     }
 
@@ -350,7 +355,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 Bundle bundle=new Bundle();
                 boolean isupdate;
                 String baseUrl = "http://fir.im/api/v2/app/version/%s?token=%s";
-                String checkUpdateUrl = String.format(baseUrl, "5531cb8eddfef0bb3e000a78", "6d5d9e60e56f11e492cf97620aa3a7444608b774");
+                String checkUpdateUrl = String.format(baseUrl, "5502fccbd030b8c74e000524", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 HttpClient httpClient = new DefaultHttpClient();
                 //请求超时
                 httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);

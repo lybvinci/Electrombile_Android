@@ -3,26 +3,15 @@ package com.xunce.electrombile.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.search.geocode.GeoCodeResult;
 import com.baidu.mapapi.search.geocode.GeoCoder;
-import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
-import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
-import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
-import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
 import com.xunce.electrombile.service.GPSDataService;
@@ -108,6 +97,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(intentStartLogin);
                 getActivity().stopService(new Intent(getActivity().getApplicationContext(), GPSDataService.class));
+                GPSDataService.isRunning = false;
                 getActivity().finish();
                 break;
 //            case R.id.layout_login_again:

@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
@@ -143,16 +142,21 @@ public class BaseFragment extends Fragment{
         protected HashMap<String, String> GPS_Data;
     protected LatLng pointOld = null;
     private LatLng pointNew;
+    //判断是否关闭页面
+    public boolean close = false;
 
     protected Handler fragmentHandler = new Handler(){
-            public void handleMessage(Message msg){
+
+
+        public void handleMessage(Message msg){
                 super.handleMessage(msg);
                 handler_key key= handler_key.values()[msg.what];
                 switch (key){
                     case RECEIVED:
                         Log.i("switchfragment", "RECEIVED XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
                         if (deviceDataMap.get("data") != null) {
-                            receivedMQTTData();
+                            if(!close)
+                                receivedMQTTData();
                         }
                         if (deviceDataMap.get("alters") != null) {
                             Log.i("info", (String) deviceDataMap.get("alters"));
@@ -426,11 +430,13 @@ public class BaseFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
+        close = true;
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        close = true;
     }
 }
 
