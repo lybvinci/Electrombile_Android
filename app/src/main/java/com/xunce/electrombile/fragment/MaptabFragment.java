@@ -83,6 +83,7 @@ public class MaptabFragment extends Fragment {
     Button btnLocation;
     Button btnRecord;
     Button btnPlayOrPause;
+    View btnLine;
     Button btnClearTrack;
 
     //maptabFragment 维护一组历史轨迹坐标列表
@@ -180,6 +181,8 @@ public class MaptabFragment extends Fragment {
             }
         });
 
+        btnLine = (View) v.findViewById(R.id.map_btn_line);
+        btnLine.setVisibility(View.INVISIBLE);
         //定位电动车按钮
         btnLocation = (Button)v.findViewById(R.id.btn_location);
 
@@ -323,12 +326,14 @@ public class MaptabFragment extends Fragment {
         isPlaying = true;
         btnClearTrack.setVisibility(View.VISIBLE);
         btnPlayOrPause.setVisibility(View.VISIBLE);
+        btnLine.setVisibility(View.VISIBLE);
     }
     private void exitPlayTrackMode(){
         isPlaying = false;
         btnClearTrack.setVisibility(View.INVISIBLE);
         btnPlayOrPause.setVisibility(View.INVISIBLE);
         btnPlayOrPause.setText("开始");
+        btnLine.setVisibility(View.INVISIBLE);
     }
     //暂停更新地图
     public void pauseMapUpdate(){

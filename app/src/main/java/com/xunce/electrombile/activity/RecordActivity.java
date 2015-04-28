@@ -260,6 +260,8 @@ public class RecordActivity extends Activity{
     }
 
     private void findCloud(final Date st, final Date et, int skip) {
+
+
         Log.i(TAG, "st:" + st.toString() + "++++" + "et" + et.toString() + "++++" + "skip:" + skip);
         totalSkip += skip;
         final int finalSkip = totalSkip;
@@ -276,10 +278,13 @@ public class RecordActivity extends Activity{
         query.findInBackground(new FindCallback<AVObject>() {
             @Override
             public void done(List<AVObject> avObjects, AVException e) {
+                Log.i(TAG, e + "");
                 if(e == null){
                     if(avObjects.size() > 0)
                         Log.e(TAG,"oooooooooooooook--------" + avObjects.size());
                     if(avObjects.size() == 0){
+                        clearListViewWhenFail();
+
                         dialog.setTitle("此时间段内没有数据");
                         dialog.show();
                         watiDialog.dismiss();
@@ -308,12 +313,20 @@ public class RecordActivity extends Activity{
                     }
 
                 }else{
+                    clearListViewWhenFail();
+
                     dialog.setTitle("查询失败");
                     dialog.show();
                     watiDialog.dismiss();
                 }
             }
         });
+    }
+
+    private void clearListViewWhenFail() {
+        tracksManager.clearTracks();
+        updateListView();
+        listItemAdapter.notifyDataSetChanged();
     }
 
     private void updateListView(){

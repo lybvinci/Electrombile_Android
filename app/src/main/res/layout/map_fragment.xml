@@ -8,7 +8,7 @@
         android:id="@+id/title"
         android:layout_width="fill_parent"
         android:layout_height="60dp"
-        android:background="#bfbfbf"
+            android:background="#bfbfbf"
         android:gravity="center_vertical" >
 
         <TextView
@@ -26,23 +26,37 @@
         android:layout_height="fill_parent"
         android:layout_below="@id/title"
         android:clickable="true" />
-
-    <Button
-        android:id="@+id/btn_play_or_pause"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="80dp"
-        android:text="开始"/>
-    <Button
-        android:id="@+id/btn_cancel_track"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/btn_play_or_pause"
-        android:layout_alignTop="@+id/btn_play_or_pause"
-        android:layout_marginBottom="80dp"
-        android:text="退出"/>
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+        <Button
+            android:id="@+id/btn_play_or_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="80dp"
+            android:text="开始"
+            android:background="@drawable/map_btn"/>
+        <View
+            android:id="@+id/map_btn_line"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#FF909090"
+            android:layout_marginBottom="80dp"/>
+
+        <Button
+            android:id="@+id/btn_cancel_track"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/btn_play_or_pause"
+            android:layout_marginBottom="80dp"
+            android:text="退出"
+            android:background="@drawable/map_btn"/>
+    </LinearLayout>
+
 
     <Button
         android:id="@+id/btn_location"
@@ -52,7 +66,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="80dp"
         android:layout_marginLeft="10dp"
-        android:text="实时\n位置"/>
+        android:text="实时\n位置"
+        android:background="@drawable/map_btn"/>
 
     <Button
         android:id="@+id/btn_record"
@@ -62,5 +77,6 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="80dp"
         android:layout_marginRight="10dp"
-        android:text="查看\n轨迹"/>
+        android:text="查看\n轨迹"
+        android:background="@drawable/map_btn"/>
 </RelativeLayout>
