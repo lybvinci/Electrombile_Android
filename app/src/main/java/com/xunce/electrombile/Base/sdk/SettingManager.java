@@ -77,6 +77,8 @@ public class SettingManager {
     //TracksData
     private final String TRACKSDATA = "tracksData";
 
+    public final  String  ALARMFLAG = "alarmFlag";
+
 	/**
 	 * Instantiates a new setting manager.
 	 *
@@ -114,6 +116,13 @@ public class SettingManager {
 
 	}
 
+    public void setAlarmFlag(boolean alarmFlag) {
+        spf.edit().putBoolean(ALARMFLAG, alarmFlag).commit();
+    }
+    public boolean getAlarmFlag() {
+        return spf.getBoolean(ALARMFLAG, false);
+    }
+
 	/**
 	 * Gets the user name.
 	 *
@@ -131,6 +140,7 @@ public class SettingManager {
 	public void setPhoneNumber(String phoneNumber) {
 		spf.edit().putString(PHONE_NUM, phoneNumber).commit();
 	}
+
 
 	/**
 	 * Gets the phone number.

@@ -78,14 +78,19 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                 safeBtn(compoundButton);
             }
         });
-
-    }
+        if(setManager.getAlarmFlag()){
+            showNotification("安全宝防盗系统已启动");
+            btnSystem.setChecked(false);
+            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+        }
+      }
 
     private void safeBtn(CompoundButton compoundButton) {
         if(compoundButton.isChecked()){
             if(NetworkUtils.isNetworkConnected(getActivity())) {
                 if (mXpgWifiDevice != null) {
-                    mCenter.alarmFlag = true;
+                    setManager.setAlarmFlag(true);
+                  //  mCenter.alarmFlag = true;
                     cancelNotification();
                     VibratorUtil.Vibrate(getActivity(), 700);
                     showNotification("安全宝防盗系统已启动");
@@ -98,19 +103,25 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             }else{
                 ToastUtils.showShort(getActivity().getApplicationContext(), "网络连接失败");
                 btnSystem.setChecked(false);
+                //btnSystem.set
                 iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
             }
+        }else {
+            if (mXpgWifiDevice != null)
+            {
+                if (NetworkUtils.isNetworkConnected(getActivity())) {
+                    cancelNotification();
+                    showNotification("安全宝防盗系统已关闭");
+                    VibratorUtil.Vibrate(getActivity(), 500);
+                    setManager.setAlarmFlag(false);
+                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+                } else {
+                    ToastUtils.showShort(getActivity().getApplicationContext(), "网络连接失败");
+                    btnSystem.setChecked(true);
+                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+                }
         }else{
-            if(NetworkUtils.isNetworkConnected(getActivity())) {
-                cancelNotification();
-                showNotification("安全宝防盗系统已关闭");
-                VibratorUtil.Vibrate(getActivity(), 500);
-                mCenter.alarmFlag = false;
-                iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-            }else{
-                ToastUtils.showShort(getActivity().getApplicationContext(), "网络连接失败");
-                btnSystem.setChecked(true);
-                iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+                ToastUtils.showShort(getActivity().getApplicationContext(), "请等待设备绑定");
             }
         }
     }
