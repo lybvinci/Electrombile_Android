@@ -63,7 +63,9 @@
         </service>
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="WC6WG01m63c8FCbjlmFi4T9k" />
+            android:value="LnfIE5HKF0zbDiZmm8ZiVIch" />
+        <!--  debug  LnfIE5HKF0zbDiZmm8ZiVIch-->
+        <!--release eyVZSbgbfVGt9Y0BaKaYY5vF-->
 
         <activity
             android:name=".activity.SplashActivity"
@@ -71,7 +73,6 @@
             android:theme="@style/splashActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

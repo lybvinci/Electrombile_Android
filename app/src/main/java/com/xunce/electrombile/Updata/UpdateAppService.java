@@ -82,7 +82,7 @@ public class UpdateAppService extends Service{
         public void run() {
             // TODO Auto-generated method stub
             try {
-                DownLoadApp("http://fir.im/api/v2/app/install/5531cb8eddfef0bb3e000a78?token=6d5d9e60e56f11e492cf97620aa3a7444608b774");
+                DownLoadApp("http://fir.im/api/v2/app/install/553ca95096a9fc5c14001802?token=39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

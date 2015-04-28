@@ -104,7 +104,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             //如果有网络
             if(NetworkUtils.isNetworkConnected(getActivity())) {
                 Log.d(TAG, "check net success!");
-                if (mXpgWifiDevice != null) {
+                if (setManager.getDid() != null) {
                     Log.d(TAG, "device success!");
                     setManager.setAlarmFlag(true);
                     cancelNotification();
@@ -125,7 +125,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             }
         }else {
             Log.d(TAG, "compoundButton notChecked()");
-            if (mXpgWifiDevice != null)
+            if (setManager.getDid() != null)
             {
                 if (NetworkUtils.isNetworkConnected(getActivity())) {
                     cancelNotification();

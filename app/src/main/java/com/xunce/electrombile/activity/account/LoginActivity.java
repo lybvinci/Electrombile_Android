@@ -38,7 +38,6 @@ import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.common.useful.StringUtils;
 
-// TODO: Auto-generated Javadoc
 
 /**
  * ClassName: Class LoginActivity. <br/>

@@ -58,14 +58,12 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
             case R.id.layout_bind:
                 //systemBtnClicked();
                 if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())){
-                    if(mXpgWifiDevice == null) {
+                    if(setManager.getDid() == null) {
                         Log.i(TAG, "clicked item layout_relieve_bind");
                         setManager.cleanDevice();
                         Intent intentStartBinding = new Intent(getActivity().getApplicationContext(), BindingActivity.class);
                         startActivity(intentStartBinding);
                     }else{
-//                        Log.i("UIDDDDD",setManager.getDid());
-//                        Log.i("tkeonDDD",setManager.getToken());
                         System.out.println(setManager.getDid() +"aaaaaaaaaaa");
                         ToastUtils.showShort(getActivity().getApplicationContext(),"设备已绑定");
                     }
@@ -73,29 +71,12 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                     ToastUtils.showShort(getActivity().getApplicationContext(),"网络连接错误");
                     }
                 break;
-//            case R.id.layout_relieve_bind:
-//                if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())) {
-//                    if (mXpgWifiDevice.isConnected()) {
-//                        mCenter.cUnbindDevice(setManager.getUid(), setManager.getToken(), setManager.getDid(), setManager.getPassCode());
-//                        mCenter.cDisconnect(mXpgWifiDevice);
-//                    }else{
-//                        ToastUtils.showShort(getActivity().getApplicationContext(), "请尝试连接网络或先绑定设备");
-//                    }
-//                }else{
-//                ToastUtils.showShort(getActivity().getApplicationContext(), "网络连接错误");
-//                }
-//                break;
-//            case R.id.layout_phone_number:
-//                mCenter.cGetStatus(mXpgWifiDevice);
-//                break;
             case R.id.layout_help:
                 Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
                 startActivity(intentHelp);
 
                 break;
             case R.id.btn_logout:
-           //     mCenter.cLogout();
-//                setManager.cleanAll();
                 setManager.cleanAll();
                 Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(intentStartLogin);
@@ -103,13 +84,6 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 GPSDataService.isRunning = false;
                 getActivity().finish();
                 break;
-//            case R.id.layout_login_again:
-//                if(!mXpgWifiDevice.isConnected() && setManager.getDid() !=null && setManager.getPassCode() !=null) {
-//                    loginHandler.sendEmptyMessage(loginHandler_key.START_LOGIN.ordinal());
-//                }else{
-//                    ToastUtils.showShort(getActivity().getApplicationContext(),"未绑定或已登陆设备");
-//                }
-//                break;
             default:
                 break;
         }

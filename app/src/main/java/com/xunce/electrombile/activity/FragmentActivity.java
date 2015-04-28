@@ -54,8 +54,11 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 
 /**
@@ -77,7 +80,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private SettingsFragment settingsFragment;
     public static String THE_INSTALLATION_ID;
     private ImageButton btnSettings = null;
-  //  private TitlePopup titlePopup;
     public static NotificationManager manager;
 //    Handler MyHandler;
     RadioButton rbSwitch;
@@ -91,6 +93,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     //接收广播
     private MyReceiver receiver;
+    private SettingManager setManager;
 
 
     @Override
@@ -98,21 +101,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fragment);
         mCenter = CmdCenter.getInstance(this);
+        setManager = new SettingManager(this);
         m_FMer = getSupportFragmentManager();
-//        MyHandler=new Handler()
-//        {
-//            public void handleMessage(Message msg)
-//            {
-//                super.handleMessage(msg);
-//                Bundle bundle=msg.getData();
-//                isupde=bundle.getBoolean("isupdate");
-//                a=bundle.getInt("want");
-//                if (isupde) {
-//                    upData();
-//                    isupde=false;
-//                }
-//            }
-//        };
+
         checkVersion();
         initNotificaton();
         initView();
@@ -121,9 +112,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
         //注册广播
         registerBroadCast();
-       // showNotification("安全宝正在保护您的爱车");
         if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
-            if(!GPSDataService.isRunning)
+            if(!GPSDataService.isRunning && setManager.getDid()!=null)
                 startService(new Intent(FragmentActivity.this, GPSDataService.class));
         }
     }
@@ -287,7 +277,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 .setPositiveButton("更新", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // TODO Auto-generated method stub
                         Intent updateIntent = new Intent(FragmentActivity.this, UpdateAppService.class);
                         startService(updateIntent);
                     }
@@ -295,7 +284,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // TODO Auto-generated method stub
                         dialog.dismiss();
                     }
                 });
@@ -310,15 +298,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             m_FMer.popBackStack();
         }
     }
-
-    /**
-     * 处理返回按钮
-     */
-//    @Override
-//    public void onBackPressed() {
-//        //this.finish();
-//      //  exit();
-//    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -341,7 +320,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     protected void onResume() {
         ISSTARTED = true;
-      //  stopService(new Intent(FragmentActivity.this, GPSDataService.class));
         super.onResume();
     }
 
@@ -474,13 +452,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     };
 
     @Override
-    public void gpsCallBack(LatLng desLat) {
+    public void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint) {
         //传递数据给地图的Fragment
         //如果正在播放轨迹，则更新位置
         if(!maptabFragment.isPlaying)
             maptabFragment.locateMobile(new TracksManager.TrackPoint(Calendar.getInstance().getTime(),desLat));
-//        maptabFragment.currentTrack.time = Calendar.getInstance().getTime();
-//        maptabFragment.currentTrack.point = desLat;
         switchFragment.reverserGeoCedec(desLat);
     }
 
@@ -491,6 +467,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             Bundle bundle=intent.getExtras();
             float Flat = bundle.getFloat("LAT");
             float Flong = bundle.getFloat("LONG");
+            String date = bundle.getString("DATE");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+            try {
+                TracksManager.TrackPoint trackPoint = new TracksManager.TrackPoint(sdf.parse(date), new LatLng(Flat, Flong));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
             try {
                 if (!maptabFragment.isPlaying) {

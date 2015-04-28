@@ -43,8 +43,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         START_BIND,
         SUCCESS,
         FAILED,
-        LOGIN,
-        GET_LIST,
     }
     //自动重登的次数
     private int times = 0;
@@ -62,12 +60,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
           super.handleMessage(msg);
           handler_key key = handler_key.values()[msg.what];
           switch (key){
-              case GET_LIST:
-                  mCenter.getXPGWifiSDK().getBoundDevices(setManager.getUid(),setManager.getToken(), Configs.PRODUCT_KEY);
-                  break;
-              case LOGIN:
-                  loginDevice();
-                  break;
               case START_BIND:
                   progressDialog.show();
                   startBind(passcode, did);
@@ -75,9 +67,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                   timeOut();
                   break;
               case SUCCESS:
-               //   ToastUtils.showShort(BindingActivity.this, "添加成功");
                   ToastUtils.showShort(BindingActivity.this, "设备登陆成功");
-                  setManager.setPassCode(passcode);
                   progressDialog.cancel();
                   Intent intent = new Intent(BindingActivity.this,FragmentActivity.class);
                   startActivity(intent);
@@ -164,8 +154,8 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                     Log.i("",did+"#######"+passcode);
                     et_did.setText(did);
                     setManager.setDid(did);
+                    setManager.setPassCode(passcode);
                     et_passCode.setText(passcode);
-                   // bind_btn.setVisibility(View.INVISIBLE);
                     mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());
                 }
             }
@@ -174,76 +164,18 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
-//    private String getParamFomeUrl(String url, String param) {
-//        String product_key = "";
-//        int startindex = url.indexOf(param + "=");
-//        startindex += (param.length() + 1);
-//        String subString = url.substring(startindex);
-//        int endindex = subString.indexOf("&");
-//        if (endindex == -1) {
-//            product_key = subString;
-//        } else {
-//            product_key = subString.substring(0, endindex);
-//        }
-//        return product_key;
-//    }
-
     @Override
     protected void didBindDevice(int error, String errorMessage, String did) {
         Log.d("扫描结果", "error=" + error + ";errorMessage=" + errorMessage
                 + ";did=" + did);
         if (error == 0) {
-            mHandler.sendEmptyMessage(handler_key.GET_LIST.ordinal());
-            setManager.setDid(did);
+            mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
         } else {
             Message message = new Message();
             message.what = handler_key.FAILED.ordinal();
             message.obj = errorMessage;
             mHandler.sendMessage(message);
         }
-    }
-
-    /**
-     * 登陆设备
-     *            the xpg wifi device
-     */
-    private void loginDevice() {
-
-        Log.i("绑定设备列表",devicesList.toString());
-        for (int i = 0; i < devicesList.size(); i++) {
-            XPGWifiDevice device = devicesList.get(i);
-            if (device != null && device.getDid().equals(setManager.getDid())) {
-                mXpgWifiDevice = device;
-                mXpgWifiDevice.setListener(deviceListener);
-                mXpgWifiDevice.login(setManager.getUid(), setManager.getToken());
-                break;
-            }else{
-                times++;
-                if(times < 5)
-                    mHandler.sendEmptyMessage(handler_key.LOGIN.ordinal());
-            }
-
-        }
-    }
-
-    @Override
-    protected void didLogin(XPGWifiDevice device, int result) {
-        if (result == 0) {
-            mXpgWifiDevice = device;
-            Log.i("进入login",device.toString());
-            mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
-        } else {
-            mHandler.sendEmptyMessage(handler_key.FAILED.ordinal());
-        }
-
-    }
-
-    @Override
-    protected void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
-        super.didDiscovered(error, devicesList);
-        this.devicesList =  devicesList ;
-        Log.i("设备列表",devicesList.toString());
-        mHandler.sendEmptyMessage(handler_key.LOGIN.ordinal());
     }
 
     @Override
