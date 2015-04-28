@@ -51,15 +51,6 @@ public class AlarmActivity extends Activity{
                 }
             }
         });
-//            @Override
-//            public void onClick(View view) {
-//                //Intent intent = new Intent(AlarmActivity.this, FragmentActivity.class);
-//                //startActivity(intent);
-//        //stop alarm
-//        mPlayer.stop();
-//        AlarmActivity.this.finish();
-//            }
-//        });
         instance = this;
 
     }

@@ -58,7 +58,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
             case R.id.layout_bind:
                 //systemBtnClicked();
                 if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())){
-                    if(setManager.getDid() == null) {
+                    if(setManager.getDid().isEmpty()) {
                         Log.i(TAG, "clicked item layout_relieve_bind");
                         setManager.cleanDevice();
                         Intent intentStartBinding = new Intent(getActivity().getApplicationContext(), BindingActivity.class);

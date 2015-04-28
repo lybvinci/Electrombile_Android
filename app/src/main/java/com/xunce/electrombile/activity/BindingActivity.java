@@ -75,8 +75,8 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                   break;
               case FAILED:
                   times = 0;
-                  //bind_btn.setVisibility(View.INVISIBLE);
-                  ToastUtils.showShort(BindingActivity.this, "添加失败，请返回重试");
+//                  //bind_btn.setVisibility(View.INVISIBLE);
+//                  ToastUtils.showShort(BindingActivity.this, "添加失败，请返回重试");
                   progressDialog.cancel();
                   break;
           }

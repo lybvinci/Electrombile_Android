@@ -169,6 +169,7 @@ public class GPSDataService extends Service{
         query.setLimit(1);
         query.whereEqualTo("did", setManager.getDid());
         query.whereLessThan("createdAt", Calendar.getInstance().getTime());
+        query.orderByDescending("createdAt");
         query.findInBackground(new FindCallback<AVObject>() {
             @Override
             public void done(List<AVObject> avObjects, AVException e) {

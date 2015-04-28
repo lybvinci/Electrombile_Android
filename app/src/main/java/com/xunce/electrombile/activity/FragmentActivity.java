@@ -113,7 +113,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         //注册广播
         registerBroadCast();
         if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
-            if(!GPSDataService.isRunning && setManager.getDid()!=null)
+            if(!GPSDataService.isRunning && !setManager.getDid().isEmpty())
                 startService(new Intent(FragmentActivity.this, GPSDataService.class));
         }
     }
