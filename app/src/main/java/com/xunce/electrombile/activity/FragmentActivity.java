@@ -119,7 +119,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
         //注册广播
         registerBroadCast();
-        showNotification("安全宝正在保护您的爱车");
+       // showNotification("安全宝正在保护您的爱车");
         if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
             if(!GPSDataService.isRunning)
                 startService(new Intent(FragmentActivity.this, GPSDataService.class));
