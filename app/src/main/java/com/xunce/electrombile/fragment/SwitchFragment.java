@@ -115,7 +115,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     @Override
     public void onResume() {
         super.onResume();
-        Log.i("BAOJING","CHAKAN");
+     //   Log.i("BAOJING","CHAKAN");
         if(setManager.getAlarmFlag()){
             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
             btnSystem.setChecked(false);
@@ -128,20 +128,20 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
 
     private void safeBtn(boolean b) {
         if(!b){
-            Log.i("SBBBBBBBBBBB","sbbbbbbbbbbbbbbbbbbbb");
+           // Log.i("SBBBBBBBBBBB","sbbbbbbbbbbbbbbbbbbbb");
             //按下以后，isChecked 就是true 就是已经按下了。
             //如果有网络
             if(NetworkUtils.isNetworkConnected(getActivity())) {
-                Log.d(TAG, "check net success!");
+             //   Log.d(TAG, "check net success!");
                 if (!setManager.getDid().isEmpty()) {
-                    Log.d(TAG, "device success!");
+               //     Log.d(TAG, "device success!");
                     setManager.setAlarmFlag(true);
                     cancelNotification();
                     VibratorUtil.Vibrate(getActivity(), 700);
                     showNotification("安全宝防盗系统已启动");
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                 } else {
-                    Log.d(TAG, "device failed!");
+                 //   Log.d(TAG, "device failed!");
                     ToastUtils.showShort(getActivity().getApplicationContext(), "请先绑定设备");
                     btnSystem.setChecked(false);
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
@@ -153,7 +153,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                 iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
             }
         }else {
-            Log.d(TAG, "compoundButton notChecked()");
+          //  Log.d(TAG, "compoundButton notChecked()");
             if (!setManager.getDid().isEmpty())
             {
                 if (NetworkUtils.isNetworkConnected(getActivity())) {
@@ -178,7 +178,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.i(TAG, "onCreateView called!");
+     //   Log.i(TAG, "onCreateView called!");
 
         return inflater.inflate(R.layout.switch_fragment, container, false);
     }

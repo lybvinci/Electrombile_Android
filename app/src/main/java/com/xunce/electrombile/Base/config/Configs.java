@@ -27,7 +27,7 @@ import com.xtremeprog.xpgconnect.XPGWifiSDK.XPGWifiLogLevel;
 public class Configs {
 	
 	/**  设定是否为debug版本. */
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	
 	/**  设定AppID，参数为机智云官网中查看产品信息得到的AppID. */
 	public static final String APPID = "2e14d50b2d0941678104152d8070a831";

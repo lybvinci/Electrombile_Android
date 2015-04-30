@@ -5,14 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.xtremeprog.xpgconnect.XPGWifiDevice;
-import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
@@ -151,7 +147,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                         && text.contains("passcode")) {
                     did = JSONUtils.ParseJSON(text,"did");
                     passcode = JSONUtils.ParseJSON(text,"passcode");
-                    Log.i("",did+"#######"+passcode);
+                   // Log.i("",did+"#######"+passcode);
                     et_did.setText(did);
                     setManager.setDid(did);
                     setManager.setPassCode(passcode);
@@ -166,8 +162,8 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     protected void didBindDevice(int error, String errorMessage, String did) {
-        Log.d("扫描结果", "error=" + error + ";errorMessage=" + errorMessage
-                + ";did=" + did);
+//        Log.d("扫描结果", "error=" + error + ";errorMessage=" + errorMessage
+//                + ";did=" + did);
         if (error == 0) {
             mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
         } else {

@@ -18,7 +18,6 @@
 package com.xunce.electrombile.Base.sdk;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.CoordinateConverter;
@@ -160,7 +159,7 @@ public class CmdCenter {
 	 * 账号注销.
 	 */
 	public void cLogout() {
-		Log.e(TAG, "cLogout:uesrid=" + mSettingManager.getUid());
+	//	Log.e(TAG, "cLogout:uesrid=" + mSettingManager.getUid());
 		xpgWifiGCC.userLogout(mSettingManager.getUid());
         mSettingManager.cleanAll();
 	}
@@ -305,7 +304,7 @@ public class CmdCenter {
 			jsonSend.put("cmd", 1);
 			jsonParam.put(key, value);
 			jsonSend.put(JsonKeys.KEY_ACTION, jsonParam);
-			Log.i("sendjson", jsonSend.toString());
+		//	Log.i("sendjson", jsonSend.toString());
 			xpgWifiDevice.write(jsonSend.toString());
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -341,7 +340,7 @@ public class CmdCenter {
         String orderData3 = new String(flags);
         String orderData4 = new String(cmd);
         String orderData = orderData1 + orderData2 + orderData3 + orderData4 + order;
-        Log.i("OrderData:::",orderData);
+     //   Log.i("OrderData:::",orderData);
         return orderData;
     }
 
@@ -398,9 +397,9 @@ public class CmdCenter {
 
     //3 、GPRS 定时发送设置
     public void cGprsSend(XPGWifiDevice xpgWifiDevice){
-        Log.i("CmdCenterAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",xpgWifiDevice.toString() +"qqqqqqqqqqqqqqqqqqqqqqq");
+      //  Log.i("CmdCenterAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",xpgWifiDevice.toString() +"qqqqqqqqqqqqqqqqqqqqqqq");
         String data = packetOrder(JsonKeys.GPRS_SEND,"");
-        Log.i("定时发送设置",data);
+      //  Log.i("定时发送设置",data);
         xpgWifiDevice.write(data);
     }
 
@@ -475,12 +474,12 @@ public class CmdCenter {
     //解析收到的字符串 分解成命令
     public String cParseString(byte[] binary) {
         String str1 = Bytes2HexString(binary);
-        Log.i("CmdCenter.....",str1);
+    //    Log.i("CmdCenter.....",str1);
         String s = str1.replaceAll(" ", "");
-        Log.i("CmdCenter.....",s);
+     //   Log.i("CmdCenter.....",s);
         byte[] buf1 = HexString2Bytes(s);
         String parseString = buf1.toString();
-        Log.i("CmdCenter.....",parseString);
+     //   Log.i("CmdCenter.....",parseString);
         if (parseString.contains("SET TIMER OK")) {
             return "SET_TIMER_OK";
         }
@@ -501,7 +500,7 @@ public class CmdCenter {
             Matcher m = p.matcher(parseString);
             if (m.find()) {
                 String data = m.group();
-                Log.i("gpsData...",data);
+             //   Log.i("gpsData...",data);
                 return data;
             }
         }
@@ -512,16 +511,16 @@ public class CmdCenter {
     public HashMap<String, String> parseAllData(String data){
         if(data != null ) {
             String entity0 = JSONUtils.ParseJSON(data,"entity0");
-            Log.i("entity0.....",entity0);
+       //     Log.i("entity0.....",entity0);
             HashMap<String, String> hm = new HashMap<String, String>();
             String GPSStatus = JSONUtils.ParseJSON(entity0, JsonKeys.GPSSTATUS);
             String alarm = JSONUtils.ParseJSON(entity0, JsonKeys.ALARM);
-            Log.i("alarm.....",alarm);
+       //     Log.i("alarm.....",alarm);
             String ci = JSONUtils.ParseJSON(entity0, JsonKeys.CI);
             String course = JSONUtils.ParseJSON(entity0, JsonKeys.COURSE);
             String lac = JSONUtils.ParseJSON(entity0, JsonKeys.LAC);
             String lat = JSONUtils.ParseJSON(entity0, JsonKeys.LAT);
-            Log.i("lat.....",lat);
+        //    Log.i("lat.....",lat);
             String longitude = JSONUtils.ParseJSON(entity0, JsonKeys.LONG);
            // Log.i("longitude.....",longitude);
             String mcc = JSONUtils.ParseJSON(entity0, JsonKeys.MCC);

@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -86,7 +85,7 @@ public class RecordActivity extends Activity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate called");
+        //Log.i(TAG, "onCreate called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
@@ -107,11 +106,11 @@ public class RecordActivity extends Activity{
         m_listview.setVisibility(View.INVISIBLE);
 
         if(TracksData.getInstance().getTracksData().size() != 0){
-            Log.i(TAG, "TracksData.getInstance().getTracksData().size()" + TracksData.getInstance().getTracksData().size());
+           // Log.i(TAG, "TracksData.getInstance().getTracksData().size()" + TracksData.getInstance().getTracksData().size());
             m_listview.setVisibility(View.VISIBLE);
             tracksManager.clearTracks();
             tracksManager.setTracksData(TracksData.getInstance().getTracksData());
-            Log.i(TAG, "TrackManager size:" + tracksManager.getTracks().size());
+            //Log.i(TAG, "TrackManager size:" + tracksManager.getTracks().size());
             updateListView();
         }
     }
@@ -143,7 +142,7 @@ public class RecordActivity extends Activity{
                 gcStart.set(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
                 startT= gcStart.getTime();
 
-                Log.i(TAG, "timezone:" + gcStart.getTimeZone().getDisplayName() + "Local:" + Locale.getDefault().getDisplayName());
+                //Log.i(TAG, "timezone:" + gcStart.getTimeZone().getDisplayName() + "Local:" + Locale.getDefault().getDisplayName());
 
                 GregorianCalendar gcEnd = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
                 gcEnd.set(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) + 1, 0, 0, 0);
@@ -263,14 +262,14 @@ public class RecordActivity extends Activity{
     private void findCloud(final Date st, final Date et, int skip) {
 
 
-        Log.i(TAG, "st:" + st.toString() + "++++" + "et" + et.toString() + "++++" + "skip:" + skip);
+        //Log.i(TAG, "st:" + st.toString() + "++++" + "et" + et.toString() + "++++" + "skip:" + skip);
         totalSkip += skip;
         final int finalSkip = totalSkip;
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1000);
         //"gxu88Pd4tyQvzNPUgfWX29"
         String did = sm.getDid();
-        Log.i(TAG, "did+++++" + did);
+       // Log.i(TAG, "did+++++" + did);
         query.whereEqualTo("did","9xTndXaRJGCooc8c7Ey9wd");
         query.whereGreaterThanOrEqualTo("createdAt", startT);
         query.whereLessThan("createdAt", endT);
@@ -282,10 +281,10 @@ public class RecordActivity extends Activity{
         query.findInBackground(new FindCallback<AVObject>() {
             @Override
             public void done(List<AVObject> avObjects, AVException e) {
-                Log.i(TAG, e + "");
+              //  Log.i(TAG, e + "");
                 if(e == null){
                     if(avObjects.size() > 0)
-                        Log.e(TAG,"oooooooooooooook--------" + avObjects.size());
+                   //     Log.e(TAG,"oooooooooooooook--------" + avObjects.size());
                     if(avObjects.size() == 0){
                         clearListViewWhenFail();
 
@@ -298,7 +297,7 @@ public class RecordActivity extends Activity{
                         totalAVObjects.add(thisObject);
                     }
                     if(avObjects.size() >= 1000){
-                        Log.d(TAG, "data more than 1000");
+                   //     Log.d(TAG, "data more than 1000");
                         findCloud(st, et, 1000);
                     }
                     if((totalAVObjects.size() > 1000) && (avObjects.size() < 1000) ||
@@ -335,7 +334,7 @@ public class RecordActivity extends Activity{
     }
 
     private void updateListView(){
-        Log.i(TAG, "update list View");
+     //   Log.i(TAG, "update list View");
         listItem.clear();
         //如果没有数据，弹出对话框
         if(tracksManager.getTracks().size() == 0){

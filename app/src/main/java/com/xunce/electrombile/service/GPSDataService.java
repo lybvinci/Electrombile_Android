@@ -8,29 +8,16 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
-import android.util.Log;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
-import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
-import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.activity.AlarmActivity;
-import com.xunce.electrombile.xpg.common.useful.JSONUtils;
-import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -75,14 +62,14 @@ public class GPSDataService extends Service{
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG,"服务已启动");
+      //  Log.i(TAG,"服务已启动");
         setManager = new SettingManager(this);
         mCenter = CmdCenter.getInstance(this);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG,"设备正常启动后台");
+     //   Log.i(TAG,"设备正常启动后台");
         getData.start();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -108,11 +95,11 @@ public class GPSDataService extends Service{
 
     //手动拉取数据，进行判断
     private void receivedManual() {
-        LogUtil.log.i( "SHOUDONGREC");
+      //  LogUtil.log.i( "SHOUDONGREC");
         double distance = 0;
         if(pointOld != null) {
             distance = Math.abs(DistanceUtil.getDistance(pointOld, pointNew));
-            Log.i(TAG, distance + "LLLL");
+        //    Log.i(TAG, distance + "LLLL");
         }
         if(pointOld == null && setManager.getAlarmFlag()) {
             pointOld = pointNew;
@@ -175,7 +162,7 @@ public class GPSDataService extends Service{
         query.findInBackground(new FindCallback<AVObject>() {
             @Override
             public void done(List<AVObject> avObjects, AVException e) {
-                Log.i(TAG, e + "");
+               // Log.i(TAG, e + "");
                 if (e == null) {
                     AVObject avObject = avObjects.get(0);
                     fLat = mCenter.parseGPSData((float) avObject.getDouble(KET_LAT));
@@ -185,7 +172,7 @@ public class GPSDataService extends Service{
                     date = sdfWithSecond.format(avObject.getCreatedAt());
 
                     pointNew = mCenter.convertPoint(new LatLng(fLat, fLong));
-                    LogUtil.log.i("GPSDDDDDDDDDDDDDDDD" + pointNew.toString());
+                 //   LogUtil.log.i("GPSDDDDDDDDDDDDDDDD" + pointNew.toString());
                     Handler.sendEmptyMessage(handler_key.SHOUDONGREC.ordinal());
                 }
             }

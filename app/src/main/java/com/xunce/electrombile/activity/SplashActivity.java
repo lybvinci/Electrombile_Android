@@ -11,7 +11,6 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -35,7 +34,7 @@ public class SplashActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         final Context context = this;
-        Log.i("","" + isNetWorkAvailable(this));
+     //   Log.i("","" + isNetWorkAvailable(this));
         if(!isNetWorkAvailable(this)){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(getString(R.string.networkErrorSet))

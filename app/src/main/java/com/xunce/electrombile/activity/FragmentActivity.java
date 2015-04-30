@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
@@ -57,7 +56,6 @@ import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Calendar;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -218,7 +216,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     private void settingsTabClicked() {
         if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
-            Log.e("", "set clicked");
+         //   Log.e("", "set clicked");
             return;
         }
 
@@ -238,7 +236,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     private void mapTabClicked() {
         if (m_FMer.findFragmentByTag("mapFragment").isVisible()) {
-            Log.e("", "map clicked");
+          //  Log.e("", "map clicked");
             return;
         }
         rbMap.setChecked(true);
@@ -331,7 +329,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     protected void onPause() {
         super.onPause();
 //        startService(new Intent(FragmentActivity.this, GPSDataService.class));
-        Log.i("退出","ooooooooo");
+      //  Log.i("退出","ooooooooo");
     }
 
     @Override
@@ -353,7 +351,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     }
 
     public void checkVersion() {
-            Log.i("updata version","aaaaaaaaaaaaa");
+        //    Log.i("updata version","aaaaaaaaaaaaa");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -385,23 +383,23 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         if (pi != null) {
                             int currentVersionCode = pi.versionCode;
                             String currentVersionName = pi.versionName;
-                            Log.i("当前版本",currentVersionCode+"");
-                            Log.i("查看版本",firVersionCode+"");
+//                            Log.i("当前版本",currentVersionCode+"");
+//                            Log.i("查看版本",firVersionCode+"");
                             if (firVersionCode > currentVersionCode) {
                                 //需要更新
-                                Log.i("infox", "need update");
+                         //       Log.i("infox", "need update");
                                 bundle.putInt("want",1);
                                 bundle.putBoolean("isupdate",true);
                             } else if (firVersionCode == currentVersionCode) {
                                 //如果本地app的versionCode与FIR上的app的versionCode一致，则需要判断versionName.
                                 if (!currentVersionName.equals(firVersionName)) {
-                                    Log.i("infox", "need update");
+                              //      Log.i("infox", "need update");
                                 bundle.putInt("want",1);
                                 bundle.putBoolean("isupdate",true);
                                 }
                             } else {
                                 //不需要更新,当前版本高于FIR上的app版本.
-                                Log.i("infox", " no need update");
+                           //     Log.i("infox", " no need update");
                                 bundle.putBoolean("isupdate",false);
                             }
                             msg.setData(bundle);
@@ -472,7 +470,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     public void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint) {
         //传递数据给地图的Fragment
         //如果正在播放轨迹，则更新位置
-        Log.i("gpsCallBack","called");
+    //    Log.i("gpsCallBack","called");
         if(!maptabFragment.isPlaying)
             maptabFragment.locateMobile(trackPoint);
         switchFragment.reverserGeoCedec(desLat);

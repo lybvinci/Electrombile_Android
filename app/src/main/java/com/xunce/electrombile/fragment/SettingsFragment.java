@@ -1,5 +1,7 @@
 package com.xunce.electrombile.fragment;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -34,7 +36,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-        Log.i(TAG, "onCreateView called!");
+      //  Log.i(TAG, "onCreateView called!");
         initView();
 
 		return inflater.inflate(R.layout.settings_fragment, container, false);
@@ -59,7 +61,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 //systemBtnClicked();
                 if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())){
                     if(setManager.getDid().isEmpty()) {
-                        Log.i(TAG, "clicked item layout_relieve_bind");
+                  //      Log.i(TAG, "clicked item layout_relieve_bind");
                         setManager.cleanDevice();
                         Intent intentStartBinding = new Intent(getActivity().getApplicationContext(), BindingActivity.class);
                         startActivity(intentStartBinding);
@@ -77,12 +79,35 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
 
                 break;
             case R.id.btn_logout:
-                setManager.cleanAll();
-                Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
-                startActivity(intentStartLogin);
-                getActivity().stopService(new Intent(getActivity().getApplicationContext(), GPSDataService.class));
-                GPSDataService.isRunning = false;
-                getActivity().finish();
+                AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                        .setTitle("退出登录将清除所有数据并且解除绑定设备\n确定退出么？")
+                        .setPositiveButton("否",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+
+                                    }
+                                }).setNegativeButton("是", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                setManager.cleanAll();
+                                Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
+                                startActivity(intentStartLogin);
+                                getActivity().stopService(new Intent(getActivity().getApplicationContext(), GPSDataService.class));
+                                GPSDataService.isRunning = false;
+                                getActivity().finish();
+                            }
+                        }).create();
+                dialog.show();
+
+
+//                setManager.cleanAll();
+//                Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
+//                startActivity(intentStartLogin);
+//                getActivity().stopService(new Intent(getActivity().getApplicationContext(), GPSDataService.class));
+//                GPSDataService.isRunning = false;
+//                getActivity().finish();
                 break;
             default:
                 break;

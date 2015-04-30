@@ -22,8 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.InputType;
-import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -418,7 +416,7 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 	 */
 	@Override
 	protected void didRequestSendVerifyCode(int error, String errorMessage) {
-		Log.i("error message ", error + " " + errorMessage);
+	//	Log.i("error message ", error + " " + errorMessage);
 		if (error == 0) {// 发送成功
 			Message msg = new Message();
 			msg.what = handler_key.TOAST.ordinal();

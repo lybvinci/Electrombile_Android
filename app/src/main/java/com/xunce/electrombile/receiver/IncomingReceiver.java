@@ -6,14 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.telephony.TelephonyManager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.widget.OverlayView;
 
 
@@ -30,7 +25,7 @@ public class IncomingReceiver extends BroadcastReceiver {
         switch (tm.getCallState()) {
             case TelephonyManager.CALL_STATE_RINGING:
                 incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
-                Log.e(TAG, incomingNumber);
+              //  Log.e(TAG, incomingNumber);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
