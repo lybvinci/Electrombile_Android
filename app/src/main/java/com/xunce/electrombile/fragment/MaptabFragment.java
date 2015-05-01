@@ -355,9 +355,11 @@ public class MaptabFragment extends Fragment {
         //mLocationClient.stop();
         // 关闭定位图层
        // mBaiduMap.setMyLocationEnabled(false);
+        pausePlay();
         mMapView.onDestroy();
         mMapView = null;
         super.onDestroy();
+        //clearDataAndView();
     }
     @Override
     public void onResume() {
