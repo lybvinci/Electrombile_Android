@@ -261,78 +261,65 @@ public class RecordActivity extends Activity{
 
 
     private void findCloud(final Date st, final Date et, int skip) {
-
-
-        //Log.i(TAG, "st:" + st.toString() + "++++" + "et" + et.toString() + "++++" + "skip:" + skip);
         totalSkip += skip;
         final int finalSkip = totalSkip;
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
-        query.setLimit(1000);
-        //"gxu88Pd4tyQvzNPUgfWX29"
         String did = sm.getDid();
-        if(!did.isEmpty()) {
             // Log.i(TAG, "did+++++" + did);
-            query.whereEqualTo("did", did);
-            query.whereGreaterThanOrEqualTo("createdAt", startT);
-            query.whereLessThan("createdAt", endT);
-            query.setSkip(finalSkip);
-            //query.whereEqualTo("objectId", "553c92b0e4b034be7f0d6532");
-            //watiDialog = ProgressDialog.show(this, "正在查询数据，请稍后…");
-            watiDialog.setMessage("正在查询数据，请稍后…");
-            watiDialog.show();
-            query.findInBackground(new FindCallback<AVObject>() {
-                                       @Override
-                                       public void done(List<AVObject> avObjects, AVException e) {
-                                           //  Log.i(TAG, e + "");
-                                           if (e == null) {
-                                               if (avObjects.size() > 0)
-                                                   //     Log.e(TAG,"oooooooooooooook--------" + avObjects.size());
-                                                   if (avObjects.size() == 0) {
-                                                       clearListViewWhenFail();
+        query.setLimit(1000);
+        query.whereEqualTo("did", did);
+        query.whereGreaterThanOrEqualTo("createdAt", startT);
+        query.whereLessThan("createdAt", endT);
+        query.setSkip(finalSkip);
+        watiDialog.setMessage("正在查询数据，请稍后…");
+        watiDialog.show();
+        query.findInBackground(new FindCallback<AVObject>() {
+           @Override
+           public void done(List<AVObject> avObjects, AVException e) {
+               //  Log.i(TAG, e + "");
+               if (e == null) {
+                   if (avObjects.size() > 0)
+                       //     Log.e(TAG,"oooooooooooooook--------" + avObjects.size());
+                       if (avObjects.size() == 0) {
+                           clearListViewWhenFail();
 
-                                                       dialog.setTitle("此时间段内没有数据");
-                                                       dialog.show();
-                                                       watiDialog.dismiss();
-                                                       return;
-                                                   }
-                                               for (AVObject thisObject : avObjects) {
-                                                   totalAVObjects.add(thisObject);
-                                               }
-                                               if (avObjects.size() >= 1000) {
-                                                   //     Log.d(TAG, "data more than 1000");
-                                                   findCloud(st, et, 1000);
-                                               }
-                                               if ((totalAVObjects.size() > 1000) && (avObjects.size() < 1000) ||
-                                                       (totalSkip == 0) && (avObjects.size() < 1000)) {
-                                                   tracksManager.clearTracks();
+                           dialog.setTitle("此时间段内没有数据");
+                           dialog.show();
+                           watiDialog.dismiss();
+                           return;
+                       }
+                   for (AVObject thisObject : avObjects) {
+                       totalAVObjects.add(thisObject);
+                   }
+                   if (avObjects.size() >= 1000) {
+                       //     Log.d(TAG, "data more than 1000");
+                       findCloud(st, et, 1000);
+                   }
+                   if ((totalAVObjects.size() > 1000) && (avObjects.size() < 1000) ||
+                           (totalSkip == 0) && (avObjects.size() < 1000)) {
+                       tracksManager.clearTracks();
 
 //                        //清楚本地数据
-                                                   TracksData.getInstance().getTracksData().clear();
-                                                   tracksManager.setTranks(totalAVObjects);
+                       TracksData.getInstance().getTracksData().clear();
+                       tracksManager.setTranks(totalAVObjects);
 
 //                        //更新本地数据
-                                                   TracksData.getInstance().setTracksData(tracksManager.getTracks());
+                       TracksData.getInstance().setTracksData(tracksManager.getTracks());
 
-                                                   updateListView();
-                                                   watiDialog.dismiss();
-                                                   listItemAdapter.notifyDataSetChanged();
-                                               }
+                       updateListView();
+                       watiDialog.dismiss();
+                       listItemAdapter.notifyDataSetChanged();
+                   }
 
-                                           } else {
-                                               clearListViewWhenFail();
+               } else {
+                   clearListViewWhenFail();
 
-                                               dialog.setTitle("查询失败");
-                                               dialog.show();
-                                               watiDialog.dismiss();
-                                           }
-                                       }
-                                   }
-            );
-        }else{
-            dialog.setTitle("请先绑定设备");
-            dialog.show();
-            watiDialog.dismiss();
-        }
+                   dialog.setTitle("查询失败");
+                   dialog.show();
+                   watiDialog.dismiss();
+               }
+           }
+       } );
     }
 
     private void clearListViewWhenFail() {

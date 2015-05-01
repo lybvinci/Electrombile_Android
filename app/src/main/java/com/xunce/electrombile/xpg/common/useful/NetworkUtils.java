@@ -113,9 +113,9 @@ public class NetworkUtils {
 	 }
 
     //提醒设置网络,并且设置是否可以点击旁边取消
-    public static void networkDialog(final Context context,boolean cancelAble) {
+    public static AlertDialog networkDialog(final Context context,boolean cancelAble) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.networkErrorSet)
+        AlertDialog dialog = builder.setMessage(R.string.networkErrorSet)
                 .setCancelable(cancelAble)
                 .setTitle(R.string.networkSet)
                 .setPositiveButton(R.string.networkSettings, new DialogInterface.OnClickListener() {
@@ -136,8 +136,10 @@ public class NetworkUtils {
                 .setNegativeButton(R.string.skip, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+
                     }
                 }).show();
+        return dialog;
     }
     //提醒设置网络并且没有取消按钮
     public static void networkDialogNoCancel(final Context context) {

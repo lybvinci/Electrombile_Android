@@ -73,7 +73,7 @@
             android:src="@drawable/setting_tel"/>
         <TextView
             style="@style/clickableLayoutTextview"
-            android:text="关于反馈"/>
+            android:text="关于与反馈"/>
     </LinearLayout>
     <!--<LinearLayout-->
         <!--android:id="@+id/layout_login_again"-->

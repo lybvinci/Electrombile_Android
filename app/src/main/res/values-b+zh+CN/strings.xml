@@ -38,6 +38,9 @@
     <string name="networkError">网络无连接</string>
     <string name="networkErrorSet">网络连接不可用，是否进行设置？</string>
     <string name="networkSet">网络设置提示</string>
+    <string name="bindErrorSet">未绑定设备，是否要绑定设备？</string>
+    <string name="bindSet">绑定设备提示</string>
+    <string name="goBind">去绑定</string>
     <string name="skip">跳过</string>
     <string name="wifi_first">请先连上Wi-Fi网络</string>
     <string name="wifi_name">Wi-Fi名称</string>

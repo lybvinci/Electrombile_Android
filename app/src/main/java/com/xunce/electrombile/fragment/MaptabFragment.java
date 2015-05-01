@@ -1,16 +1,19 @@
 package com.xunce.electrombile.fragment;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
+import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +25,6 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
-import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
@@ -38,21 +40,13 @@ import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.activity.RecordActivity;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -60,7 +54,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
-import com.xunce.electrombile.xpg.common.useful.JSONUtils;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 
 public class MaptabFragment extends Fragment {
 
@@ -75,6 +69,7 @@ public class MaptabFragment extends Fragment {
         HIDEINFOWINDOW,
     }
 
+    private Context m_context;
     //获取位置信息的http接口
     private final String httpBase= "http://api.gizwits.com/app/devdata/";
     public static MapView mMapView;
@@ -109,6 +104,10 @@ public class MaptabFragment extends Fragment {
     InfoWindow mInfoWindow;
     View markerView;
 
+    //dialogs
+    Dialog networkDialog;
+    Dialog didDialog;
+
     @Override
     public void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -116,21 +115,36 @@ public class MaptabFragment extends Fragment {
        // Log.i(TAG, "onCreate called!");
         //在使用SDK各组件之前初始化context信息，传入ApplicationContext
         //注意该方法要再setContentView方法之前实现
-        SDKInitializer.initialize(this.getActivity().getApplicationContext());
+        SDKInitializer.initialize(this.m_context);
 
         trackDataList = new ArrayList<TrackPoint>();
-        settingManager = new SettingManager(getActivity().getApplicationContext());
+        settingManager = new SettingManager(m_context);
 
-        mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
+        mCenter = CmdCenter.getInstance(m_context);
         currentTrack = new TrackPoint(new Date(), 0, 0);
 
-        LayoutInflater inflater = (LayoutInflater)getActivity().getApplicationContext()
+        LayoutInflater inflater = (LayoutInflater)m_context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         markerView = inflater.inflate(R.layout.view_marker, null);
         tvUpdateTime = (TextView)markerView.findViewById(R.id.tv_updateTime);
         tvStatus = (TextView)markerView.findViewById(R.id.tv_statuse);
 
+        didDialog = new AlertDialog.Builder(m_context).setMessage(R.string.bindErrorSet)
+                .setTitle(R.string.bindSet)
+                .setPositiveButton(R.string.goBind, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = null;
+                        intent = new Intent(m_context, BindingActivity.class);
+                        m_context.startActivity(intent);
+                    }
+                })
+                .setNegativeButton(R.string.skip, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
+                    }
+                }).create();
     }
 
 	@Override
@@ -141,6 +155,12 @@ public class MaptabFragment extends Fragment {
 
         initView(view);
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        m_context = activity;
     }
 
     private void initView(View v) {
@@ -191,6 +211,11 @@ public class MaptabFragment extends Fragment {
         btnLocation.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                //检查网络
+                if (checkNetwork()) return;
+                //检查是否绑定
+                if (checkBind()) return;
+
                 if(mBaiduMap != null){
                     //LatLng point = getLatestLocation();
                     updateLocation();
@@ -203,9 +228,14 @@ public class MaptabFragment extends Fragment {
         btnRecord.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+
+                //检查网络
+                if (checkNetwork()) return;
+                //检查是否绑定
+                if (checkBind()) return;
                 clearDataAndView();
 
-                Intent intent = new Intent(getActivity().getApplicationContext(),RecordActivity.class);
+                Intent intent = new Intent(m_context,RecordActivity.class);
                 startActivity(intent);
             }
         });
@@ -235,6 +265,22 @@ public class MaptabFragment extends Fragment {
                 dialog.show();
             }
         });
+    }
+
+    private boolean checkBind() {
+        if(settingManager.getDid().isEmpty()){
+            didDialog.show();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkNetwork() {
+        if(!NetworkUtils.isNetworkConnected(m_context)){
+            networkDialog = NetworkUtils.networkDialog(m_context, true);
+            return true;
+        }
+        return false;
     }
 
     private void clearDataAndView() {
@@ -329,6 +375,7 @@ public class MaptabFragment extends Fragment {
             enterPlayTrackMode();
             drawLine();
         }
+
     }
     @Override
     public void onPause() {
@@ -406,7 +453,7 @@ public class MaptabFragment extends Fragment {
 
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1);
-        String did = new SettingManager(getActivity().getApplicationContext()).getDid();
+        String did = new SettingManager(m_context).getDid();
         query.whereEqualTo("did",did) ;
         query.whereLessThanOrEqualTo("createdAt", Calendar.getInstance().getTime());
         query.orderByDescending("createdAt");
@@ -497,7 +544,7 @@ public class MaptabFragment extends Fragment {
                         locateMobile((TrackPoint) msg.obj);
                         break;
                     }else{
-                        Toast.makeText(getActivity().getApplicationContext(),
+                        Toast.makeText(m_context,
                                 "定位数据获取失败，请重试或检查网络",Toast.LENGTH_LONG).show();
                         break;
                     }

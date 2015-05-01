@@ -1,6 +1,8 @@
 package com.xunce.electrombile.fragment;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 public class SettingsFragment extends BaseFragment implements View.OnClickListener {
 
     private static String TAG = "SettingsFragment:";
+    private Context m_context;
    // private LinearLayout btnPhoneNumber;
     private LinearLayout btnBind;
     private LinearLayout btnAbout;
@@ -54,27 +57,33 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        m_context = activity;
+    }
+
+    @Override
     public void onClick(View view) {
         int id = view.getId();
         switch (id) {
             case R.id.layout_bind:
                 //systemBtnClicked();
-                if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())){
+                if(NetworkUtils.isNetworkConnected(m_context)){
                     if(setManager.getDid().isEmpty()) {
                   //      Log.i(TAG, "clicked item layout_relieve_bind");
                         setManager.cleanDevice();
-                        Intent intentStartBinding = new Intent(getActivity().getApplicationContext(), BindingActivity.class);
+                        Intent intentStartBinding = new Intent(m_context, BindingActivity.class);
                         startActivity(intentStartBinding);
                     }else{
                         System.out.println(setManager.getDid() +"aaaaaaaaaaa");
-                        ToastUtils.showShort(getActivity().getApplicationContext(),"设备已绑定");
+                        ToastUtils.showShort(m_context,"设备已绑定");
                     }
                 }else{
-                    ToastUtils.showShort(getActivity().getApplicationContext(),"网络连接错误");
+                    ToastUtils.showShort(m_context,"网络连接错误");
                     }
                 break;
             case R.id.layout_help:
-                Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
+                Intent intentHelp = new Intent(m_context, HelpActivity.class);
                 startActivity(intentHelp);
 
                 break;
@@ -93,9 +102,9 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 setManager.cleanAll();
-                                Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
+                                Intent intentStartLogin = new Intent(m_context, LoginActivity.class);
                                 startActivity(intentStartLogin);
-                                getActivity().stopService(new Intent(getActivity().getApplicationContext(), GPSDataService.class));
+                                getActivity().stopService(new Intent(m_context, GPSDataService.class));
                                 GPSDataService.isRunning = false;
                                 getActivity().finish();
                             }
@@ -103,7 +112,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 dialog.show();
                 break;
             case R.id.layout_about:
-                Intent intentAbout = new Intent(getActivity().getApplicationContext(), AboutActivity.class);
+                Intent intentAbout = new Intent(m_context, AboutActivity.class);
                 startActivity(intentAbout);
                 break;
             default:
