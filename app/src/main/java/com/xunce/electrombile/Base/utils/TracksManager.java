@@ -108,7 +108,7 @@ public class TracksManager {
                     tracks.remove(tracks.size() - 1);
                     dataList = new ArrayList<TrackPoint>();
                     tracks.add(dataList);
-            }
+                }
 
             //打印当前点信息
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -129,6 +129,10 @@ public class TracksManager {
 
         }
 
+        //当只有一个列表且列表内只有一个数据时，移除
+        if(tracks.size() == 1 && tracks.get(0).size() <= 1){
+            tracks.remove(tracks.size() - 1);
+        }
         Log.i(TAG, "tracks size:" + tracks.size());
     }
 }
