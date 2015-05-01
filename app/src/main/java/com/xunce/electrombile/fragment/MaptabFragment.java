@@ -356,6 +356,16 @@ public class MaptabFragment extends Fragment {
         // 关闭定位图层
        // mBaiduMap.setMyLocationEnabled(false);
         pausePlay();
+        //清除轨迹
+        if(tracksOverlay != null)
+            tracksOverlay.remove();
+        //结束播放线程
+        if(m_playThread != null){
+            m_playThread.isTimeToDie = true;
+        }
+        m_playThread = null;
+        exitPlayTrackMode();
+
         mMapView.onDestroy();
         mMapView = null;
         super.onDestroy();

@@ -116,6 +116,12 @@ public class RecordActivity extends Activity{
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        tracksManager.clearTracks();
+    }
+
     private void initView(){
         watiDialog = new ProgressDialog(this);
         btnCuston = (Button)findViewById(R.id.btn_custom);
