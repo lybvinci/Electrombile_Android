@@ -36,10 +36,9 @@
             android:layout_height="wrap_content"
             android:id="@+id/switch_fragment_tvLocation"
             android:text="当前位置"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textColor="@color/customblack"
-            android:layout_gravity="center_vertical"
-            android:singleLine="true"/>
+            android:layout_gravity="center_vertical"/>
     </LinearLayout>
     <ImageView
         android:layout_width="330dp"

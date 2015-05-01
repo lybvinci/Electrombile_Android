@@ -1,63 +1,109 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FragmentActivity" >
+    android:orientation="vertical"
+    tools:context=".FragmentActivity">
 
-    <RelativeLayout
-        android:id="@+id/aboveLayout"
+    <FrameLayout
+        android:id="@+id/fragmentRoot"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1.0" >
+    </FrameLayout>
+
+    <RadioGroup
+        android:id="@+id/main_radio"
         android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:background="@color/gainsboro">
-        <LinearLayout
-            android:id="@+id/fragmentRoot"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical"/>
-        <LinearLayout
-            android:id="@+id/bottomList"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@color/transparent"
-            android:orientation="horizontal">
+        android:layout_height="54dp"
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
 
-            <LinearLayout
-                android:id="@+id/bottomItemCurrentBg1"
-                style="@style/main_bottom_item" >
+        android:layout_marginBottom="-6dp"
+        android:background="@color/transparent"
+        android:orientation="horizontal" >
 
-                <RadioButton
-                    android:id="@+id/rbSwitch"
-                    style="@style/footbar"
-                    android:drawableTop="@drawable/switch_icon"
-                    android:checked="true"
-                    android:paddingTop="10dp" />
-            </LinearLayout>
+        <RadioButton
+            android:id="@+id/rbSwitch"
+            style="@style/main_tab_bottom"
+            android:checked="true"
+            android:drawableTop="@drawable/switch_icon" />
 
-            <LinearLayout
-                android:id="@+id/bottomItemCurrentBg2"
-                style="@style/main_bottom_item" >
+        <RadioButton
+            android:id="@+id/rbMap"
+            style="@style/main_tab_bottom"
+            android:checked="false"
+            android:drawableTop="@drawable/map_icon" />
 
-                <RadioButton
-                    android:id="@+id/rbMap"
-                    style="@style/footbar"
-                    android:drawableTop="@drawable/map_icon"
-                    android:paddingTop="10dp"
-                    android:checked="false"/>
-            </LinearLayout>
+        <RadioButton
+            android:id="@+id/rbSettings"
+            style="@style/main_tab_bottom"
+            android:checked="false"
+            android:drawableTop="@drawable/setting_icon" />
+
+    </RadioGroup>
+
+</LinearLayout>
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--tools:context=".FragmentActivity" >-->
+
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/aboveLayout"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@color/gainsboro">-->
+        <!--<LinearLayout-->
+            <!--android:id="@+id/fragmentRoot"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="fill_parent"-->
+            <!--android:orientation="vertical"/>-->
+        <!--<LinearLayout-->
+            <!--android:id="@+id/bottomList"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:background="@color/transparent"-->
+            <!--android:orientation="horizontal">-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/bottomItemCurrentBg1"-->
+                <!--style="@style/main_bottom_item" >-->
+
+                <!--<RadioButton-->
+                    <!--android:id="@+id/rbSwitch"-->
+                    <!--style="@style/footbar"-->
+                    <!--android:drawableTop="@drawable/switch_icon"-->
+                    <!--android:checked="true"-->
+                    <!--android:paddingTop="10dp" />-->
+            <!--</LinearLayout>-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/bottomItemCurrentBg2"-->
+                <!--style="@style/main_bottom_item" >-->
+
+                <!--<RadioButton-->
+                    <!--android:id="@+id/rbMap"-->
+                    <!--style="@style/footbar"-->
+                    <!--android:drawableTop="@drawable/map_icon"-->
+                    <!--android:paddingTop="10dp"-->
+                    <!--android:checked="false"/>-->
+            <!--</LinearLayout>-->
 
 
-            <LinearLayout
-                android:id="@+id/bottomItemCurrentBg3"
-                style="@style/main_bottom_item" >
+            <!--<LinearLayout-->
+                <!--android:id="@+id/bottomItemCurrentBg3"-->
+                <!--style="@style/main_bottom_item" >-->
 
-                <RadioButton
-                    android:id="@+id/rbSettings"
-                    android:paddingTop="10dp"
-                    android:drawableTop="@drawable/setting_icon"
-                    style="@style/footbar"/>
-            </LinearLayout>
+                <!--<RadioButton-->
+                    <!--android:id="@+id/rbSettings"-->
+                    <!--android:paddingTop="10dp"-->
+                    <!--android:drawableTop="@drawable/setting_icon"-->
+                    <!--style="@style/footbar"/>-->
+            <!--</LinearLayout>-->
 
-        </LinearLayout>
-    </RelativeLayout>
-</RelativeLayout>
+        <!--</LinearLayout>-->
+    <!--</RelativeLayout>-->
+<!--</RelativeLayout>-->
