@@ -154,11 +154,19 @@ public class GPSDataService extends Service{
             isRunning = true;
             while(true){
                 if(NetworkUtils.isNetworkConnected(GPSDataService.this)) {
-                    getLatestData();
-                    try {
-                        sleep(45000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if(!setManager.getDid().isEmpty()) {
+                        getLatestData();
+                        try {
+                            sleep(45000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }else{
+                        try {
+                            sleep(45000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }else{
                     try {
