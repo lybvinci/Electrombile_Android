@@ -40,6 +40,7 @@ import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.xpg.common.system.IntentUtils;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.common.useful.StringUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -235,7 +236,15 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		initEvents();
 	}
 
-	/**
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            NetworkUtils.networkDialogNoCancel(this);
+        }
+    }
+
+    /**
 	 * Inits the views.
 	 */
 	private void initViews() {

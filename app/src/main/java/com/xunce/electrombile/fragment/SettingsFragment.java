@@ -80,7 +80,8 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 break;
             case R.id.btn_logout:
                 AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                        .setTitle("退出登录将清除所有数据并且解除绑定设备\n确定退出么？")
+                        .setTitle("退出登录")
+                        .setMessage("退出登录将清除所有已有账户及已经绑定的设备\n确定退出么？")
                         .setPositiveButton("否",
                                 new DialogInterface.OnClickListener() {
                                     @Override

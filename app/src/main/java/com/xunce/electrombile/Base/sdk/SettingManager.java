@@ -100,6 +100,7 @@ public class SettingManager {
 		setUserName("");
         setDid("");
         setPassCode("");
+        setAlarmFlag(false);
 	}
     public void cleanDevice() {
         setDid("");

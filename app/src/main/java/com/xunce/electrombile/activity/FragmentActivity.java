@@ -57,6 +57,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.TimeZone;
@@ -115,13 +116,24 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         //注册广播
         registerBroadCast();
         if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
-            if(!GPSDataService.isRunning && !setManager.getDid().isEmpty())
-                startService(new Intent(FragmentActivity.this, GPSDataService.class));
+            if(!GPSDataService.isRunning && !setManager.getDid().isEmpty()){
+                Intent localIntent = new Intent();
+                localIntent.setClass(this,GPSDataService.class);
+                this.startService(localIntent);
+            }
+            //    startService(new Intent(FragmentActivity.this, GPSDataService.class));
         }
         if(setManager.getDid().isEmpty()){
             ToastUtils.showShort(this,"请先绑定设备");
         }else{
             ToastUtils.showShort(this,"登陆成功");
+        }
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            NetworkUtils.networkDialog(this,true);
         }
     }
 
@@ -328,7 +340,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     protected void onPause() {
         super.onPause();
-//        startService(new Intent(FragmentActivity.this, GPSDataService.class));
       //  Log.i("退出","ooooooooo");
     }
 

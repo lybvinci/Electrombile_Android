@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
+import android.util.Log;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
@@ -18,6 +19,8 @@ import com.baidu.mapapi.utils.DistanceUtil;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.activity.AlarmActivity;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -36,6 +39,8 @@ public class GPSDataService extends Service{
     private float fLat;
     private float fLong;
     private String date;
+
+   //线程是否启动
     public static boolean isRunning = false;
 
     private final String KET_LONG = "lon";
@@ -62,22 +67,27 @@ public class GPSDataService extends Service{
     @Override
     public void onCreate() {
         super.onCreate();
-      //  Log.i(TAG,"服务已启动");
+        Log.i(TAG, "服务已启动");
         setManager = new SettingManager(this);
         mCenter = CmdCenter.getInstance(this);
+        //   Log.i(TAG,"设备正常启动后台");
+        if(!isRunning)
+            getData.start();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-     //   Log.i(TAG,"设备正常启动后台");
-        getData.start();
+        //START_STICKY是service被kill后自动重写创建。
+        flags = START_STICKY;
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
         isRunning = false;
-        super.onDestroy();
+        Intent localIntent = new Intent();
+        localIntent.setClass(this,GPSDataService.class);
+        this.startService(localIntent);
     }
 
 
@@ -104,7 +114,7 @@ public class GPSDataService extends Service{
         if(pointOld == null && setManager.getAlarmFlag()) {
             pointOld = pointNew;
         }
-        if (distance > 200 && setManager.getAlarmFlag() && AlarmActivity.instance == null) {
+        if (distance > 500 && setManager.getAlarmFlag() && AlarmActivity.instance == null) {
             pointOld = null;
             wakeUpAndUnlock(this);
             Intent intent = new Intent(this, AlarmActivity.class);
@@ -143,12 +153,20 @@ public class GPSDataService extends Service{
         public void run() {
             isRunning = true;
             while(true){
+                if(NetworkUtils.isNetworkConnected(GPSDataService.this)) {
                     getLatestData();
                     try {
-                        sleep(30000);
+                        sleep(45000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                }else{
+                    try {
+                        sleep(45000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     };

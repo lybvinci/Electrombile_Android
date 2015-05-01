@@ -56,14 +56,24 @@
         android:theme="@style/AppTheme" >
         <service android:name=".Updata.UpdateAppService"/>
         <service android:name=".service.GPSDataService"
+            android:priority= "1000"
             android:enabled="true">
             <intent-filter>
                 <action android:name="com.xunce.electrombile.service.GPSDataService" />
             </intent-filter>
         </service>
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:priority = "2147483647">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.media.RINGER_MODE_CHANGED"/>
+            </intent-filter>
+        </receiver>
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="eyVZSbgbfVGt9Y0BaKaYY5vF" />
+            android:value="LnfIE5HKF0zbDiZmm8ZiVIch" />
             <!--debug LnfIE5HKF0zbDiZmm8ZiVIch-->
             <!--android:value="eyVZSbgbfVGt9Y0BaKaYY5vF" />-->
         <!--  debug  LnfIE5HKF0zbDiZmm8ZiVIch-->
@@ -119,11 +129,6 @@
             android:name=".activity.ScannerActivity"
             android:theme="@style/App2Theme"
             android:label="Scanner" >
-        </activity>
-        <activity
-            android:name=".activity.UserInfoActivity"
-            android:label="userInfo"
-            android:theme="@android:style/Animation.Dialog">
         </activity>
         <activity
             android:name=".activity.AlarmActivity"

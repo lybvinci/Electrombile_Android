@@ -145,7 +145,15 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 		initEvents();
 	}
 
-	/**
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            NetworkUtils.networkDialog(this,true);
+        }
+    }
+
+    /**
 	 * 初始化交互监听器.
 	 */
 	private void initEvents() {
@@ -208,11 +216,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 					handler_key.LOGIN_TIMEOUT.ordinal(), 15000);
 			break;
 		case R.id.btnRegister:
-			if (NetworkUtils.isNetworkConnected(this)) {
 				// 打开注册Activity
 				IntentUtils.getInstance().startActivity(this,
 						RegisterActivity.class);
-			}
 			break;
 		}
 

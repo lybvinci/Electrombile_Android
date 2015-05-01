@@ -35,6 +35,7 @@ import android.widget.ToggleButton;
 
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.common.useful.StringUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -221,6 +222,13 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 		initViews();
 		initEvents();
 	}
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            NetworkUtils.networkDialogNoCancel(this);
+        }
+    }
 
 	/**
 	 * Inits the views.
