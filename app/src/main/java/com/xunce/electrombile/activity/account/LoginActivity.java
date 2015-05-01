@@ -18,19 +18,15 @@
 package com.xunce.electrombile.activity.account;
 
 import android.app.ProgressDialog;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.avos.avoscloud.LogUtil;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
@@ -149,7 +145,15 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 		initEvents();
 	}
 
-	/**
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            NetworkUtils.networkDialog(this,true);
+        }
+    }
+
+    /**
 	 * 初始化交互监听器.
 	 */
 	private void initEvents() {
@@ -212,11 +216,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 					handler_key.LOGIN_TIMEOUT.ordinal(), 15000);
 			break;
 		case R.id.btnRegister:
-			if (NetworkUtils.isNetworkConnected(this)) {
 				// 打开注册Activity
 				IntentUtils.getInstance().startActivity(this,
 						RegisterActivity.class);
-			}
 			break;
 		}
 
@@ -243,7 +245,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 			msg.what = handler_key.LOGIN_FAIL.ordinal();
 			msg.obj = errorMessage;
 			handler.sendMessage(msg);
-            Log.i("loginActivity",errorMessage.toString());
+        //    Log.i("loginActivity",errorMessage.toString());
 		}
 	}
 

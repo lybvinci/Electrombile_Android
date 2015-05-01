@@ -5,16 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.xtremeprog.xpgconnect.XPGWifiDevice;
-import com.xunce.electrombile.Base.config.Configs;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.service.GPSDataService;
 import com.xunce.electrombile.xpg.common.useful.JSONUtils;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.List;
@@ -67,6 +65,9 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                   timeOut();
                   break;
               case SUCCESS:
+                  Intent localIntent = new Intent();
+                  localIntent.setClass(BindingActivity.this,GPSDataService.class);
+                  BindingActivity.this.startService(localIntent);
                   ToastUtils.showShort(BindingActivity.this, "设备登陆成功");
                   progressDialog.cancel();
                   Intent intent = new Intent(BindingActivity.this,FragmentActivity.class);
@@ -78,6 +79,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
 //                  //bind_btn.setVisibility(View.INVISIBLE);
 //                  ToastUtils.showShort(BindingActivity.this, "添加失败，请返回重试");
                   progressDialog.cancel();
+                  ToastUtils.showShort(BindingActivity.this, "请认真检查设备码和激活码！");
                   break;
           }
       }
@@ -90,6 +92,14 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         setTitle(getString(R.string.bindEquipment));
         setContentView(R.layout.activity_binding);
         initView();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            NetworkUtils.networkDialogNoCancel(this);
+        }
     }
 
     private void initView(){
@@ -151,7 +161,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                         && text.contains("passcode")) {
                     did = JSONUtils.ParseJSON(text,"did");
                     passcode = JSONUtils.ParseJSON(text,"passcode");
-                    Log.i("",did+"#######"+passcode);
+                   // Log.i("",did+"#######"+passcode);
                     et_did.setText(did);
                     setManager.setDid(did);
                     setManager.setPassCode(passcode);
@@ -166,8 +176,8 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     protected void didBindDevice(int error, String errorMessage, String did) {
-        Log.d("扫描结果", "error=" + error + ";errorMessage=" + errorMessage
-                + ";did=" + did);
+//        Log.d("扫描结果", "error=" + error + ";errorMessage=" + errorMessage
+//                + ";did=" + did);
         if (error == 0) {
             mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
         } else {
@@ -190,10 +200,10 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
             public void run() {
                 try {
                     sleep(5000);
+                    if(progressDialog.isShowing())
+                        mHandler.sendEmptyMessage(handler_key.FAILED.ordinal());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                } finally{
-                    mHandler.sendEmptyMessage(handler_key.FAILED.ordinal());
                 }
             }
         }.start();

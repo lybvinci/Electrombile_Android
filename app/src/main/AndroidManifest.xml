@@ -57,11 +57,21 @@
         android:screenOrientation="portrait">
         <service android:name=".Updata.UpdateAppService"/>
         <service android:name=".service.GPSDataService"
+            android:priority= "1000"
             android:enabled="true">
             <intent-filter>
                 <action android:name="com.xunce.electrombile.service.GPSDataService" />
             </intent-filter>
         </service>
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:priority = "2147483647">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.media.RINGER_MODE_CHANGED"/>
+            </intent-filter>
+        </receiver>
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="LnfIE5HKF0zbDiZmm8ZiVIch" />
@@ -91,7 +101,7 @@
         </activity>
         <activity
             android:name=".activity.account.ChangePswActivity"
-            android:theme="@style/App2Theme"
+            android:theme="@style/changePswActivity"
             android:label="ChangePswActivity" >
         </activity>
         <activity
@@ -122,11 +132,6 @@
             android:label="Scanner" >
         </activity>
         <activity
-            android:name=".activity.UserInfoActivity"
-            android:label="userInfo"
-            android:theme="@android:style/Animation.Dialog">
-        </activity>
-        <activity
             android:name=".activity.AlarmActivity"
             android:theme="@style/App2Theme"
             android:label="Alarm" >
@@ -135,6 +140,11 @@
             android:name=".activity.RecordActivity"
             android:theme="@style/App2Theme"
             android:label="Record" >
+        </activity>
+        <activity
+            android:name=".activity.AboutActivity"
+            android:theme="@style/App2Theme"
+            android:label="About" >
         </activity>
         <activity
             android:name=".activity.HelpActivity"

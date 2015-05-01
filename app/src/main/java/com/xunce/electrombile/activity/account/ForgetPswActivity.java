@@ -22,8 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.InputType;
-import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -37,6 +35,7 @@ import android.widget.ToggleButton;
 
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.common.useful.StringUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -223,6 +222,13 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 		initViews();
 		initEvents();
 	}
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            NetworkUtils.networkDialogNoCancel(this);
+        }
+    }
 
 	/**
 	 * Inits the views.
@@ -418,7 +424,7 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 	 */
 	@Override
 	protected void didRequestSendVerifyCode(int error, String errorMessage) {
-		Log.i("error message ", error + " " + errorMessage);
+	//	Log.i("error message ", error + " " + errorMessage);
 		if (error == 0) {// 发送成功
 			Message msg = new Message();
 			msg.what = handler_key.TOAST.ordinal();

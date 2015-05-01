@@ -58,7 +58,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
 import com.xunce.electrombile.xpg.common.useful.JSONUtils;
@@ -114,7 +113,7 @@ public class MaptabFragment extends Fragment {
     public void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        Log.i(TAG, "onCreate called!");
+       // Log.i(TAG, "onCreate called!");
         //在使用SDK各组件之前初始化context信息，传入ApplicationContext
         //注意该方法要再setContentView方法之前实现
         SDKInitializer.initialize(this.getActivity().getApplicationContext());
@@ -137,7 +136,7 @@ public class MaptabFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-        Log.i(TAG, "onCreateView called!");
+       // Log.i(TAG, "onCreateView called!");
 		View view = inflater.inflate(R.layout.map_fragment, container, false);
 
         initView(view);
@@ -267,7 +266,7 @@ public class MaptabFragment extends Fragment {
             //定义Maker坐标点
             //leacloud服务器清空，暂时自定义数据代替
             LatLng point = new LatLng(30.5171, 114.4392);
-            Log.e(point.latitude + "", point.longitude + "");
+          //  Log.e(point.latitude + "", point.longitude + "");
 
             //构建Marker图标
             BitmapDescriptor bitmap = BitmapDescriptorFactory
@@ -301,7 +300,7 @@ public class MaptabFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.i(TAG, "onDestroyView called!");
+    //    Log.i(TAG, "onDestroyView called!");
     }
 
     @Override
@@ -318,7 +317,7 @@ public class MaptabFragment extends Fragment {
     public void onResume() {
 
         //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
-        Log.i(TAG, "onResume called!");
+     //   Log.i(TAG, "onResume called!");
         mMapView.setVisibility(View.VISIBLE);
         mMapView.onResume();
         super.onResume();
@@ -334,7 +333,7 @@ public class MaptabFragment extends Fragment {
     @Override
     public void onPause() {
         //在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
-        Log.i(TAG, "onPause called!");
+      //  Log.i(TAG, "onPause called!");
         //mMapView.setVisibility(View.INVISIBLE);
         mMapView.onPause();
         super.onPause();
@@ -414,7 +413,7 @@ public class MaptabFragment extends Fragment {
         query.findInBackground(new FindCallback<AVObject>() {
             @Override
             public void done(List<AVObject> avObjects, AVException e) {
-                Log.i(TAG, e + "");
+              //  Log.i(TAG, e + "");
                 if (e == null) {
                     AVObject avObject = avObjects.get(0);
                     float fLat = mCenter.parseGPSData((float) avObject.getDouble(KET_LAT));
