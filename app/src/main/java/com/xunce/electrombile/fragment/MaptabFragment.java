@@ -308,7 +308,7 @@ public class MaptabFragment extends Fragment {
         // 退出时销毁定位
         //mLocationClient.stop();
         // 关闭定位图层
-        mBaiduMap.setMyLocationEnabled(false);
+       // mBaiduMap.setMyLocationEnabled(false);
         mMapView.onDestroy();
         mMapView = null;
         super.onDestroy();

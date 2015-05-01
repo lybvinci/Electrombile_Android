@@ -109,6 +109,7 @@ public class UpdateAppService extends Service{
                 if (downnum==length) {
                     notification.setLatestEventInfo(context, "已下载完成传安全宝", "点击安装", updatePendingIntent);
                     nManager.notify(100, notification);
+                    startActivity(installIntent);
                     Intent stopservice=new Intent(context,UpdateAppService.class);
                     stopService(stopservice);
                 }
