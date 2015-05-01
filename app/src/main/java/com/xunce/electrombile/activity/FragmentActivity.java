@@ -232,13 +232,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             return;
         }
 
-        rbMap.setChecked(false);
-        rbMap.setTextColor(Color.BLACK);
-        rbSwitch.setChecked(false);
-        rbSwitch.setTextColor(Color.BLACK);
-        rbSettings.setChecked(true);
-        rbSettings.setTextColor(getResources().getColor(R.color.blue));
-
         FragmentTransaction ft = m_FMer.beginTransaction();
         ft.hide(switchFragment);
         ft.show(settingsFragment);
@@ -251,13 +244,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
           //  Log.e("", "map clicked");
             return;
         }
-        rbMap.setChecked(true);
-        rbMap.setTextColor(getResources().getColor(R.color.blue));
-        rbSwitch.setChecked(false);
-        rbSwitch.setTextColor(Color.BLACK);
-        rbSettings.setChecked(false);
-        rbSettings.setTextColor(Color.BLACK);
-
         //从backstack中弹出
         //popAllFragmentsExceptTheBottomOne();
 
@@ -276,17 +262,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }
 
         //界面切换
-        rbSwitch.setChecked(true);
-        rbSwitch.setTextColor(getResources().getColor(R.color.blue));
-        rbMap.setChecked(false);
-        rbMap.setTextColor(Color.BLACK);
-        rbSettings.setChecked(false);
-        rbSettings.setTextColor(Color.BLACK);
-
-
-        //从backstack中弹出
+       //从backstack中弹出
         //popAllFragmentsExceptTheBottomOne();
-
         FragmentTransaction ft = m_FMer.beginTransaction();
         ft.show(switchFragment);
         ft.hide(settingsFragment);
@@ -370,6 +347,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 Bundle bundle=new Bundle();
                 boolean isupdate;
                 String baseUrl = "http://fir.im/api/v2/app/version/%s?token=%s";
+               //test String checkUpdateUrl = String.format(baseUrl, "554331e6bf7f222c2600493b", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
+
+                //下面是正式的
                 String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 HttpClient httpClient = new DefaultHttpClient();
                 //请求超时
