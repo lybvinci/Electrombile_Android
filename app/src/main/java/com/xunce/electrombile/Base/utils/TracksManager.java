@@ -22,7 +22,7 @@ import java.util.TimeZone;
 public class TracksManager {
     //private ArrayList<ArrayList<LatLng>> tracks;
     private final String TAG = "TracksManager";
-    private  ArrayList<ArrayList<TrackPoint>> tracks;
+    private  static ArrayList<ArrayList<TrackPoint>> tracks;
 
     private final String KET_TIME = "createdAt";
     private final String KET_LONG = "lon";
@@ -62,7 +62,7 @@ public class TracksManager {
         return tracks;
     }
 
-    public void clearTracks(){
+    public static void clearTracks(){
         tracks.clear();
     }
 
@@ -94,7 +94,7 @@ public class TracksManager {
             double dis = Math.abs(DistanceUtil.getDistance(lastSavedPoint, bdPoint));
             Log.i("******", dis + "");
             if(lastSavedObject != null && dis  <= MAX_DISTANCE){
-                Log.i("","distance should less 200M:::" + dis);
+                //Log.i("","distance should less 200M:::" + dis);
                 continue;
             }
 
@@ -113,10 +113,10 @@ public class TracksManager {
             //打印当前点信息
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-            Log.i("ddd", "objid:" + thisObject.getObjectId() +
-                    "lat:" + thisObject.getDouble(KET_LAT) +
-                    "lon" + thisObject.getDouble(KET_LONG) +
-                    "time" + sdf.format(thisObject.getCreatedAt().getTime()));
+//            Log.i("ddd", "objid:" + thisObject.getObjectId() +
+//                    "lat:" + thisObject.getDouble(KET_LAT) +
+//                    "lon" + thisObject.getDouble(KET_LONG) +
+//                    "time" + sdf.format(thisObject.getCreatedAt().getTime()));
 
             TrackPoint p = new TrackPoint(thisObject.getCreatedAt(), bdPoint);
             if(isOutOfHubei(bdPoint)){

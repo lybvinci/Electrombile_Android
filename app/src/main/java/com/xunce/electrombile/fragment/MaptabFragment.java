@@ -42,6 +42,7 @@ import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
+import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
@@ -259,10 +260,12 @@ public class MaptabFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 clearDataAndView();
+                                TracksManager.clearTracks();
                                 updateLocation();
                             }
                         }).create();
                 dialog.show();
+
             }
         });
     }
@@ -355,7 +358,8 @@ public class MaptabFragment extends Fragment {
         //mLocationClient.stop();
         // 关闭定位图层
        // mBaiduMap.setMyLocationEnabled(false);
-        pausePlay();
+        //continuePlay();
+        //pausePlay();
         //清除轨迹
         if(tracksOverlay != null)
             tracksOverlay.remove();
@@ -387,7 +391,7 @@ public class MaptabFragment extends Fragment {
             enterPlayTrackMode();
             drawLine();
         }
-
+        updateLocation();
     }
     @Override
     public void onPause() {
@@ -424,6 +428,7 @@ public class MaptabFragment extends Fragment {
 
     //将地图中心移到某点
     public void locateMobile(TrackPoint track){
+        if(mBaiduMap == null) return;
         /**
          *设定中心点坐标
          */
@@ -539,6 +544,7 @@ public class MaptabFragment extends Fragment {
                     //每次循环结束，检查列表（可能被主线程清空）
                     if(trackDataList.isEmpty()) return;
                 }
+                PAUSE = true;
             }
         }
     }
@@ -549,7 +555,11 @@ public class MaptabFragment extends Fragment {
             handleKey key = handleKey.values()[msg.what];
             switch(key){
                 case CHANGEPOINT:
-                    locateMobile((TrackPoint) msg.obj);
+                    try{
+                        locateMobile((TrackPoint) msg.obj);
+                    }catch (Exception e){
+                        
+                    }
                     break;
                 case LOCATEMESSAGE:{
                     if(msg.obj!= null){

@@ -119,7 +119,6 @@ public class RecordActivity extends Activity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        tracksManager.clearTracks();
     }
 
     private void initView(){
