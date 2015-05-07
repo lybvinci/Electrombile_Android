@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -27,6 +26,7 @@ import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.fragment.MaptabFragment;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class RecordActivity extends Activity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate called");
+        //Log.i(TAG, "onCreate called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
@@ -107,13 +107,18 @@ public class RecordActivity extends Activity{
         m_listview.setVisibility(View.INVISIBLE);
 
         if(TracksData.getInstance().getTracksData().size() != 0){
-            Log.i(TAG, "TracksData.getInstance().getTracksData().size()" + TracksData.getInstance().getTracksData().size());
+           // Log.i(TAG, "TracksData.getInstance().getTracksData().size()" + TracksData.getInstance().getTracksData().size());
             m_listview.setVisibility(View.VISIBLE);
             tracksManager.clearTracks();
             tracksManager.setTracksData(TracksData.getInstance().getTracksData());
-            Log.i(TAG, "TrackManager size:" + tracksManager.getTracks().size());
+            //Log.i(TAG, "TrackManager size:" + tracksManager.getTracks().size());
             updateListView();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     private void initView(){
@@ -143,7 +148,7 @@ public class RecordActivity extends Activity{
                 gcStart.set(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
                 startT= gcStart.getTime();
 
-                Log.i(TAG, "timezone:" + gcStart.getTimeZone().getDisplayName() + "Local:" + Locale.getDefault().getDisplayName());
+                //Log.i(TAG, "timezone:" + gcStart.getTimeZone().getDisplayName() + "Local:" + Locale.getDefault().getDisplayName());
 
                 GregorianCalendar gcEnd = new GregorianCalendar(TimeZone.getTimeZone("GMT+08:00"));
                 gcEnd.set(can.get(Calendar.YEAR), can.get(Calendar.MONTH), can.get(Calendar.DAY_OF_MONTH) + 1, 0, 0, 0);
@@ -259,69 +264,67 @@ public class RecordActivity extends Activity{
 //        updateListView();
     }
 
+
     private void findCloud(final Date st, final Date et, int skip) {
-
-
-        Log.i(TAG, "st:" + st.toString() + "++++" + "et" + et.toString() + "++++" + "skip:" + skip);
         totalSkip += skip;
         final int finalSkip = totalSkip;
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
+        String did = sm.getDid();
+            // Log.i(TAG, "did+++++" + did);
         query.setLimit(1000);
-        query.whereEqualTo("did",sm.getDid());
+        query.whereEqualTo("did", did);
         query.whereGreaterThanOrEqualTo("createdAt", startT);
         query.whereLessThan("createdAt", endT);
         query.setSkip(finalSkip);
-        //query.whereEqualTo("objectId", "553c92b0e4b034be7f0d6532");
-        //watiDialog = ProgressDialog.show(this, "正在查询数据，请稍后…");
         watiDialog.setMessage("正在查询数据，请稍后…");
         watiDialog.show();
         query.findInBackground(new FindCallback<AVObject>() {
-            @Override
-            public void done(List<AVObject> avObjects, AVException e) {
-                Log.i(TAG, e + "");
-                if(e == null){
-                    if(avObjects.size() > 0)
-                        Log.e(TAG,"oooooooooooooook--------" + avObjects.size());
-                    if(avObjects.size() == 0){
-                        clearListViewWhenFail();
+           @Override
+           public void done(List<AVObject> avObjects, AVException e) {
+               //  Log.i(TAG, e + "");
+               if (e == null) {
+                   if (avObjects.size() > 0)
+                       //     Log.e(TAG,"oooooooooooooook--------" + avObjects.size());
+                       if (avObjects.size() == 0) {
+                           clearListViewWhenFail();
 
-                        dialog.setTitle("此时间段内没有数据");
-                        dialog.show();
-                        watiDialog.dismiss();
-                        return;
-                    }
-                    for(AVObject thisObject: avObjects){
-                        totalAVObjects.add(thisObject);
-                    }
-                    if(avObjects.size() >= 1000){
-                        Log.d(TAG, "data more than 1000");
-                        findCloud(st, et, 1000);
-                    }
-                    if((totalAVObjects.size() > 1000) && (avObjects.size() < 1000) ||
-                            (totalSkip == 0) && (avObjects.size() < 1000)){
-                        tracksManager.clearTracks();
+                           dialog.setTitle("此时间段内没有数据");
+                           dialog.show();
+                           watiDialog.dismiss();
+                           return;
+                       }
+                   for (AVObject thisObject : avObjects) {
+                       totalAVObjects.add(thisObject);
+                   }
+                   if (avObjects.size() >= 1000) {
+                       //     Log.d(TAG, "data more than 1000");
+                       findCloud(st, et, 1000);
+                   }
+                   if ((totalAVObjects.size() > 1000) && (avObjects.size() < 1000) ||
+                           (totalSkip == 0) && (avObjects.size() < 1000)) {
+                       tracksManager.clearTracks();
 
 //                        //清楚本地数据
-                        TracksData.getInstance().getTracksData().clear();
-                        tracksManager.setTranks(totalAVObjects);
+                       TracksData.getInstance().getTracksData().clear();
+                       tracksManager.setTranks(totalAVObjects);
 
 //                        //更新本地数据
-                        TracksData.getInstance().setTracksData(tracksManager.getTracks());
+                       TracksData.getInstance().setTracksData(tracksManager.getTracks());
 
-                        updateListView();
-                        watiDialog.dismiss();
-                        listItemAdapter.notifyDataSetChanged();
-                    }
+                       updateListView();
+                       watiDialog.dismiss();
+                       listItemAdapter.notifyDataSetChanged();
+                   }
 
-                }else{
-                    clearListViewWhenFail();
+               } else {
+                   clearListViewWhenFail();
 
-                    dialog.setTitle("查询失败");
-                    dialog.show();
-                    watiDialog.dismiss();
-                }
-            }
-        });
+                   dialog.setTitle("查询失败");
+                   dialog.show();
+                   watiDialog.dismiss();
+               }
+           }
+       } );
     }
 
     private void clearListViewWhenFail() {
@@ -331,7 +334,7 @@ public class RecordActivity extends Activity{
     }
 
     private void updateListView(){
-        Log.i(TAG, "update list View");
+     //   Log.i(TAG, "update list View");
         listItem.clear();
         //如果没有数据，弹出对话框
         if(tracksManager.getTracks().size() == 0){
@@ -363,10 +366,11 @@ public class RecordActivity extends Activity{
 
             //计算路程
             double distance = 0;
-            for(int j = 0; j < trackList.size() - 2; j++){
+            for(int j = 0; j < trackList.size() - 1; j++){
                 LatLng m_start = trackList.get(j).point;
                 LatLng m_end = trackList.get(j +1).point;
                 distance += DistanceUtil.getDistance(m_start, m_end);
+
             }
             int distanceKM = (int)(distance / 1000);
             int diatanceM = (int)(distance - distanceKM * 1000);
@@ -400,6 +404,13 @@ private void setCustonViewVisibility(Boolean visible){
             dpBegin.setVisibility(View.INVISIBLE);
             dpEnd.setVisibility(View.INVISIBLE);
             btnOK.setVisibility(View.INVISIBLE);
+        }
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            NetworkUtils.networkDialogNoCancel(this);
         }
     }
 

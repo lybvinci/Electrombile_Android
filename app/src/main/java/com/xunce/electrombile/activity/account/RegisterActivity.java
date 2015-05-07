@@ -22,15 +22,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.InputType;
-import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,13 +40,13 @@ import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.xpg.common.system.IntentUtils;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.common.useful.StringUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-// TODO: Auto-generated Javadoc
 
 /**
  * ClassName: Class RegisterActivity. <br/>
@@ -225,7 +222,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				break;
 
 			case TOAST:
-				ToastUtils.showShort(RegisterActivity.this,"电话已注册");
+                ToastUtils.showShort(RegisterActivity.this, (String) msg.obj);
 				dialog.cancel();
 				break;
 			}
@@ -239,12 +236,18 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		initEvents();
 	}
 
-	/**
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            NetworkUtils.networkDialogNoCancel(this);
+        }
+    }
+
+    /**
 	 * Inits the views.
 	 */
 	private void initViews() {
-		/*tvTips = (TextView) findViewById(R.id.tvTips);
-		tvPhoneSwitch = (TextView) findViewById(R.id.tvPhoneSwitch);*/
 		etName = (EditText) findViewById(R.id.etName);
 		etInputCode = (EditText) findViewById(R.id.etInputCode);
 		etInputPsw = (EditText) findViewById(R.id.etInputPsw);
@@ -253,7 +256,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		btnSure = (Button) findViewById(R.id.btnSure);
 		llInputCode = (LinearLayout) findViewById(R.id.llInputCode);
 		llInputPsw = (LinearLayout) findViewById(R.id.llInputPsw);
-	//	ivBack = (ImageView) findViewById(R.id.ivBack);
 		tbPswFlag = (ToggleButton) findViewById(R.id.tbPswFlag);
 		toogleUI(ui_statue.DEFAULT);
 		dialog = new ProgressDialog(this);
@@ -264,8 +266,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		btnGetCode.setOnClickListener(this);
 		btnReGetCode.setOnClickListener(this);
 		btnSure.setOnClickListener(this);
-		/*tvPhoneSwitch.setOnClickListener(this);*/
-	//	ivBack.setOnClickListener(this);
 		tbPswFlag.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
@@ -274,15 +274,9 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				if (isChecked) {
 					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-//					etInputPsw.setKeyListener(DigitsKeyListener
-//							.getInstance(getResources().getString(
-//                                    R.string.register_name_digits)));
 				} else {
 					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-//					etInputPsw.setKeyListener(DigitsKeyListener
-//							.getInstance(getResources().getString(
-//                                    R.string.register_name_digits)));
 				}
 
 			}
@@ -315,18 +309,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		case R.id.btnSure:
 			doRegister();
 			break;
-		/*case R.id.tvPhoneSwitch:
-			if (isEmail) {
-				toogleUI(ui_statue.PHONE);
-				isEmail = false;
-			} else {
-				toogleUI(ui_statue.EMAIL);
-				isEmail = true;
-			}
-			break;*/
-//		case R.id.ivBack:
-//			onBackPressed();
-//			break;
 		}
 
 	}
@@ -391,11 +373,11 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				Toast.makeText(this, "密码长度应为6~16", Toast.LENGTH_SHORT).show();
 				return;
 			}
-            //leancloud注册
-            loginByLeanCloud(phone, password);
+            setManager.setUserName(phone);
+            setManager.setPassword(password);
 			mCenter.cRegisterPhoneUser(phone, code, password);
-			Log.e("Register", "phone=" + phone + ";code=" + code + ";password="
-                    + password);
+//			Log.e("Register", "phone=" + phone + ";code=" + code + ";password="
+//                    + password);
 			dialog.show();
 		} else {
 			String mail = etName.getText().toString().trim();
@@ -413,7 +395,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				return;
 			}
 			mCenter.cRegisterMailUser(mail, password);
-			Log.e("Register", "mail=" + mail + ";password=" + password);
+			//Log.e("Register", "mail=" + mail + ";password=" + password);
 			dialog.show();
 		}
 
@@ -424,6 +406,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
         AVUser user = new AVUser();
         user.setUsername(phone);
         user.setPassword(password);
+        user.setMobilePhoneNumber(phone);
         user.signUpInBackground(new SignUpCallback() {
             public void done(AVException e) {
                 if (e == null) {
@@ -442,7 +425,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	 *            the phone
 	 */
 	private void sendVerifyCode(final String phone) {
-		// TODO Auto-generated method stub
 		dialog.show();
 		btnReGetCode.setEnabled(false);
 		btnReGetCode.setBackgroundResource(R.drawable.button_gray_short);
@@ -452,7 +434,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				handler.sendEmptyMessage(handler_key.TICK_TIME.ordinal());
 			}
 		}, 1000, 1000);
@@ -469,9 +450,11 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	@Override
 	protected void didRegisterUser(int error, String errorMessage, String uid,
 			String token) {
-		Log.i("error message uid token", error + " " + errorMessage + " " + uid
-                + " " + token);
+//		Log.i("error message uid token", error + " " + errorMessage + " " + uid
+//                + " " + token);
 		if (!uid.equals("") && !token.equals("")) {// 注册成功
+            //leancloud注册
+            loginByLeanCloud(setManager.getUserName(), setManager.getPassword());
 			Message msg = new Message();
 			msg.what = handler_key.REG_SUCCESS.ordinal();
 			msg.obj = "注册成功";
@@ -492,7 +475,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	 */
 	@Override
 	protected void didRequestSendVerifyCode(int error, String errorMessage) {
-		Log.i("error message ", error + " " + errorMessage);
+	//	Log.i("error message ", error + " " + errorMessage);
 		if (error == 0) {// 发送成功
 			Message msg = new Message();
 			msg.what = handler_key.TOAST.ordinal();

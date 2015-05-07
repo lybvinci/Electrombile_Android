@@ -21,8 +21,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
@@ -272,7 +270,6 @@ public class BaseActivity extends Activity {
 	 */
 	protected void didRegisterUser(int error, String errorMessage, String uid,
 			String token) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -285,8 +282,6 @@ public class BaseActivity extends Activity {
 	 *            ssid列表
 	 */
 	protected void didGetSSIDList(int error, List<XPGWifiSSID> ssidInfoList) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -298,7 +293,6 @@ public class BaseActivity extends Activity {
 	 *            设备列表
 	 */
 	protected void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -311,7 +305,6 @@ public class BaseActivity extends Activity {
 	 *            错误信息
 	 */
 	protected void didChangeUserPhone(int error, String errorMessage) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -324,7 +317,6 @@ public class BaseActivity extends Activity {
 	 *            错误信息
 	 */
 	protected void didChangeUserPassword(int error, String errorMessage) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -416,11 +408,11 @@ public class BaseActivity extends Activity {
 	 */
 	public static XPGWifiDevice findDeviceByMac(String mac, String did) {
 		XPGWifiDevice xpgdevice = null;
-		Log.i("count", BaseActivity.devicesList.size() + "");
+	//	Log.i("count", BaseActivity.devicesList.size() + "");
 		for (int i = 0; i < BaseActivity.devicesList.size(); i++) {
 			XPGWifiDevice device = devicesList.get(i);
 			if (device != null) {
-				Log.i("deivcemac", device.getMacAddress());
+				//Log.i("deivcemac", device.getMacAddress());
 				if (device != null && device.getMacAddress().equals(mac)
 						&& device.getDid().equals(did)) {
 					xpgdevice = device;

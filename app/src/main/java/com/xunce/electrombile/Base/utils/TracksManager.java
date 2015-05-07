@@ -22,12 +22,13 @@ import java.util.TimeZone;
 public class TracksManager {
     //private ArrayList<ArrayList<LatLng>> tracks;
     private final String TAG = "TracksManager";
-    private  ArrayList<ArrayList<TrackPoint>> tracks;
+    private  static ArrayList<ArrayList<TrackPoint>> tracks;
 
     private final String KET_TIME = "createdAt";
     private final String KET_LONG = "lon";
     private final String KET_LAT = "lat";
-    private final long MAX_TIMEINRVAL = 60 * 60;//十分钟
+    private final long MAX_TIMEINRVAL = 30 * 60;//30分钟
+    private final long MAX_DISTANCE = 200;//30分钟
     private CmdCenter mCenter;
 
     public  static class TrackPoint {
@@ -61,7 +62,7 @@ public class TracksManager {
         return tracks;
     }
 
-    public void clearTracks(){
+    public static void clearTracks(){
         tracks.clear();
     }
 
@@ -75,9 +76,13 @@ public class TracksManager {
         AVObject lastSavedObject = null;
         LatLng lastSavedPoint = null;
         int counts = 0;
-        ArrayList<TrackPoint> dataList = new ArrayList<TrackPoint>();
-        for(AVObject thisObject: objects){
+        ArrayList<TrackPoint> dataList = null;
 
+        for(AVObject thisObject: objects){
+            if(dataList == null){
+                dataList = new ArrayList<TrackPoint>();
+                tracks.add(dataList);
+            }
             double lat = thisObject.getDouble(KET_LAT);
             double lon = thisObject.getDouble(KET_LONG);
 
@@ -86,34 +91,32 @@ public class TracksManager {
             LatLng bdPoint = mCenter.convertPoint(oldPoint);
 
             //如果本次循环数据跟上一个已保存的数据坐标相同，则跳过
-
-            if(lastSavedObject != null && DistanceUtil.getDistance(lastSavedPoint, bdPoint) < 100){
-//                if(dataList.size() <= 1){
-//                    LatLng pTmp = mCenter.convertPoint(new LatLng(mCenter.parseGPSData((float)thisObject.getDouble(KET_LAT)), mCenter.parseGPSData((float)thisObject.getDouble(KET_LONG))));
-//                    dataList.add(new TrackPoint(thisObject.getCreatedAt(), pTmp));
-//                }
-                Log.i("******", thisObject.getDouble(KET_LAT) + "==?" + lastSavedObject.getDouble(KET_LAT) + "-----counts:" + counts++);
-                counts = 0;
+            double dis = Math.abs(DistanceUtil.getDistance(lastSavedPoint, bdPoint));
+            Log.i("******", dis + "");
+            if(lastSavedObject != null && dis  <= MAX_DISTANCE){
+                //Log.i("","distance should less 200M:::" + dis);
                 continue;
             }
 
-            //如果下一个数据与上一个已保存的数据时间间隔小于MAX_TIMEINRVAL
+            //如果下一个数据与上一个已保存的数据时间间隔大于MAX_TIMEINRVAL
             if(lastSavedObject != null &&((thisObject.getCreatedAt().getTime() - lastSavedObject.getCreatedAt().getTime()) / 1000 >= MAX_TIMEINRVAL)){
                 Log.e("stilllllll point", "");
-                if(dataList.size() > 1) {
+//                if(dataList.size() > 1) {
+//                    tracks.add(dataList);
+//                }
+                if(tracks.get(tracks.size() - 1).size() <= 1)
+                    tracks.remove(tracks.size() - 1);
+                    dataList = new ArrayList<TrackPoint>();
                     tracks.add(dataList);
                 }
-                    dataList = new ArrayList<TrackPoint>();
-                    lastSavedObject = thisObject;
-            }
 
             //打印当前点信息
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-            Log.i("ddd", "objid:" + thisObject.getObjectId() +
-                    "lat:" + thisObject.getDouble(KET_LAT) +
-                    "lon" + thisObject.getDouble(KET_LONG) +
-                    "time" + sdf.format(thisObject.getCreatedAt().getTime()));
+//            Log.i("ddd", "objid:" + thisObject.getObjectId() +
+//                    "lat:" + thisObject.getDouble(KET_LAT) +
+//                    "lon" + thisObject.getDouble(KET_LONG) +
+//                    "time" + sdf.format(thisObject.getCreatedAt().getTime()));
 
             TrackPoint p = new TrackPoint(thisObject.getCreatedAt(), bdPoint);
             if(isOutOfHubei(bdPoint)){
@@ -126,6 +129,10 @@ public class TracksManager {
 
         }
 
+        //当只有一个列表且列表内只有一个数据时，移除
+        if(tracks.size() == 1 && tracks.get(0).size() <= 1){
+            tracks.remove(tracks.size() - 1);
+        }
         Log.i(TAG, "tracks size:" + tracks.size());
     }
 }

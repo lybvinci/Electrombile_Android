@@ -92,5 +92,8 @@
     <string name="logout">logout</string>
     <string name="dialog_call_sure_to_logout">sure logout？</string>
     <string name="company_name">武汉小安科技有限公司</string>
+    <string name="bindErrorSet">Not binding equipment, whether to binding equipment?</string>
+    <string name="bindSet">Binding equipment prompt</string>
+    <string name="goBind">GoBind</string>
 
 </resources>

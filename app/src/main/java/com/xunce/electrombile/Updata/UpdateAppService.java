@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.FragmentActivity;
@@ -34,30 +33,25 @@ public class UpdateAppService extends Service{
     private PendingIntent pendingIntent,updatePendingIntent;
     @Override
     public void onCreate() {
-        // TODO Auto-generated method stub
         super.onCreate();
         context = getApplicationContext();
         CreateInform();
     }
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO Auto-generated method stub
         return null;
     }
     @Override
     public void onStart(Intent intent, int startId) {
-        // TODO Auto-generated method stub
         super.onStart(intent, startId);
 
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // TODO Auto-generated method stub
         return super.onStartCommand(intent, flags, startId);
     }
     @Override
     public void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
     }
     //创建通知
@@ -82,7 +76,9 @@ public class UpdateAppService extends Service{
         public void run() {
             // TODO Auto-generated method stub
             try {
-                DownLoadApp("http://fir.im/api/v2/app/install/5531cb8eddfef0bb3e000a78?token=6d5d9e60e56f11e492cf97620aa3a7444608b774");
+              //test  DownLoadApp("http://fir.im/api/v2/app/install/554331e6bf7f222c2600493b?token=39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
+             //正式链接
+                DownLoadApp("http://fir.im/api/v2/app/install/553ca95096a9fc5c14001802?token=39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -113,8 +109,14 @@ public class UpdateAppService extends Service{
 
                 }
                 if (downnum==length) {
-                    notification.setLatestEventInfo(context, "已下载完成传安全宝", "点击安装", updatePendingIntent);
+                  //  notification.setLatestEventInfo(context, "已下载完成传安全宝", "点击安装", updatePendingIntent);
                     nManager.notify(100, notification);
+                    Intent intent1 = new Intent();
+                    intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent1.setAction(android.content.Intent.ACTION_VIEW);
+                    intent1.setDataAndType(Uri.fromFile(file),
+                            "application/vnd.android.package-archive");
+                    startActivity(intent1);
                     Intent stopservice=new Intent(context,UpdateAppService.class);
                     stopService(stopservice);
                 }

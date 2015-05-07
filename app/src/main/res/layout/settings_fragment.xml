@@ -48,18 +48,7 @@
             android:textColor="@color/black"/>
     </LinearLayout>
 
-    <!--<LinearLayout-->
-        <!--android:id="@+id/layout_relieve_bind"-->
-        <!--android:layout_below="@+id/layout_bind"-->
-        <!--android:layout_marginTop="1dp"-->
-        <!--style="@style/clickableLayout">-->
-        <!--<ImageView-->
-            <!--style="@style/settings_fragment_iv"-->
-            <!--android:src="@drawable/setting_tel"/>-->
-        <!--<TextView-->
-            <!--style="@style/clickableLayoutTextview"-->
-            <!--android:text="解除绑定"/>-->
-    <!--</LinearLayout>-->
+
 
     <LinearLayout
         android:id="@+id/layout_help"
@@ -73,6 +62,18 @@
             style="@style/clickableLayoutTextview"
             android:text="使用帮助"
             android:textColor="@color/black"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_about"
+        android:layout_below="@+id/layout_help"
+        android:layout_marginTop="1dp"
+        style="@style/clickableLayout">
+        <ImageView
+            style="@style/settings_fragment_iv"
+            android:src="@drawable/setting_tel"/>
+        <TextView
+            style="@style/clickableLayoutTextview"
+            android:text="关于与反馈"/>
     </LinearLayout>
     <!--<LinearLayout-->
         <!--android:id="@+id/layout_login_again"-->

@@ -1,9 +1,12 @@
 package com.xunce.electrombile.fragment;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import android.widget.LinearLayout;
 import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BindingActivity;
+import com.xunce.electrombile.activity.AboutActivity;
 import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
 import com.xunce.electrombile.service.GPSDataService;
@@ -22,9 +26,10 @@ import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 public class SettingsFragment extends BaseFragment implements View.OnClickListener {
 
     private static String TAG = "SettingsFragment:";
+    private Context m_context;
    // private LinearLayout btnPhoneNumber;
     private LinearLayout btnBind;
- //   private LinearLayout btnRelieveBind;
+    private LinearLayout btnAbout;
     private LinearLayout btnHelp;
   //  private LinearLayout login_again;
     private Button btnLogout;
@@ -34,7 +39,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-        Log.i(TAG, "onCreateView called!");
+      //  Log.i(TAG, "onCreateView called!");
         initView();
 
 		return inflater.inflate(R.layout.settings_fragment, container, false);
@@ -45,10 +50,16 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
         super.onViewCreated(view, savedInstanceState);
      //   view.findViewById(R.id.layout_phone_number).setOnClickListener(this);
         view.findViewById(R.id.layout_bind).setOnClickListener(this);
-       // view.findViewById(R.id.layout_relieve_bind).setOnClickListener(this);
+        view.findViewById(R.id.layout_about).setOnClickListener(this);
         view.findViewById(R.id.layout_help).setOnClickListener(this);
         view.findViewById(R.id.btn_logout).setOnClickListener(this);
       //  view.findViewById(R.id.layout_login_again).setOnClickListener(this);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        m_context = activity;
     }
 
     @Override
@@ -57,59 +68,53 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
         switch (id) {
             case R.id.layout_bind:
                 //systemBtnClicked();
-                if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())){
-                    if(mXpgWifiDevice == null) {
-                        Log.i(TAG, "clicked item layout_relieve_bind");
+                if(NetworkUtils.isNetworkConnected(m_context)){
+                    if(setManager.getDid().isEmpty()) {
+                  //      Log.i(TAG, "clicked item layout_relieve_bind");
                         setManager.cleanDevice();
-                        Intent intentStartBinding = new Intent(getActivity().getApplicationContext(), BindingActivity.class);
+                        Intent intentStartBinding = new Intent(m_context, BindingActivity.class);
                         startActivity(intentStartBinding);
                     }else{
-//                        Log.i("UIDDDDD",setManager.getDid());
-//                        Log.i("tkeonDDD",setManager.getToken());
                         System.out.println(setManager.getDid() +"aaaaaaaaaaa");
-                        ToastUtils.showShort(getActivity().getApplicationContext(),"设备已绑定");
+                        ToastUtils.showShort(m_context,"设备已绑定");
                     }
                 }else{
-                    ToastUtils.showShort(getActivity().getApplicationContext(),"网络连接错误");
+                    ToastUtils.showShort(m_context,"网络连接错误");
                     }
                 break;
-//            case R.id.layout_relieve_bind:
-//                if(NetworkUtils.isNetworkConnected(getActivity().getApplicationContext())) {
-//                    if (mXpgWifiDevice.isConnected()) {
-//                        mCenter.cUnbindDevice(setManager.getUid(), setManager.getToken(), setManager.getDid(), setManager.getPassCode());
-//                        mCenter.cDisconnect(mXpgWifiDevice);
-//                    }else{
-//                        ToastUtils.showShort(getActivity().getApplicationContext(), "请尝试连接网络或先绑定设备");
-//                    }
-//                }else{
-//                ToastUtils.showShort(getActivity().getApplicationContext(), "网络连接错误");
-//                }
-//                break;
-//            case R.id.layout_phone_number:
-//                mCenter.cGetStatus(mXpgWifiDevice);
-//                break;
             case R.id.layout_help:
-                Intent intentHelp = new Intent(getActivity().getApplicationContext(), HelpActivity.class);
+                Intent intentHelp = new Intent(m_context, HelpActivity.class);
                 startActivity(intentHelp);
 
                 break;
             case R.id.btn_logout:
-           //     mCenter.cLogout();
-//                setManager.cleanAll();
-                setManager.cleanAll();
-                Intent intentStartLogin = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
-                startActivity(intentStartLogin);
-                getActivity().stopService(new Intent(getActivity().getApplicationContext(), GPSDataService.class));
-                GPSDataService.isRunning = false;
-                getActivity().finish();
+                AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                        .setTitle("退出登录")
+                        .setMessage("退出登录将清除所有已有账户及已经绑定的设备\n确定退出么？")
+                        .setPositiveButton("否",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+
+                                    }
+                                }).setNegativeButton("是", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                setManager.cleanAll();
+                                Intent intentStartLogin = new Intent(m_context, LoginActivity.class);
+                                startActivity(intentStartLogin);
+                                getActivity().stopService(new Intent(m_context, GPSDataService.class));
+                                GPSDataService.isRunning = false;
+                                getActivity().finish();
+                            }
+                        }).create();
+                dialog.show();
                 break;
-//            case R.id.layout_login_again:
-//                if(!mXpgWifiDevice.isConnected() && setManager.getDid() !=null && setManager.getPassCode() !=null) {
-//                    loginHandler.sendEmptyMessage(loginHandler_key.START_LOGIN.ordinal());
-//                }else{
-//                    ToastUtils.showShort(getActivity().getApplicationContext(),"未绑定或已登陆设备");
-//                }
-//                break;
+            case R.id.layout_about:
+                Intent intentAbout = new Intent(m_context, AboutActivity.class);
+                startActivity(intentAbout);
+                break;
             default:
                 break;
         }
@@ -117,7 +122,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
     private void initView() {
         //btnPhoneNumber = (LinearLayout)getActivity().findViewById(R.id.layout_phone_number);
         btnBind = (LinearLayout)getActivity().findViewById(R.id.layout_bind);
-     //   btnRelieveBind = (LinearLayout)getActivity().findViewById(R.id.layout_relieve_bind);
+        btnAbout = (LinearLayout)getActivity().findViewById(R.id.layout_about);
         btnHelp = (LinearLayout)getActivity().findViewById(R.id.layout_help);
         btnLogout = (Button)getActivity().findViewById(R.id.btn_logout);
   //      login_again = (LinearLayout) getActivity().findViewById(R.id.layout_login_again);

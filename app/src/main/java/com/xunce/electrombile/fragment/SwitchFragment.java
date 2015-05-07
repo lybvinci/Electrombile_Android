@@ -1,8 +1,10 @@
 package com.xunce.electrombile.fragment;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -38,6 +40,7 @@ import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultListener {
 
     private static String TAG = "SwitchFragment:";
+    private Context m_context;
     private final int IS_FINISH = 1;
     private boolean systemState = false;
     private boolean alarmState = false;
@@ -57,14 +60,29 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     //textview 设置当前位置
     private TextView switch_fragment_tvLocation;
 
+    private LocationTVClickedListener locationTVClickedListener;
 
+
+    public interface LocationTVClickedListener{
+        public void locationTVClicked();
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        m_context = activity;
+        try{
+            locationTVClickedListener =(LocationTVClickedListener)activity;
+        }catch(ClassCastException e){
+            throw new ClassCastException(activity.toString()+"must implement OnArticleSelectedListener");
+        }
+    }
     @Override
     public void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
         // 初始化搜索模块，注册事件监听
         mSearch = GeoCoder.newInstance();
         mSearch.setOnGetGeoCodeResultListener(this);
-
     }
 
     @Override
@@ -73,6 +91,12 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         btnSystem = (ToggleButton) getActivity().findViewById(R.id.btn_SystemState);
 
         switch_fragment_tvLocation = (TextView) getActivity().findViewById(R.id.switch_fragment_tvLocation);
+        switch_fragment_tvLocation.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                locationTVClickedListener.locationTVClicked();
+            }
+        });
         iv_SystemState = (ImageView) getActivity().findViewById(R.id.iv_SystemState);
         if(setManager.getAlarmFlag()){
             showNotification("安全宝防盗系统已启动");
@@ -94,54 +118,62 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     @Override
     public void onResume() {
         super.onResume();
+     //   Log.i("BAOJING","CHAKAN");
+        if(setManager.getAlarmFlag()){
+            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+            btnSystem.setChecked(false);
+        }else{
+            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+            btnSystem.setChecked(true);
+        }
 
     }
 
     private void safeBtn(boolean b) {
         if(!b){
-            Log.i("SBBBBBBBBBBB","sbbbbbbbbbbbbbbbbbbbb");
+           // Log.i("SBBBBBBBBBBB","sbbbbbbbbbbbbbbbbbbbb");
             //按下以后，isChecked 就是true 就是已经按下了。
             //如果有网络
-            if(NetworkUtils.isNetworkConnected(getActivity())) {
-                Log.d(TAG, "check net success!");
-                if (mXpgWifiDevice != null) {
-                    Log.d(TAG, "device success!");
+            if(NetworkUtils.isNetworkConnected(m_context)) {
+             //   Log.d(TAG, "check net success!");
+                if (!setManager.getDid().isEmpty()) {
+               //     Log.d(TAG, "device success!");
                     setManager.setAlarmFlag(true);
                     cancelNotification();
                     VibratorUtil.Vibrate(getActivity(), 700);
                     showNotification("安全宝防盗系统已启动");
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                 } else {
-                    Log.d(TAG, "device failed!");
-                    ToastUtils.showShort(getActivity().getApplicationContext(), "请先绑定设备");
+                 //   Log.d(TAG, "device failed!");
+                    ToastUtils.showShort(m_context, "请先绑定设备");
                     btnSystem.setChecked(false);
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                 }
             }else{
-                ToastUtils.showShort(getActivity().getApplicationContext(), "网络连接失败");
+                ToastUtils.showShort(m_context, "网络连接失败");
                 btnSystem.setChecked(false);
                 //btnSystem.set
                 iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
             }
         }else {
-            Log.d(TAG, "compoundButton notChecked()");
-            if (mXpgWifiDevice != null)
+          //  Log.d(TAG, "compoundButton notChecked()");
+            if (!setManager.getDid().isEmpty())
             {
-                if (NetworkUtils.isNetworkConnected(getActivity())) {
+                if (NetworkUtils.isNetworkConnected(m_context)) {
                     cancelNotification();
                     showNotification("安全宝防盗系统已关闭");
                     VibratorUtil.Vibrate(getActivity(), 500);
                     setManager.setAlarmFlag(false);
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                 } else {
-                    ToastUtils.showShort(getActivity().getApplicationContext(), "网络连接失败");
+                    ToastUtils.showShort(m_context, "网络连接失败");
                     btnSystem.setChecked(true);
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                 }
         }else{
                 btnSystem.setChecked(true);
                 iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-                ToastUtils.showShort(getActivity().getApplicationContext(), "请等待设备绑定");
+                ToastUtils.showShort(m_context, "请等待设备绑定");
             }
         }
     }
@@ -149,7 +181,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.i(TAG, "onCreateView called!");
+     //   Log.i(TAG, "onCreateView called!");
 
         return inflater.inflate(R.layout.switch_fragment, container, false);
     }
@@ -173,21 +205,21 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
 
     //显示常驻通知栏
     public void showNotification(String text){
-        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(getActivity().
+        NotificationManager notificationManager = (NotificationManager) m_context.getSystemService(m_context.
                 getApplicationContext()
                 .NOTIFICATION_SERVICE);
         Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
         //下面这句用来自定义通知栏
         //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
-        Intent intent = new Intent(getActivity().getApplicationContext(),FragmentActivity.class);
+        Intent intent = new Intent(m_context,FragmentActivity.class);
         notification.flags = Notification.FLAG_ONGOING_EVENT;
-        PendingIntent contextIntent = PendingIntent.getActivity(getActivity().getApplicationContext(),0,intent,0);
-        notification.setLatestEventInfo(getActivity().getApplicationContext(),"安全宝",text,contextIntent);
+        PendingIntent contextIntent = PendingIntent.getActivity(m_context,0,intent,0);
+        notification.setLatestEventInfo(m_context,"安全宝",text,contextIntent);
         notificationManager.notify(R.string.app_name, notification);
     }
     //取消显示常驻通知栏
     void cancelNotification(){
-        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(getActivity().
+        NotificationManager notificationManager = (NotificationManager) m_context.getSystemService(m_context.
                 getApplicationContext()
                 .NOTIFICATION_SERVICE);
         notificationManager.cancel(R.string.app_name);
