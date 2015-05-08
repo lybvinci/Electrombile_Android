@@ -6,10 +6,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +15,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.baidu.mapapi.model.LatLng;
@@ -31,9 +27,7 @@ import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.UniversalTool.VibratorUtil;
-import com.xunce.electrombile.activity.AlarmActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
-import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -136,13 +130,15 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             //如果有网络
             if(NetworkUtils.isNetworkConnected(m_context)) {
              //   Log.d(TAG, "check net success!");
-                if (!setManager.getDid().isEmpty()) {
+                if (!setManager.getIMEI().isEmpty()) {
                //     Log.d(TAG, "device success!");
                     setManager.setAlarmFlag(true);
                     cancelNotification();
                     VibratorUtil.Vibrate(getActivity(), 700);
                     showNotification("安全宝防盗系统已启动");
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+                    FragmentActivity.pushService.sendMessage1(mCenter.cFenceAdd((char) 0x0001));
+                  //  FragmentActivity.pushService.sendMessage1("liyanbo");
                 } else {
                  //   Log.d(TAG, "device failed!");
                     ToastUtils.showShort(m_context, "请先绑定设备");
@@ -157,7 +153,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             }
         }else {
           //  Log.d(TAG, "compoundButton notChecked()");
-            if (!setManager.getDid().isEmpty())
+            if (!setManager.getIMEI().isEmpty())
             {
                 if (NetworkUtils.isNetworkConnected(m_context)) {
                     cancelNotification();

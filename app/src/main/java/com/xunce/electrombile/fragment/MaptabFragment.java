@@ -4,15 +4,12 @@ package com.xunce.electrombile.fragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -271,7 +268,7 @@ public class MaptabFragment extends Fragment {
     }
 
     private boolean checkBind() {
-        if(settingManager.getDid().isEmpty()){
+        if(settingManager.getIMEI().isEmpty()){
             didDialog.show();
             return true;
         }
@@ -470,7 +467,7 @@ public class MaptabFragment extends Fragment {
 
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1);
-        String did = new SettingManager(m_context).getDid();
+        String did = new SettingManager(m_context).getIMEI();
         query.whereEqualTo("did",did) ;
         query.whereLessThanOrEqualTo("createdAt", Calendar.getInstance().getTime());
         query.orderByDescending("createdAt");

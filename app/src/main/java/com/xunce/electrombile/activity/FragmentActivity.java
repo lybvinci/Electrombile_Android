@@ -7,22 +7,30 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.FindCallback;
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
@@ -57,6 +65,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
+import com.xunce.electrombile.service.PushService;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -96,6 +105,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     //接收广播
     private MyReceiver receiver;
     private SettingManager setManager;
+    //推送通知用的
+    public static  PushService pushService;
 
 
 
@@ -115,20 +126,75 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
         //注册广播
         registerBroadCast();
-        if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
-            if(!GPSDataService.isRunning && !setManager.getDid().isEmpty()){
-                Intent localIntent = new Intent();
-                localIntent.setClass(this,GPSDataService.class);
-                this.startService(localIntent);
-            }
-            //    startService(new Intent(FragmentActivity.this, GPSDataService.class));
-        }
-        if(setManager.getDid().isEmpty()){
-            ToastUtils.showShort(this,"请先绑定设备");
+//        if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
+//            if(!GPSDataService.isRunning && !setManager.getIMEI().isEmpty()){
+//                Intent localIntent = new Intent();
+//                localIntent.setClass(this,GPSDataService.class);
+//                this.startService(localIntent);
+//            }
+//            //    startService(new Intent(FragmentActivity.this, GPSDataService.class));
+//        }
+
+        if(setManager.getIMEI().isEmpty()){
+            AVQuery<AVObject> query = new AVQuery<AVObject>("Bindings");
+            final AVUser currentUser = AVUser.getCurrentUser();
+            query.whereEqualTo("user",currentUser);
+            query.findInBackground(new FindCallback<AVObject>() {
+                @Override
+                public void done(List<AVObject> avObjects, AVException e) {
+                    if(e == null && avObjects.size() > 0){
+                        setManager.setIMEI((String) avObjects.get(0).get("IMEI"));
+                        Log.i(TAG, setManager.getIMEI());
+                        //启动服务
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent("com.xunce.electrombile.service.PushService.MSG_ACTION");
+                                bindService(intent, conn, Context.BIND_AUTO_CREATE);
+                            }
+                        }).start();
+
+                        Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
+                        ToastUtils.showShort(FragmentActivity.this, "设备登陆成功");
+                    }else{
+                        Log.d("失败", "查询错误2: " + e.getMessage());
+                        ToastUtils.showShort(FragmentActivity.this, "请先绑定设备");
+                    }
+                }
+            });
+
         }else{
+            Log.i(TAG, setManager.getIMEI());
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent("com.xunce.electrombile.service.PushService.MSG_ACTION");
+                    bindService(intent, conn, Context.BIND_AUTO_CREATE);
+                }
+            }).start();
+
             ToastUtils.showShort(this,"登陆成功");
         }
+
+
+
     }
+
+    //my service
+    ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            //返回一个MsgService实例
+            pushService = ((PushService.MsgBinder)service).getService();
+
+        }
+    };
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -136,6 +202,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             NetworkUtils.networkDialog(this,true);
         }
     }
+
 
     private void registerBroadCast() {
         receiver = new MyReceiver();
@@ -331,7 +398,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         ISSTARTED = false;
         cancelNotification();
         unregisterReceiver(receiver);
-        TracksManager.clearTracks();
+        if(!setManager.getIMEI().isEmpty()) {
+            pushService.actionStop(this);
+            unbindService(conn);
+        }
+        if(TracksManager.getTracks() !=null) TracksManager.clearTracks();
         super.onDestroy();
     }
 
@@ -477,24 +548,29 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     public class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-          //  Log.i(TAG,"我的接收调用了？？？？？？");
-            Bundle bundle=intent.getExtras();
-            float Flat = bundle.getFloat("LAT");
-            float Flong = bundle.getFloat("LONG");
-            String date = bundle.getString("DATE");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-            TracksManager.TrackPoint trackPoint = null;
-            try {
-                trackPoint  = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
-            } catch (ParseException e) {
-                e.printStackTrace();
+            Log.i(TAG, "我的接收调用了？？？？？？");
+            Bundle bundle = intent.getExtras();
+            boolean cmdOrGPS = bundle.getBoolean("CMDORGPS");
+            if (!cmdOrGPS) {
+                float Flat = bundle.getFloat("LAT");
+                float Flong = bundle.getFloat("LONG");
+                String date = bundle.getString("DATE");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+                TracksManager.TrackPoint trackPoint = null;
+                try {
+                    trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
+                if (!maptabFragment.isPlaying) {
+                    maptabFragment.locateMobile(trackPoint);
+                }
+                switchFragment.reverserGeoCedec(trackPoint.point);
+            } else {
+                ToastUtils.showShort(FragmentActivity.this, "设置成功");
             }
-            //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
-            if (!maptabFragment.isPlaying) {
-                maptabFragment.locateMobile(trackPoint);
-            }
-            switchFragment.reverserGeoCedec(trackPoint.point);
         }
     }
 

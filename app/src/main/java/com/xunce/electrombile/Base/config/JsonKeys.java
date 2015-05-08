@@ -17,7 +17,6 @@
  */
 package com.xunce.electrombile.Base.config;
 
-// TODO: Auto-generated Javadoc
 /**
  * 
  * ClassName: Class JsonKeys. <br/>

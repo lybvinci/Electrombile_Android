@@ -142,7 +142,7 @@ public class NetworkUtils {
         return dialog;
     }
     //提醒设置网络并且没有取消按钮
-    public static void networkDialogNoCancel(final Context context) {
+    public static AlertDialog.Builder networkDialogNoCancel(final Context context) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(R.string.networkErrorSet)
                 .setCancelable(false)
@@ -162,6 +162,7 @@ public class NetworkUtils {
                         context.startActivity(intent);
                     }
                 }).show();
+        return builder;
     }
 
     //网络设置同时需要跳转页面的

@@ -18,6 +18,7 @@
 package com.xunce.electrombile.activity.account;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -27,6 +28,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.LogInCallback;
+import com.avos.avoscloud.LogUtil;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
@@ -121,7 +126,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 			// 登录超时
 			case LOGIN_TIMEOUT:
 				handler.removeMessages(handler_key.LOGIN_TIMEOUT.ordinal());
-				Toast.makeText(LoginActivity.this, "登陆超时", Toast.LENGTH_SHORT)
+				Toast.makeText(LoginActivity.this, "登陆超时,请检查网络连接！", Toast.LENGTH_SHORT)
 						.show();
 				dialog.cancel();
 				break;
@@ -129,34 +134,19 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 		}
 	};
 
-	/*
-	 * @see
-	 * com.gizwits.aircondition.activity.BaseActivity#onCreate(android.os.Bundle
-	 * )
-	 */
-	/* (non-Javadoc)
-	 * @see com.gizwits.framework.activity.BaseActivity#onCreate(android.os.Bundle)
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		initViews();
-		initEvents();
+        super.onCreate(savedInstanceState);
 	}
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(!NetworkUtils.isNetworkConnected(this)){
-            NetworkUtils.networkDialog(this,true);
-        }
-    }
+
 
     /**
 	 * 初始化交互监听器.
 	 */
-	private void initEvents() {
+    @Override
+	 public void initEvents() {
 
 		tvForgot.setOnClickListener(this);
 		btnLogin.setOnClickListener(this);
@@ -167,7 +157,8 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 	/**
 	 * 初始化空间.
 	 */
-	private void initViews() {
+    @Override
+	public void initViews() {
 		etName = (EditText) findViewById(R.id.etName);
 		etPsw = (EditText) findViewById(R.id.etPsw);
 		tvForgot = (Button) findViewById(R.id.tvForgot);
@@ -182,12 +173,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 
 	}
 
-	/*
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 */
-	/* (non-Javadoc)
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 */
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -197,64 +182,72 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 					ForgetPswActivity.class);
 			break;
 		case R.id.btnLogin:
-			// 登陆
-			if (StringUtils.isEmpty(etName.getText().toString())) {
-				Toast.makeText(this, "请输入用户名", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (StringUtils.isEmpty(etPsw.getText().toString())) {
-				Toast.makeText(this, "请输入密码", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			dialog.show();
-			final String psw = etPsw.getText().toString().trim();
-			final String name = etName.getText().toString().trim();
-			// 调用登陆方法
-			mCenter.cLogin(name, psw);
-			// 15秒后登陆超时
-			handler.sendEmptyMessageDelayed(
-					handler_key.LOGIN_TIMEOUT.ordinal(), 15000);
+            //登陆方法
+            mLogin();
 			break;
 		case R.id.btnRegister:
 				// 打开注册Activity
-				IntentUtils.getInstance().startActivity(this,
-						RegisterActivity.class);
+			IntentUtils.getInstance().startActivity(this,
+					RegisterActivity.class);
 			break;
 		}
 
 	}
 
-	/*
-	 * @see com.gizwits.framework.activity.BaseActivity#didUserLogin(int,
-	 * java.lang.String, java.lang.String, java.lang.String)
-	 */
-	/* (non-Javadoc)
-	 * @see com.gizwits.framework.activity.BaseActivity#didUserLogin(int, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	@Override
-	protected void didUserLogin(int error, String errorMessage, String uid,
-			String token) {
-		if (!uid.isEmpty() && !token.isEmpty()) {// 登陆成功
-			setManager.setUserName(etName.getText().toString().trim());
-			setManager.setPassword(etPsw.getText().toString().trim());
-			setManager.setUid(uid);
-			setManager.setToken(token);
-			handler.sendEmptyMessage(handler_key.LOGIN_SUCCESS.ordinal());
-		} else {// 登陆失败
-			Message msg = new Message();
-			msg.what = handler_key.LOGIN_FAIL.ordinal();
-			msg.obj = errorMessage;
-			handler.sendMessage(msg);
-        //    Log.i("loginActivity",errorMessage.toString());
-		}
-	}
+    private void mLogin() {
+        // 登陆
+        if (StringUtils.isEmpty(etName.getText().toString())) {
+            Toast.makeText(this, "请输入用户名", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (StringUtils.isEmpty(etPsw.getText().toString())) {
+            Toast.makeText(this, "请输入密码", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        dialog.show();
+        final String psw = etPsw.getText().toString().trim();
+        final String name = etName.getText().toString().trim();
+        handler.sendEmptyMessageDelayed(
+                handler_key.LOGIN_TIMEOUT.ordinal(), 15000);
+        // 调用登陆方法
+        AVUser.logInInBackground(name, psw, new LogInCallback<AVUser>() {
+            @Override
+            public void done(AVUser avUser, AVException e) {
+                if (e != null) {
+                    LogUtil.log.i(e.toString());
+                    if (AVException.CONNECTION_FAILED != e.getCode()) {
+                        handler.sendEmptyMessage(handler_key.LOGIN_FAIL.ordinal());
+                    } else {
+                        handler.sendEmptyMessage(handler_key.LOGIN_TIMEOUT.ordinal());
+                    }
+                } else {
+                    if (avUser != null) {
+						setManager.setPhoneNumber(avUser.getMobilePhoneNumber());
+                        handler.sendEmptyMessage(handler_key.LOGIN_SUCCESS.ordinal());
+                    } else {
+                        handler.sendEmptyMessage(handler_key.LOGIN_FAIL.ordinal());
+                    }
+                }
+            }
+        });
+    }
 
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onBackPressed()
-	 */
 	@Override
 	public void onBackPressed() {
 		exit();
 	}
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            if(builder == null) {
+                builder = NetworkUtils.networkDialogNoCancel(this);
+            }else{
+                builder.show();
+            }
+        }else{
+            builder = null;
+        }
+    }
 
 }

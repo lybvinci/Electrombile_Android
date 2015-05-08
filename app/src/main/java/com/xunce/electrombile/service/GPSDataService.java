@@ -57,7 +57,7 @@ public class GPSDataService extends Service{
         /** 获取设备状态 */
         GET_STATUE,
         //手动获取数据
-        SHOUDONGREC,
+       MANUALREC,
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -96,7 +96,7 @@ public class GPSDataService extends Service{
             super.handleMessage(msg);
             handler_key key = handler_key.values()[msg.what];
             switch (key) {
-                case SHOUDONGREC:
+                case MANUALREC:
                     receivedManual();
                     break;
             }
@@ -105,7 +105,6 @@ public class GPSDataService extends Service{
 
     //手动拉取数据，进行判断
     private void receivedManual() {
-      //  LogUtil.log.i( "SHOUDONGREC");
         double distance = 0;
         if(pointOld != null) {
             distance = Math.abs(DistanceUtil.getDistance(pointOld, pointNew));
@@ -154,7 +153,7 @@ public class GPSDataService extends Service{
             isRunning = true;
             while(true){
                 if(NetworkUtils.isNetworkConnected(GPSDataService.this)) {
-                    if(!setManager.getDid().isEmpty()) {
+                    if(!setManager.getIMEI().isEmpty()) {
                         getLatestData();
                         try {
                             sleep(45000);
@@ -163,14 +162,14 @@ public class GPSDataService extends Service{
                         }
                     }else{
                         try {
-                            sleep(45000);
+                            sleep(30000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
                 }else{
                     try {
-                        sleep(45000);
+                        sleep(30000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -182,7 +181,9 @@ public class GPSDataService extends Service{
     public void getLatestData(){
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1);
-        query.whereEqualTo("did", setManager.getDid());
+        query.whereEqualTo("did", setManager.getIMEI());
+        if(setManager.getIMEI().isEmpty())
+            return;
         query.whereLessThan("createdAt", Calendar.getInstance().getTime());
         query.orderByDescending("createdAt");
         query.findInBackground(new FindCallback<AVObject>() {
@@ -199,7 +200,7 @@ public class GPSDataService extends Service{
 
                     pointNew = mCenter.convertPoint(new LatLng(fLat, fLong));
                  //   LogUtil.log.i("GPSDDDDDDDDDDDDDDDD" + pointNew.toString());
-                    Handler.sendEmptyMessage(handler_key.SHOUDONGREC.ordinal());
+                    Handler.sendEmptyMessage(handler_key.MANUALREC.ordinal());
                 }
             }
         });

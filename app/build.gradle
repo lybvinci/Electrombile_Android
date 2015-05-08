@@ -6,9 +6,9 @@ android {
 
     defaultConfig {
         applicationId "com.xunce.electrombile"
-        minSdkVersion 15
-        targetSdkVersion 22
-        versionCode 17
+        minSdkVersion 9
+       // targetSdkVersion 3
+        versionCode 16
         versionName "2.2"
     }
     buildTypes {
@@ -24,9 +24,9 @@ dependencies {
     compile 'com.android.support:support-v4:22.0.0'
     compile files('libs/ZxingScanner.jar')
     compile files('libs/BaiduLBS_Android.jar')
-    compile files('libs/XPGWiFiSDK.jar')
     compile files('libs/avoscloud-sdk-v3.1.5.jar')
     compile files('libs/feedback_v6.jar')
+    compile files('libs/wmqtt.jar')
 }
 android{
         signingConfigs {

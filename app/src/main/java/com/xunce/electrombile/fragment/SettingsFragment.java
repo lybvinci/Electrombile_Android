@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+
+import com.avos.avoscloud.AVUser;
 import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BindingActivity;
@@ -69,13 +71,13 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
             case R.id.layout_bind:
                 //systemBtnClicked();
                 if(NetworkUtils.isNetworkConnected(m_context)){
-                    if(setManager.getDid().isEmpty()) {
+                    if(setManager.getIMEI().isEmpty()) {
                   //      Log.i(TAG, "clicked item layout_relieve_bind");
                         setManager.cleanDevice();
                         Intent intentStartBinding = new Intent(m_context, BindingActivity.class);
                         startActivity(intentStartBinding);
                     }else{
-                        System.out.println(setManager.getDid() +"aaaaaaaaaaa");
+                        System.out.println(setManager.getIMEI() +"aaaaaaaaaaa");
                         ToastUtils.showShort(m_context,"设备已绑定");
                     }
                 }else{
@@ -106,6 +108,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                                 startActivity(intentStartLogin);
                                 getActivity().stopService(new Intent(m_context, GPSDataService.class));
                                 GPSDataService.isRunning = false;
+                                AVUser.logOut();
                                 getActivity().finish();
                             }
                         }).create();

@@ -20,10 +20,6 @@ package com.xunce.electrombile.Base.sdk;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.xunce.electrombile.Base.utils.TracksManager;
-
-import java.util.ArrayList;
-
 // TODO: Auto-generated Javadoc
 
 /**
@@ -71,8 +67,7 @@ public class SettingManager {
 	static String filter = "=====";
 
     //did
-    private final String DID = "did";
-    private final String PASSCODE = "passCode";
+    private final String IMEI = "imie";
 
     //TracksData
     private final String TRACKSDATA = "tracksData";
@@ -98,13 +93,11 @@ public class SettingManager {
 		setPhoneNumber("");
 		setPassword("");
 		setUserName("");
-        setDid("");
-        setPassCode("");
+        setIMEI("");
         setAlarmFlag(false);
 	}
     public void cleanDevice() {
-        setDid("");
-        setPassCode("");
+        setIMEI("");
     }
 
 	/**
@@ -207,11 +200,8 @@ public class SettingManager {
 		return spf.getString(UID, "");
 	}
 
-    public void setDid(String did){spf.edit().putString(DID,did).commit();}
-    public String getDid(){return spf.getString(DID,"");}
-
-    public void setPassCode(String passCode){spf.edit().putString(PASSCODE,passCode).commit();}
-    public String getPassCode(){return spf.getString(PASSCODE,"");}
+    public void setIMEI(String did){spf.edit().putString(IMEI,did).commit();}
+    public String getIMEI(){return spf.getString(IMEI,"");}
 	/**
 	 * Sets the unit.
 	 *
