@@ -44,7 +44,7 @@ public class PushService extends Service
 	public static final String TAG = "DemoPushService";
 
 	// the IP address, where your MQTT broker is running.
-	private static final String MQTT_HOST = "192.168.1.107";
+	private static final String MQTT_HOST = "112.74.94.150";
 	// the port at which the broker is running. 
 	private static int				MQTT_BROKER_PORT_NUM      = 1883;
 	// Let's not use the MQTT persistence.
@@ -557,6 +557,7 @@ public class PushService extends Service
 		 */
 		public void publishArrived(String topicName, byte[] payload, int qos, boolean retained) {
 			// Show a notification
+			Log.i(TAG,"topicName="+topicName);
 			if(payload != null) {
 				String s = new String(payload);
 				showNotification(s);
@@ -653,7 +654,7 @@ public class PushService extends Service
 //	}
 
 	//lybvinci
-	public void sendMessage1(String message) {
+	public void sendMessage1(byte[] message) {
 		try {
 			if (mqttClient == null || !mqttClient.isConnected()) {
 				connect();
@@ -663,7 +664,7 @@ public class PushService extends Service
 			// mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
 			// message.getBytes(), 0, false);
 			mqttClient.publish( "app2dev/" + settingManager.getIMEI() + "/e2link/cmd",
-					message.getBytes(), 0, false);
+					message, 0, false);
 		} catch (MqttException e) {
 			Log.d(TAG, e.getCause() + "");
 			e.printStackTrace();

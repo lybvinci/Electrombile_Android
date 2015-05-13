@@ -18,7 +18,6 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
 import com.avos.avoscloud.SaveCallback;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.service.GPSDataService;
 import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
@@ -73,9 +72,9 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                   break;
               case SUCCESS:
                   setManager.setIMEI(IMEI);
-                  Intent localIntent = new Intent();
-                  localIntent.setClass(BindingActivity.this,GPSDataService.class);
-                  BindingActivity.this.startService(localIntent);
+//                  Intent localIntent = new Intent();
+//                  localIntent.setClass(BindingActivity.this,GPSDataService.class);
+//                  BindingActivity.this.startService(localIntent);
                   ToastUtils.showShort(BindingActivity.this, "设备登陆成功");
                   progressDialog.cancel();
                   Intent intent = new Intent(BindingActivity.this,FragmentActivity.class);

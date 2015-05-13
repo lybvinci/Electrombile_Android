@@ -20,7 +20,6 @@ import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.activity.AboutActivity;
 import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
-import com.xunce.electrombile.service.GPSDataService;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -106,8 +105,8 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                                 setManager.cleanAll();
                                 Intent intentStartLogin = new Intent(m_context, LoginActivity.class);
                                 startActivity(intentStartLogin);
-                                getActivity().stopService(new Intent(m_context, GPSDataService.class));
-                                GPSDataService.isRunning = false;
+//                                getActivity().stopService(new Intent(m_context, GPSDataService.class));
+//                                GPSDataService.isRunning = false;
                                 AVUser.logOut();
                                 getActivity().finish();
                             }

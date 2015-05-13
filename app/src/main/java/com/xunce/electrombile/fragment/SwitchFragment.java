@@ -137,7 +137,8 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                     VibratorUtil.Vibrate(getActivity(), 700);
                     showNotification("安全宝防盗系统已启动");
                     iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-                    FragmentActivity.pushService.sendMessage1(mCenter.cFenceAdd((char) 0x0001));
+                    FragmentActivity.pushService.sendMessage1(mCenter.cFenceAdd(new byte[]{0x00, 0x02}));
+
                   //  FragmentActivity.pushService.sendMessage1("liyanbo");
                 } else {
                  //   Log.d(TAG, "device failed!");
@@ -157,6 +158,8 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             {
                 if (NetworkUtils.isNetworkConnected(m_context)) {
                     cancelNotification();
+                 //   FragmentActivity.pushService.sendMessage1(mCenter.cFenceSearch(new byte[]{0x00, 0x03}));
+                    FragmentActivity.pushService.sendMessage1(mCenter.cFenceDelete(new byte[]{0x00, 0x02}));
                     showNotification("安全宝防盗系统已关闭");
                     VibratorUtil.Vibrate(getActivity(), 500);
                     setManager.setAlarmFlag(false);

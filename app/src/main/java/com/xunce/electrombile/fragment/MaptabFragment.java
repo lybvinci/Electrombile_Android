@@ -467,8 +467,8 @@ public class MaptabFragment extends Fragment {
 
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1);
-        String did = new SettingManager(m_context).getIMEI();
-        query.whereEqualTo("did",did) ;
+        String IMEI = new SettingManager(m_context).getIMEI();
+        query.whereEqualTo("IMEI",IMEI) ;
         query.whereLessThanOrEqualTo("createdAt", Calendar.getInstance().getTime());
         query.orderByDescending("createdAt");
         query.findInBackground(new FindCallback<AVObject>() {

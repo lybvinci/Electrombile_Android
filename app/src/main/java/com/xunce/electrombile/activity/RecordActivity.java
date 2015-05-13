@@ -268,10 +268,10 @@ public class RecordActivity extends Activity{
         totalSkip += skip;
         final int finalSkip = totalSkip;
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
-        String did = sm.getIMEI();
-            // Log.i(TAG, "did+++++" + did);
+        String IMEI = sm.getIMEI();
+            // Log.i(TAG, "IMEI+++++" + IMEI);
         query.setLimit(1000);
-        query.whereEqualTo("did", did);
+        query.whereEqualTo("IMEI", IMEI);
         query.whereGreaterThanOrEqualTo("createdAt", startT);
         query.whereLessThan("createdAt", endT);
         query.setSkip(finalSkip);

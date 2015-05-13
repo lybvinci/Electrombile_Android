@@ -20,9 +20,11 @@ package com.xunce.electrombile.Base.sdk;
 import android.content.Context;
 import android.util.Log;
 
+import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.CoordinateConverter;
 import com.xunce.electrombile.Base.config.JsonKeys;
+import com.xunce.electrombile.xpg.common.useful.ByteUtils;
 import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 
 import java.util.HashMap;
@@ -89,18 +91,42 @@ public class CmdCenter {
 		mSettingManager = new SettingManager(c);
 	}
 
-    private String packetOrder(char cmd,char serial,String order,String remarks){
+    private byte[] packetOrder(byte[] cmd,byte[] serial,String order,String remarks){
         order = order + remarks;
-        char frameHead = 0xAA55;
+		//char frameHead = 0x2A55;
+		byte[] frameHead = {-0x56,0x55};
         byte[] orderByte = order.getBytes();
-        int length = 8 + orderByte.length;
-        char len = (char)length;
-        String orderData1 = String.valueOf(frameHead);
-        String orderData3 = String.valueOf(len);
-        String orderData2 = String.valueOf(cmd);
-		String orderData4 = String.valueOf(serial);
-        String orderData = orderData1 + orderData2 + orderData3 +orderData4 + order;
-        Log.i("OrderData:::",orderData);
+        int length = 2 + orderByte.length;
+		byte[] len ={(byte) (length>>8 & 0xff),(byte)(length & 0xff)};
+		byte[] orderData = ByteUtils.arrayCat(frameHead,cmd);
+		orderData = ByteUtils.arrayCat(orderData,len);
+		orderData = ByteUtils.arrayCat(orderData,serial);
+		orderData = ByteUtils.arrayCat(orderData,orderByte);
+		//String len1 = len;
+		//byte[] len ={(byte)(length>>8&0xFF),(byte)(length & 0xFF)};
+
+//      //  String orderData1 = String.valueOf(frameHead);
+		//String orderData1 = ByteUtils.hexStringToString(frameHead,2);
+//		// String orderData2 = String.valueOf(cmd);
+//		String orderData2 = ByteUtils.Bytes2HexString(cmd);
+//       // String orderData3 = String.valueOf(len);
+//		String orderData3 = ByteUtils.Bytes2HexString(len);
+//		//String orderData4 = String.valueOf(serial);
+//		String orderData4 = ByteUtils.Bytes2HexString(serial);
+//		StringBuilder sb = new StringBuilder();
+//		sb.append(frameHead);
+//		sb.append(cmd);
+//		sb.append(len);
+//		sb.append(serial);
+//		sb.append(order);
+//		sb.append(orderData1);
+//		sb.append(orderData2);
+//		sb.append(orderData3);
+//		sb.append(orderData4);
+//		sb.append(order);
+	//	String orderData = sb.toString();
+       // String orderData = orderData1 + orderData2 + orderData3 +orderData4 + order;
+		Log.i("OrderData:::",orderData.toString());
         return orderData;
     }
 
@@ -157,9 +183,9 @@ public class CmdCenter {
     }
 
 	//3 、GPRS 定时发送设置
-	public void cGprsSend(char serial){
-		String data = packetOrder((char) 0x0001,serial,JsonKeys.GPRS_SEND,"");
-		Log.i("定时发送设置",data);
+	public void cGprsSend(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.GPRS_SEND,"");
+		Log.i("定时发送设置", data.toString());
 		//发送数据
 		//xpgWifiDevice.write(data);
 	}
@@ -208,14 +234,19 @@ public class CmdCenter {
 	}
 
 	//13 添加电子围栏
-	public String cFenceAdd(char serial){
-		 String data = packetOrder((char) 0x0001,serial,JsonKeys.FENCE_SET_1,"");
+	public byte[] cFenceAdd(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.FENCE_SET_1,"");
 		return data;
 	}
 
 	//14删除电子围栏
-	public String cFenceDelete(char serial){
-		String data = packetOrder((char) 0x0002,serial,JsonKeys.FENCE_DELETE,"");
+	public byte[] cFenceDelete(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.FENCE_DELETE,"");
+		return data;
+	}
+	//查询电子围栏
+	public byte[] cFenceSearch(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,0x03},serial,"FENCE,1?","");
 		return data;
 	}
 

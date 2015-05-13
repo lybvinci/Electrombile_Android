@@ -41,7 +41,6 @@ import com.xunce.electrombile.Updata.UpdateAppService;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
-import com.xunce.electrombile.service.GPSDataService;
 
 import android.widget.RadioButton;
 import android.widget.Toast;
@@ -66,6 +65,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 import com.xunce.electrombile.service.PushService;
+import com.xunce.electrombile.xpg.common.device.DeviceUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -552,6 +552,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             Bundle bundle = intent.getExtras();
             boolean cmdOrGPS = bundle.getBoolean("CMDORGPS");
             if (!cmdOrGPS) {
+                Log.i(TAG, "GPS？？？？？？");
                 float Flat = bundle.getFloat("LAT");
                 float Flong = bundle.getFloat("LONG");
                 String date = bundle.getString("DATE");
@@ -569,34 +570,12 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 }
                 switchFragment.reverserGeoCedec(trackPoint.point);
             } else {
+                Log.i(TAG, "弹不出来？？？");
+                DeviceUtils.showNotifation(FragmentActivity.this,"安全宝","设置成功");
                 ToastUtils.showShort(FragmentActivity.this, "设置成功");
             }
         }
     }
 
-    /**
-     * 判断某个服务是否正在运行的方法
-     *
-     * @param mContext
-     * @param serviceName
-     *            是包名+服务的类名（例如：net.loonggg.testbackstage.TestService）
-     * @return true代表正在运行，false代表服务没有正在运行
-     */
-    public boolean isServiceWork(Context mContext, String serviceName) {
-        boolean isWork = false;
-        ActivityManager myAM = (ActivityManager) mContext
-                .getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> myList = myAM.getRunningServices(40);
-        if (myList.size() <= 0) {
-            return false;
-        }
-        for (int i = 0; i < myList.size(); i++) {
-            String mName = myList.get(i).service.getClassName().toString();
-            if (mName.equals(serviceName)) {
-                isWork = true;
-                break;
-            }
-        }
-        return isWork;
-    }
+
 }

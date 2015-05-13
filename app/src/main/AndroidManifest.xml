@@ -45,6 +45,9 @@
     <!--更新权限-->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <!-- 云巴权限-->
+    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".Base.App"
@@ -71,6 +74,15 @@
             <!--android:value="eyVZSbgbfVGt9Y0BaKaYY5vF" />-->
         <!--  debug  LnfIE5HKF0zbDiZmm8ZiVIch-->
         <!--release eyVZSbgbfVGt9Y0BaKaYY5vF-->
+        <!-- 云巴相关-->
+        <meta-data android:name="YUNBA_APPKEY" android:value="554ab0957e353f5814e12100" />
+        <service android:name="io.yunba.android.core.YunBaService"> </service>
+        <receiver android:name=".receiver.YunBaReceiver">
+            <intent-filter>
+                <action android:name="io.yunba.android.MESSAGE_RECEIVED_ACTION" />
+                <category android:name="com.xunce.electrombile" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".activity.SplashActivity"
