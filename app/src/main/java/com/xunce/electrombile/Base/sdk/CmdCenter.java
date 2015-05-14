@@ -133,14 +133,26 @@ public class CmdCenter {
 
     //解析gps数据
 	//返回经度
-    public float parsePushServiceLong(byte[] mData){
+    public float parsePushServiceLat(byte[] mData){
+		return (mData[9]&0xFF        |
+				(mData[8]&0xFF) << 8  |
+				(mData[7]&0xFF) << 16 |
+				(mData[6]&0xFF) << 24 );
+	}
+	public int parsePushServiceLongInt(byte[] mData){
 		return (mData[9]&0xFF        |
 				(mData[8]&0xFF) << 8  |
 				(mData[7]&0xFF) << 16 |
 				(mData[6]&0xFF) << 24 );
 	}
 	//返回纬度
-	public float parsePushServiceLat(byte[] mData){
+	public float parsePushServiceLong(byte[] mData){
+		return (mData[13]&0xFF        |
+				(mData[12]&0xFF) << 8  |
+				(mData[11]&0xFF) << 16 |
+				(mData[10]&0xFF) << 24 );
+	}
+	public int parsePushServiceLat2(byte[] mData){
 		return (mData[13]&0xFF        |
 				(mData[12]&0xFF) << 8  |
 				(mData[11]&0xFF) << 16 |
@@ -247,6 +259,17 @@ public class CmdCenter {
 	//查询电子围栏
 	public byte[] cFenceSearch(byte[] serial){
 		byte[] data = packetOrder(new byte[]{ 0x00,0x03},serial,"FENCE,1?","");
+		return data;
+	}
+	//测试报警
+	public byte[] cTest(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,-1},serial,"AA","");
+		return data;
+	}
+
+	//测试GPS
+	public byte[] cTestGPS(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,-2},serial,"AA","");
 		return data;
 	}
 

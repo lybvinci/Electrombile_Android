@@ -182,7 +182,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
         }else{
             Log.i(TAG, setManager.getIMEI());
-            final String topic = "e2link" + setManager.getIMEI();
+            final String topic = "e2link_" + setManager.getIMEI();
             Log.i(TAG+"SSSSSSSSSS", topic);
             new Thread(new Runnable() {
                 @Override
@@ -538,6 +538,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "我的接收调用了？？？？？？");
+
             Bundle bundle = intent.getExtras();
             boolean cmdOrGPS = bundle.getBoolean("CMDORGPS");
             if (!cmdOrGPS) {
@@ -561,6 +562,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             } else {
                 Log.i(TAG, "弹不出来？？？");
                 byte[] cmd = bundle.getByteArray("CMD");
+                pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
+               // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
+                //pushService.sendMessage1(mCenter.cTest(new byte[]{0x00,0x11}));
                 if(cmd[3] == 0x01) {
                     DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
                     ToastUtils.showShort(FragmentActivity.this, "设置成功");

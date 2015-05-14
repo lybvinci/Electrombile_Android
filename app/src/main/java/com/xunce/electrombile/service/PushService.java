@@ -32,7 +32,6 @@ import com.xunce.electrombile.activity.FragmentActivity;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
-import java.util.concurrent.ThreadLocalRandom;
 
 /* 
  * PushService that does all of the work.
@@ -443,26 +442,26 @@ public class PushService extends Service
 	};
 	
 	// Display the topbar notification
-//	private void showNotification(String text) {
-//		Notification n = new Notification();
-//
-//		n.flags |= Notification.FLAG_SHOW_LIGHTS;
-//      	n.flags |= Notification.FLAG_AUTO_CANCEL;
-//
-//        n.defaults = Notification.DEFAULT_ALL;
-//
-//		n.icon = R.drawable.logo;
-//		n.when = System.currentTimeMillis();
-//
-//		// Simply open the parent activity
-//		PendingIntent pi = PendingIntent.getActivity(this, 0,
-//				new Intent(this, FragmentActivity.class), 0);
-//
-//		// Change the name of the notification here
-//		n.setLatestEventInfo(this, NOTIF_TITLE, text, pi);
-//
-//		mNotifMan.notify(NOTIF_CONNECTED, n);
-//	}
+	private void showNotification(String text) {
+		Notification n = new Notification();
+
+		n.flags |= Notification.FLAG_SHOW_LIGHTS;
+      	n.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        n.defaults = Notification.DEFAULT_ALL;
+
+		n.icon = R.drawable.logo;
+		n.when = System.currentTimeMillis();
+
+		// Simply open the parent activity
+		PendingIntent pi = PendingIntent.getActivity(this, 0,
+				new Intent(this, FragmentActivity.class), 0);
+
+		// Change the name of the notification here
+		n.setLatestEventInfo(this, NOTIF_TITLE, text, pi);
+
+		mNotifMan.notify(NOTIF_CONNECTED, n);
+	}
 	
 	// Check if we are online
 	private boolean isNetworkAvailable() {
@@ -630,12 +629,15 @@ public class PushService extends Service
 	}
 
 	private void handArrivedGPS(byte[] payload) {
-		float longitude = mCenter.parseGPSData(mCenter.parsePushServiceLong(payload));
-		float lat = mCenter.parseGPSData(mCenter.parsePushServiceLat(payload));
+		float  lat= mCenter.parseGPSData(mCenter.parsePushServiceLat(payload))/30000;
+		float longitude = mCenter.parseGPSData(mCenter.parsePushServiceLong(payload))/30000;
+		Log.i(TAG,"lat="+lat);
+		Log.i(TAG,"longitude="+longitude);
 		String direction = mCenter.parsePushServiceDirection(payload);
 		int speed = mCenter.parsePushServiceSpeed(payload);
 		boolean isGPS = mCenter.parsePushServiceIsGPS(payload);
 		int time = mCenter.parsePushServiceTime(payload);
+		Log.i(TAG,"time="+time);
 		SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
 		String date = sdfWithSecond.format(time);
