@@ -155,6 +155,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                     Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
                     bindDevice.put("device", avObjects.get(0));
                     bindDevice.put("isAdmin",true);
+                    bindDevice.put("IMEI",IMEI);
                     bindDevice.saveInBackground(new SaveCallback() {
                         @Override
                         public void done(AVException e) {

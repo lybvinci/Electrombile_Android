@@ -32,6 +32,7 @@ import com.xunce.electrombile.activity.FragmentActivity;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import java.util.concurrent.ThreadLocalRandom;
 
 /* 
  * PushService that does all of the work.
@@ -41,7 +42,7 @@ import java.util.TimeZone;
 public class PushService extends Service
 {
 	// this is the log tag
-	public static final String TAG = "DemoPushService";
+	public static final String TAG = "PushService";
 
 	// the IP address, where your MQTT broker is running.
 	private static final String MQTT_HOST = "112.74.94.150";
@@ -162,7 +163,13 @@ public class PushService extends Service
 		/* If our process was reaped by the system for any reason we need
 		 * to restore our state with merely a call to onCreate.  We record
 		 * the last "started" value and restore it here if necessary. */
-		handleCrashedService();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				handleCrashedService();
+			}
+		}).start();
+//		handleCrashedService();
 		log("Creating service over");
 	}
 	
@@ -320,6 +327,7 @@ public class PushService extends Service
 	        		scheduleReconnect(mStartTime);
 	        	}
 			}
+
 			setStarted(true);
 		}
 	}
@@ -421,7 +429,8 @@ public class PushService extends Service
 			boolean hasConnectivity = (info != null && info.isConnected()) ? true : false;
 
 			log("Connectivity changed: connected=" + hasConnectivity);
-
+			if(mqttClient != null && hasConnectivity)
+				sendMessage1(mCenter.cFenceSearch(new byte[]{0x00,0x01}));
 			if (hasConnectivity) {
 				reconnectIfNecessary();
 			} else if (mConnection != null) {
@@ -434,26 +443,26 @@ public class PushService extends Service
 	};
 	
 	// Display the topbar notification
-	private void showNotification(String text) {
-		Notification n = new Notification();
-				
-		n.flags |= Notification.FLAG_SHOW_LIGHTS;
-      	n.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        n.defaults = Notification.DEFAULT_ALL;
-      	
-		n.icon = R.drawable.logo;
-		n.when = System.currentTimeMillis();
-
-		// Simply open the parent activity
-		PendingIntent pi = PendingIntent.getActivity(this, 0,
-				new Intent(this, FragmentActivity.class), 0);
-
-		// Change the name of the notification here
-		n.setLatestEventInfo(this, NOTIF_TITLE, text, pi);
-
-		mNotifMan.notify(NOTIF_CONNECTED, n);
-	}
+//	private void showNotification(String text) {
+//		Notification n = new Notification();
+//
+//		n.flags |= Notification.FLAG_SHOW_LIGHTS;
+//      	n.flags |= Notification.FLAG_AUTO_CANCEL;
+//
+//        n.defaults = Notification.DEFAULT_ALL;
+//
+//		n.icon = R.drawable.logo;
+//		n.when = System.currentTimeMillis();
+//
+//		// Simply open the parent activity
+//		PendingIntent pi = PendingIntent.getActivity(this, 0,
+//				new Intent(this, FragmentActivity.class), 0);
+//
+//		// Change the name of the notification here
+//		n.setLatestEventInfo(this, NOTIF_TITLE, text, pi);
+//
+//		mNotifMan.notify(NOTIF_CONNECTED, n);
+//	}
 	
 	// Check if we are online
 	private boolean isNetworkAvailable() {
@@ -489,7 +498,7 @@ public class PushService extends Service
 			subscribeToTopic(initTopic1);
 			log("Connection established to " + brokerHostName + " on topic " + initTopic1);
 			//再订阅一个
-			String initTopic2 = "dev2app/" + initTopic + "e2link/gps";
+			String initTopic2 = "dev2app/" + initTopic + "/e2link/gps";
 			subscribeToTopic(initTopic2);
 			log("Connection established to " + brokerHostName + " on topic " + initTopic2);
 			// Save start time
@@ -560,15 +569,14 @@ public class PushService extends Service
 			Log.i(TAG,"topicName="+topicName);
 			if(payload != null) {
 				String s = new String(payload);
-				showNotification(s);
+				//showNotification(s);
 				//如果返回的是自己发送的命令的回答
 				if (topicName.contains("cmd")) {
 					Message msg = new Message();
 					msg.what = 0x01;
 					msg.obj = payload;
 					mHandler.sendMessage(msg);
-				}
-				if (topicName.contains("gps")) {
+				}else if (topicName.contains("gps")) {
 					Message msg = new Message();
 					msg.what = 0x02;
 					msg.obj = payload;
@@ -596,7 +604,7 @@ public class PushService extends Service
 			switch (msg.what){
 				case 0x01:
 					byte[] cmd = (byte[]) msg.obj;
-					handArrivedCmd(cmd[3]);
+					handArrivedCmd(cmd);
 					break;
 				case 0x02:
 					byte[] payload = (byte[]) msg.obj;
@@ -606,13 +614,19 @@ public class PushService extends Service
 		}
 	};
 
-	private void handArrivedCmd(byte b) {
-		if(b == 0x01){
+	private void handArrivedCmd(byte[] b) {
             Intent intent = new Intent();
             intent.putExtra("CMDORGPS",true);
+			intent.putExtra("CMD",b);
             intent.setAction("com.xunce.electrombile.service");
             sendBroadcast(intent);
-        }
+//		if(b==0x03){
+//			Intent intent = new Intent();
+//			intent.putExtra("CMDORGPS",true);
+//			intent.putExtra("CMD",b);
+//			intent.setAction("com.xunce.electrombile.service");
+//			sendBroadcast(intent);
+//		}
 	}
 
 	private void handArrivedGPS(byte[] payload) {

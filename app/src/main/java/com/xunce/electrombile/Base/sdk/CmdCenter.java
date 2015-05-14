@@ -261,4 +261,18 @@ public class CmdCenter {
 	//	String data = packetOrder(JsonKeys.WHERE,"");
 		//xpgWifiDevice.write(data);
 	}
+
+	public byte[] getSerial(byte firstByte,byte secondByte){
+		if(secondByte == 127){
+			secondByte = 0x00;
+			if(firstByte == 127){
+				firstByte =0x00;
+			}else {
+				firstByte++;
+			}
+		}else{
+			secondByte ++;
+		}
+		return new byte[]{firstByte,secondByte};
+	}
 }

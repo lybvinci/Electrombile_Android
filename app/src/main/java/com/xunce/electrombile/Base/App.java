@@ -6,6 +6,7 @@ import android.util.Log;
 import com.avos.avoscloud.AVAnalytics;
 import com.avos.avoscloud.AVOSCloud;
 import com.baidu.mapapi.SDKInitializer;
+import com.xunce.electrombile.Base.sdk.SettingManager;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -31,17 +32,17 @@ public class App extends Application {
                 "yovqy5zy16og43zwew8i6qmtkp2y6r9b18zerha0fqi5dqsw");
         YunBaManager.start(getApplicationContext());
 
-        YunBaManager.subscribe(getApplicationContext(), new String[]{"t1"}, new IMqttActionListener() {
-
-            @Override
-            public void onSuccess(IMqttToken arg0) {
-                Log.d(TAG, "Subscribe topic succeed");
-            }
-            @Override
-            public void onFailure(IMqttToken arg0, Throwable arg1) {
-                Log.d(TAG, "Subscribe topic failed");
-            }
-        });
+//        YunBaManager.subscribe(getApplicationContext(), new String[]{"e2link/"+setManager.getIMEI()}, new IMqttActionListener() {
+//
+//            @Override
+//            public void onSuccess(IMqttToken arg0) {
+//                Log.d(TAG, "Subscribe topic succeed");
+//            }
+//            @Override
+//            public void onFailure(IMqttToken arg0, Throwable arg1) {
+//                Log.d(TAG, "Subscribe topic failed");
+//            }
+//        });
 
         AVAnalytics.enableCrashReport(this, true);
 

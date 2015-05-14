@@ -39,6 +39,9 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     private boolean systemState = false;
     private boolean alarmState = false;
     GeoCoder mSearch = null; // 搜索模块，也可去掉地图模块独立使用
+//    private byte firstByte = 0x00;
+//    private byte secondByte = 0x00;
+//    private byte[] serial = {firstByte,secondByte};
 
     private String[] SWITCHKEY = {
             "switch",
@@ -101,9 +104,63 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             btnSystem.setChecked(true);
         }
         btnSystem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            byte firstByteAdd = 0x00;
+            byte secondByteAdd = 0x00;
+            byte firstByteDelete = 0x00;
+            byte secondByteDelete = 0x00;
+            //byte[] serial = {firstByte,secondByte};
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                safeBtn(b);
+                if(!b){
+                    // Log.i("SBBBBBBBBBBB","sbbbbbbbbbbbbbbbbbbbb");
+                    //按下以后，isChecked 就是true 就是已经按下了。
+                    //如果有网络
+                    if(NetworkUtils.isNetworkConnected(m_context)) {
+                        //   Log.d(TAG, "check net success!");
+                        if (!setManager.getIMEI().isEmpty()) {
+                            //     Log.d(TAG, "device success!");
+                            setManager.setAlarmFlag(true);
+                            cancelNotification();
+                            VibratorUtil.Vibrate(getActivity(), 700);
+                            showNotification("安全宝防盗系统已启动");
+                            byte[] serial = mCenter.getSerial(firstByteAdd,secondByteAdd);
+                            FragmentActivity.pushService.sendMessage1(mCenter.cFenceAdd(serial));
+                            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+                        } else {
+                            //   Log.d(TAG, "device failed!");
+                            ToastUtils.showShort(m_context, "请先绑定设备");
+                            btnSystem.setChecked(false);
+                            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+                        }
+                    }else{
+                        ToastUtils.showShort(m_context, "网络连接失败");
+                        btnSystem.setChecked(false);
+                        //btnSystem.set
+                        iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+                    }
+                }else {
+                    //  Log.d(TAG, "compoundButton notChecked()");
+                    if (!setManager.getIMEI().isEmpty())
+                    {
+                        if (NetworkUtils.isNetworkConnected(m_context)) {
+                            cancelNotification();
+                            byte[] serial = mCenter.getSerial(firstByteDelete,secondByteDelete);
+                            FragmentActivity.pushService.sendMessage1(mCenter.cFenceDelete(serial));
+                            showNotification("安全宝防盗系统已关闭");
+                            VibratorUtil.Vibrate(getActivity(), 500);
+                            setManager.setAlarmFlag(false);
+                            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+                        } else {
+                            ToastUtils.showShort(m_context, "网络连接失败");
+                            btnSystem.setChecked(true);
+                            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+                        }
+                    }else{
+                        btnSystem.setChecked(true);
+                        iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+                        ToastUtils.showShort(m_context, "请等待设备绑定");
+                    }
+                }
             }
         });
 
@@ -123,65 +180,9 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
 
     }
 
-    private void safeBtn(boolean b) {
-        if(!b){
-           // Log.i("SBBBBBBBBBBB","sbbbbbbbbbbbbbbbbbbbb");
-            //按下以后，isChecked 就是true 就是已经按下了。
-            //如果有网络
-            if(NetworkUtils.isNetworkConnected(m_context)) {
-             //   Log.d(TAG, "check net success!");
-                if (!setManager.getIMEI().isEmpty()) {
-               //     Log.d(TAG, "device success!");
-                    setManager.setAlarmFlag(true);
-                    cancelNotification();
-                    VibratorUtil.Vibrate(getActivity(), 700);
-                    showNotification("安全宝防盗系统已启动");
-                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-                    FragmentActivity.pushService.sendMessage1(mCenter.cFenceAdd(new byte[]{0x00, 0x02}));
-
-                  //  FragmentActivity.pushService.sendMessage1("liyanbo");
-                } else {
-                 //   Log.d(TAG, "device failed!");
-                    ToastUtils.showShort(m_context, "请先绑定设备");
-                    btnSystem.setChecked(false);
-                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-                }
-            }else{
-                ToastUtils.showShort(m_context, "网络连接失败");
-                btnSystem.setChecked(false);
-                //btnSystem.set
-                iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-            }
-        }else {
-          //  Log.d(TAG, "compoundButton notChecked()");
-            if (!setManager.getIMEI().isEmpty())
-            {
-                if (NetworkUtils.isNetworkConnected(m_context)) {
-                    cancelNotification();
-                 //   FragmentActivity.pushService.sendMessage1(mCenter.cFenceSearch(new byte[]{0x00, 0x03}));
-                    FragmentActivity.pushService.sendMessage1(mCenter.cFenceDelete(new byte[]{0x00, 0x02}));
-                    showNotification("安全宝防盗系统已关闭");
-                    VibratorUtil.Vibrate(getActivity(), 500);
-                    setManager.setAlarmFlag(false);
-                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-                } else {
-                    ToastUtils.showShort(m_context, "网络连接失败");
-                    btnSystem.setChecked(true);
-                    iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-                }
-        }else{
-                btnSystem.setChecked(true);
-                iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-                ToastUtils.showShort(m_context, "请等待设备绑定");
-            }
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-     //   Log.i(TAG, "onCreateView called!");
-
         return inflater.inflate(R.layout.switch_fragment, container, false);
     }
 
@@ -217,7 +218,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         notificationManager.notify(R.string.app_name, notification);
     }
     //取消显示常驻通知栏
-    void cancelNotification(){
+    void cancelNotification() {
         NotificationManager notificationManager = (NotificationManager) m_context.getSystemService(m_context.
                 getApplicationContext()
                 .NOTIFICATION_SERVICE);

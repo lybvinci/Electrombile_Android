@@ -54,6 +54,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,6 +72,8 @@ import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.TimeZone;
+
+import io.yunba.android.manager.YunBaManager;
 
 
 /**
@@ -91,7 +95,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private SettingsFragment settingsFragment;
     public static String THE_INSTALLATION_ID;
     private ImageButton btnSettings = null;
-    public static NotificationManager manager;
+//    public NotificationManager manager;
 //    Handler MyHandler;
     RadioButton rbSwitch;
     RadioButton rbMap;
@@ -118,23 +122,21 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         setManager = new SettingManager(this);
         m_FMer = getSupportFragmentManager();
 
+        //检查版本
         checkVersion();
-        initNotificaton();
+        //初始化通知栏
+     //   initNotificaton();
+        //初始化界面
         initView();
-
+        //处理按键事件
         dealBottomButtonsClickEvent();
-
         //注册广播
         registerBroadCast();
-//        if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
-//            if(!GPSDataService.isRunning && !setManager.getIMEI().isEmpty()){
-//                Intent localIntent = new Intent();
-//                localIntent.setClass(this,GPSDataService.class);
-//                this.startService(localIntent);
-//            }
-//            //    startService(new Intent(FragmentActivity.this, GPSDataService.class));
-//        }
+        //判断是否需要开启服务
+        startServer();
+    }
 
+    private void startServer() {
         if(setManager.getIMEI().isEmpty()){
             AVQuery<AVObject> query = new AVQuery<AVObject>("Bindings");
             final AVUser currentUser = AVUser.getCurrentUser();
@@ -144,13 +146,28 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 public void done(List<AVObject> avObjects, AVException e) {
                     if(e == null && avObjects.size() > 0){
                         setManager.setIMEI((String) avObjects.get(0).get("IMEI"));
-                        Log.i(TAG, setManager.getIMEI());
+                        Log.i(TAG + "AAAAAA", setManager.getIMEI());
+                        final String topic = "e2link_" + setManager.getIMEI();
+                        Log.i(TAG+"SSSSSSSSSS", topic);
                         //启动服务
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 Intent intent = new Intent("com.xunce.electrombile.service.PushService.MSG_ACTION");
                                 bindService(intent, conn, Context.BIND_AUTO_CREATE);
+                                //订阅云巴推送
+                                YunBaManager.subscribe(getApplicationContext(), topic, new IMqttActionListener() {
+
+                                    @Override
+                                    public void onSuccess(IMqttToken arg0) {
+                                        Log.d(TAG, "Subscribe topic succeed");
+                                    }
+
+                                    @Override
+                                    public void onFailure(IMqttToken arg0, Throwable arg1) {
+                                        Log.d(TAG, "Subscribe topic failed");
+                                    }
+                                });
                             }
                         }).start();
 
@@ -165,19 +182,34 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
         }else{
             Log.i(TAG, setManager.getIMEI());
+            final String topic = "e2link" + setManager.getIMEI();
+            Log.i(TAG+"SSSSSSSSSS", topic);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     Intent intent = new Intent("com.xunce.electrombile.service.PushService.MSG_ACTION");
                     bindService(intent, conn, Context.BIND_AUTO_CREATE);
+                    YunBaManager.subscribe(getApplicationContext(),topic, new IMqttActionListener() {
+
+                        @Override
+                        public void onSuccess(IMqttToken arg0) {
+                            Log.d(TAG, "Subscribe topic succeed");
+                        }
+
+                        @Override
+                        public void onFailure(IMqttToken arg0, Throwable arg1) {
+                            if(arg0 != null)
+                                Log.i(arg0.toString(),"XXXX");
+                            if(arg1 != null)
+                                Log.i("AAAA", arg1.toString());
+                            Log.d(TAG, "Subscribe topic failed");
+                        }
+                    });
                 }
             }).start();
 
             ToastUtils.showShort(this,"登陆成功");
         }
-
-
-
     }
 
     //my service
@@ -396,7 +428,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     protected void onDestroy() {
         ISSTARTED = false;
-        cancelNotification();
+        //cancelNotification();
         unregisterReceiver(receiver);
         if(!setManager.getIMEI().isEmpty()) {
             pushService.actionStop(this);
@@ -406,9 +438,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         super.onDestroy();
     }
 
-    public void initNotificaton() {
-        manager = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
-    }
 
     public void checkVersion() {
         //    Log.i("updata version","aaaaaaaaaaaaa");
@@ -485,49 +514,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }).start();
     }
 
-    //显示常驻通知栏
-    public void showNotification(String text){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
-        //下面这句用来自定义通知栏
-        //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
-        Intent intent = new Intent(this,FragmentActivity.class);
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-        PendingIntent contextIntent = PendingIntent.getActivity(this,0,intent,0);
-        notification.setLatestEventInfo(getApplicationContext(),"安全宝",text,contextIntent);
-        notificationManager.notify(R.string.app_name, notification);
-    }
-    //取消显示常驻通知栏
-    void cancelNotification(){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(R.string.app_name);
-    }
 
-    /**
-     * 重复按下返回键退出app方法
-     */
-    public void exit() {
-        if (!isExit) {
-            isExit = true;
-            Toast.makeText(getApplicationContext(),
-                    "退出程序", Toast.LENGTH_SHORT).show();
-            exitHandler.sendEmptyMessageDelayed(0, 2000);
-        } else {
 
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            this.startActivity(intent);
-            Historys.exit();
-        }
-    }
 
-    /** The handler. to process exit()*/
-    private Handler exitHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            isExit = false;
-        }
-    };
 
     @Override
     public void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint) {
@@ -571,11 +560,69 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 switchFragment.reverserGeoCedec(trackPoint.point);
             } else {
                 Log.i(TAG, "弹不出来？？？");
-                DeviceUtils.showNotifation(FragmentActivity.this,"安全宝","设置成功");
-                ToastUtils.showShort(FragmentActivity.this, "设置成功");
+                byte[] cmd = bundle.getByteArray("CMD");
+                if(cmd[3] == 0x01) {
+                    DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
+                    ToastUtils.showShort(FragmentActivity.this, "设置成功");
+                }else if(cmd[3] == 0x03){
+                    String cmdString = new String(cmd);
+                    Log.i(TAG,cmdString);
+                    if(cmdString.contains("NONE")){
+                        setManager.setAlarmFlag(false);
+                    }else{
+                        setManager.setAlarmFlag(true);
+                    }
+                }
             }
         }
     }
 
+    //    //取消显示常驻通知栏
+//    void cancelNotification(){
+////        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        manager.cancel(R.string.app_name);
+//    }
+    //    public void initNotificaton() {
+//        manager = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
+//    }
+
+
+    //显示常驻通知栏
+//    public void showNotification(String text){
+//        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
+//        //下面这句用来自定义通知栏
+//        //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
+//        Intent intent = new Intent(this,FragmentActivity.class);
+//        notification.flags = Notification.FLAG_ONGOING_EVENT;
+//        PendingIntent contextIntent = PendingIntent.getActivity(this,0,intent,0);
+//        notification.setLatestEventInfo(getApplicationContext(),"安全宝",text,contextIntent);
+//        notificationManager.notify(R.string.app_name, notification);
+//    }
+    //    /**
+//     * 重复按下返回键退出app方法
+//     */
+//    public void exit() {
+//        if (!isExit) {
+//            isExit = true;
+//            Toast.makeText(getApplicationContext(),
+//                    "退出程序", Toast.LENGTH_SHORT).show();
+//            exitHandler.sendEmptyMessageDelayed(0, 2000);
+//        } else {
+//
+//            Intent intent = new Intent(Intent.ACTION_MAIN);
+//            intent.addCategory(Intent.CATEGORY_HOME);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            this.startActivity(intent);
+//            Historys.exit();
+//        }
+//    }
+//
+//    /** The handler. to process exit()*/
+//    private Handler exitHandler = new Handler() {
+//        public void handleMessage(android.os.Message msg) {
+//            isExit = false;
+//        }
+//    };
 
 }
