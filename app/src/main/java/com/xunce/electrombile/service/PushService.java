@@ -31,6 +31,7 @@ import com.xunce.electrombile.activity.FragmentActivity;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 
 /* 
@@ -629,18 +630,18 @@ public class PushService extends Service
 	}
 
 	private void handArrivedGPS(byte[] payload) {
-		float  lat= mCenter.parseGPSData(mCenter.parsePushServiceLat(payload))/30000;
-		float longitude = mCenter.parseGPSData(mCenter.parsePushServiceLong(payload))/30000;
+		float  lat= mCenter.parseGPSDataToInt(mCenter.parsePushServiceLat(payload))/(float)30000.0;
+		float longitude = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLong(payload))/(float)30000.0;
 		Log.i(TAG,"lat="+lat);
 		Log.i(TAG,"longitude="+longitude);
 		String direction = mCenter.parsePushServiceDirection(payload);
 		int speed = mCenter.parsePushServiceSpeed(payload);
 		boolean isGPS = mCenter.parsePushServiceIsGPS(payload);
-		int time = mCenter.parsePushServiceTime(payload);
+		long time = mCenter.parsePushServiceTime(payload);
 		Log.i(TAG,"time="+time);
 		SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-		String date = sdfWithSecond.format(time);
+		String date = sdfWithSecond.format(time * 1000);
 		Intent intent = new Intent();
 		intent.putExtra("CMDORGPS",false);
 		intent.putExtra("LAT",lat);

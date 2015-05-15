@@ -36,7 +36,7 @@ public class YunBaReceiver extends BroadcastReceiver{
         String topic = intent.getStringExtra(YunBaManager.MQTT_TOPIC);
         String msg = intent.getStringExtra(YunBaManager.MQTT_MSG);
         SettingManager setManager = new SettingManager(context);
-        //ÔÚÕâÀï´¦Àí´Ó·şÎñÆ÷·¢²¼ÏÂÀ´µÄÏûÏ¢£¬ ±ÈÈçÏÔÊ¾Í¨ÖªÀ¸£¬ ´ò¿ª Activity µÈµÈ
+        //åœ¨è¿™é‡Œå¤„ç†ä»æœåŠ¡å™¨å‘å¸ƒä¸‹æ¥çš„æ¶ˆæ¯ï¼Œ æ¯”å¦‚æ˜¾ç¤ºé€šçŸ¥æ ï¼Œ æ‰“å¼€ Activity ç­‰ç­‰
         DeviceUtils.showNotifation(context, topic, msg);
         DeviceUtils.wakeUpAndUnlock(context);
         Intent intentMy = new Intent(context, AlarmActivity.class);

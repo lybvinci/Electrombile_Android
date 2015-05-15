@@ -531,7 +531,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     public void locationTVClicked() {
         mapTabClicked();
-
+        rbMap.setChecked(true);
+        rbSwitch.setChecked(false);
     }
 
     public class MyReceiver extends BroadcastReceiver {
