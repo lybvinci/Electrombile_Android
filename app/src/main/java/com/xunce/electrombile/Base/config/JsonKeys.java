@@ -56,7 +56,7 @@ public class JsonKeys {
 
     //13 、添加电子围栏FENCE,< 围栏编号 >,< 围栏标记 >,<围栏参数 1>,< 围栏参数 2>,< 围栏参数3>,< 围栏参数 4>#
     //设定 1 号圆形围栏，OR 报警方式：出围栏报警；以当前点为圆心，半径 500 米。
-    public final static String FENCE_SET_1 = "FENCE,1,OR,,,200#";
+    public final static String FENCE_SET_1 = "FENCE,1,OR,,,100#";
 
     //14 、删除电子围栏
     public final static String FENCE_DELETE = "FENCE,0#";

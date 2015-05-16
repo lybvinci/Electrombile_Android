@@ -570,7 +570,7 @@ public class MaptabFragment extends Fragment {
                 case LOCATEMESSAGE:{
 
                     watiDialog.dismiss();
-                    
+
                     if(msg.obj != null) {
                         locateMobile((TrackPoint) msg.obj);
                         break;
