@@ -78,6 +78,7 @@ import java.util.List;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 import com.xunce.electrombile.fragment.XCFragmentAdapter;
 import com.xunce.electrombile.service.PushService;
+import com.xunce.electrombile.widget.CustomViewPager;
 import com.xunce.electrombile.xpg.common.device.DeviceUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
@@ -133,7 +134,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity
     //定义一个布局
     private LayoutInflater layoutInflater;
 
-    private ViewPager vp;
+    private CustomViewPager vp;
 
     //定义数组来存放Fragment界面
     private Class fragmentArray[] = {SwitchFragment.class, MaptabFragment.class, SettingsFragment.class};
@@ -142,7 +143,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity
     private int mImageViewArray[] = {R.drawable.tab_switch_btn,R.drawable.tab_map_btn,R.drawable.tab_settings_btn};
 
     //Tab选项卡的文字
-    private String mTextviewArray[] = {"", "", ""};
+    private String mTextviewArray[] = {"switch", "map", "settings"};
 
     private List<Fragment> list = new ArrayList<Fragment>();
 
@@ -164,8 +165,13 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity
         initView();
 
         initPage();
+
+        //第一次启动时，存在第一个item的背景错误的bug，这样可以暂时解决
+        vp.setCurrentItem(1);
+        vp.setCurrentItem(0);
+
         //处理按键事件
-        dealBottomButtonsClickEvent();
+        //dealBottomButtonsClickEvent();
         //注册广播
         registerBroadCast();
         //判断是否需要开启服务
@@ -302,13 +308,13 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity
      * 界面初始化
      */
     private void initView() {
-//        initFragment();
-//        rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
-//        rbMap = (RadioButton) findViewById(R.id.rbMap);
-//        rbSettings = (RadioButton)findViewById(R.id.rbSettings);
+        //initFragment();
+        //rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
+       // rbMap = (RadioButton) findViewById(R.id.rbMap);
+       // rbSettings = (RadioButton)findViewById(R.id.rbSettings);
 //        //实例化标题栏弹窗
 //        //titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        vp = (ViewPager) findViewById(R.id.pager);
+        vp = (CustomViewPager) findViewById(R.id.pager);
         vp.setOnPageChangeListener(this);
         //实例化布局对象
         layoutInflater = LayoutInflater.from(this);
@@ -316,6 +322,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity
         //实例化TabHost对象，得到TabHost
         mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
         mTabHost.setup(this, getSupportFragmentManager(), R.id.pager);
+        //取消滑动，会与地图界面冲突
         mTabHost.setOnTabChangedListener(this);
         //得到fragment的个数
         int count = fragmentArray.length;
@@ -326,18 +333,21 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity
             //将Tab按钮添加进Tab选项卡中
             mTabHost.addTab(tabSpec, fragmentArray[i], null);
         }
+
+//        mTabHost.getTabWidget().getChildAt(0)
+//                .setBackgroundResource(R.drawable.selector_tab_background);
     }
 
     /**
      * 初始化Fragment
      */
     private void initPage() {
-        SwitchFragment fragment1 = new SwitchFragment();
-        MaptabFragment fragment2 = new MaptabFragment();
-        SettingsFragment fragment3 = new SettingsFragment();
-        list.add(fragment1);
-        list.add(fragment2);
-        list.add(fragment3);
+        switchFragment = new SwitchFragment();
+        maptabFragment = new MaptabFragment();
+        settingsFragment = new SettingsFragment();
+        list.add(switchFragment);
+        list.add(maptabFragment);
+        list.add(settingsFragment);
         vp.setAdapter(new XCFragmentAdapter(getSupportFragmentManager(), list));
     }
 
@@ -345,22 +355,20 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity
      * 初始化首个Fragment
      */
     private void initFragment() {
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        switchFragment = new SwitchFragment();
-        ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
+        //FragmentTransaction ft = m_FMer.beginTransaction();
+        //ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
         //ft.addToBackStack("switchFragment");
-
-        maptabFragment = new MaptabFragment();
-        ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
-        ft.hide(maptabFragment);
+        switchFragment = (SwitchFragment)getSupportFragmentManager().getFragments().get(0);
+        maptabFragment = (MaptabFragment)getSupportFragmentManager().getFragments().get(1);
+       // ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
+        //ft.hide(maptabFragment);
         //ft.addToBackStack("mapFragment");
-
-        settingsFragment = new SettingsFragment();
-        ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
-        ft.hide(settingsFragment);
+        settingsFragment = (SettingsFragment)getSupportFragmentManager().getFragments().get(2);
+        //ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
+        //ft.hide(settingsFragment);
         //ft.addToBackStack("settingsFragment");
 
-        ft.commit();
+        //ft.commit();
     }
 
     /**
@@ -625,7 +633,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity
     @Override
     public void onTabChanged(String s) {
         int position = mTabHost.getCurrentTab();
-        vp.setCurrentItem(position);
+        vp.setCurrentItem(position, false);
     }
 
     public class MyReceiver extends BroadcastReceiver {

@@ -14,12 +14,4 @@
         android:src="@drawable/tab_switch_btn">
     </ImageView>
 
-    <TextView
-        android:id="@+id/textview"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text=""
-        android:textColor="#ffffff">
-    </TextView>
-
 </LinearLayout>
