@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "21.1.2"
+    buildToolsVersion '22.0.0'
 
     defaultConfig {
         applicationId "com.xunce.electrombile"
@@ -20,7 +20,7 @@ android {
             storePassword 'Xc20150101'
         }
         release {
-            keyAlias 'androidrleasekey'
+            keyAlias 'androidreleasekey'
             keyPassword 'Xc20150101'
             storeFile file('../keystore/Electromile.release.keystore')
             storePassword 'Xc20150101'
