@@ -604,9 +604,10 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity
 
     @Override
     public void locationTVClicked() {
-        mapTabClicked();
-        rbMap.setChecked(true);
-        rbSwitch.setChecked(false);
+        //mapTabClicked();
+        //rbMap.setChecked(true);
+        //rbSwitch.setChecked(false);
+        vp.setCurrentItem(1);
     }
 
     @Override

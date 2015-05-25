@@ -454,7 +454,7 @@ public class MaptabFragment extends Fragment {
         SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         tvUpdateTime.setText(sdfWithSecond.format(track.time));
-        mBaiduMap.showInfoWindow(mInfoWindow);
+        //mBaiduMap.showInfoWindow(mInfoWindow);
 //        new Timer().schedule(new TimerTask() {
 //            @Override
 //            public void run() {
