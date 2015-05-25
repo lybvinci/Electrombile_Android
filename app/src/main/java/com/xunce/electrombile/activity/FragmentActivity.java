@@ -19,11 +19,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTabHost;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.avos.avoscloud.AVException;
@@ -42,7 +47,11 @@ import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
 
+import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.TabHost;
+import android.widget.TabWidget;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
@@ -64,9 +73,12 @@ import java.io.UnsupportedEncodingException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
+import com.xunce.electrombile.fragment.XCFragmentAdapter;
 import com.xunce.electrombile.service.PushService;
+import com.xunce.electrombile.widget.CustomViewPager;
 import com.xunce.electrombile.xpg.common.device.DeviceUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
@@ -80,7 +92,9 @@ import io.yunba.android.manager.YunBaManager;
  * Created by heyukun on 2015/3/24.
  */
 
-public class FragmentActivity extends android.support.v4.app.FragmentActivity implements SwitchFragment.GPSDataChangeListener,LocationTVClickedListener {
+public class FragmentActivity extends android.support.v4.app.FragmentActivity
+        implements SwitchFragment.GPSDataChangeListener,LocationTVClickedListener,
+        ViewPager.OnPageChangeListener, TabHost.OnTabChangeListener {
     private static String TAG = "FragmentActivity:";
     public static boolean ISSTARTED = false;
     //设置菜单条目
@@ -113,11 +127,32 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     public static  PushService pushService;
 
 
+    //5.19日为解决重影bug调整架构
+    //定义FragmentTabHost对象
+    private FragmentTabHost mTabHost;
+
+    //定义一个布局
+    private LayoutInflater layoutInflater;
+
+    private CustomViewPager vp;
+
+    //定义数组来存放Fragment界面
+    private Class fragmentArray[] = {SwitchFragment.class, MaptabFragment.class, SettingsFragment.class};
+
+    //定义数组来存放按钮图片
+    private int mImageViewArray[] = {R.drawable.tab_switch_btn,R.drawable.tab_map_btn,R.drawable.tab_settings_btn};
+
+    //Tab选项卡的文字
+    private String mTextviewArray[] = {"switch", "map", "settings"};
+
+    private List<Fragment> list = new ArrayList<Fragment>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fragment);
+//        setContentView(R.layout.activity_fragment);
+        setContentView(R.layout.main_tab_layout);
         mCenter = CmdCenter.getInstance(this);
         setManager = new SettingManager(this);
         m_FMer = getSupportFragmentManager();
@@ -128,8 +163,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
      //   initNotificaton();
         //初始化界面
         initView();
+
+        initPage();
+
+        //第一次启动时，存在第一个item的背景错误的bug，这样可以暂时解决
+        vp.setCurrentItem(1);
+        vp.setCurrentItem(0);
+
         //处理按键事件
-        dealBottomButtonsClickEvent();
+        //dealBottomButtonsClickEvent();
         //注册广播
         registerBroadCast();
         //判断是否需要开启服务
@@ -266,35 +308,67 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
      * 界面初始化
      */
     private void initView() {
-        initFragment();
-        rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
-        rbMap = (RadioButton) findViewById(R.id.rbMap);
-        rbSettings = (RadioButton)findViewById(R.id.rbSettings);
-        //实例化标题栏弹窗
-        //titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        //initFragment();
+        //rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
+       // rbMap = (RadioButton) findViewById(R.id.rbMap);
+       // rbSettings = (RadioButton)findViewById(R.id.rbSettings);
+//        //实例化标题栏弹窗
+//        //titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        vp = (CustomViewPager) findViewById(R.id.pager);
+        vp.setOnPageChangeListener(this);
+        //实例化布局对象
+        layoutInflater = LayoutInflater.from(this);
+
+        //实例化TabHost对象，得到TabHost
+        mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
+        mTabHost.setup(this, getSupportFragmentManager(), R.id.pager);
+        //取消滑动，会与地图界面冲突
+        mTabHost.setOnTabChangedListener(this);
+        //得到fragment的个数
+        int count = fragmentArray.length;
+
+        for(int i = 0; i < count; i++){
+            //为每一个Tab按钮设置图标、文字和内容
+            TabHost.TabSpec tabSpec = mTabHost.newTabSpec(mTextviewArray[i]).setIndicator(getTabItemView(i));
+            //将Tab按钮添加进Tab选项卡中
+            mTabHost.addTab(tabSpec, fragmentArray[i], null);
+        }
+
+//        mTabHost.getTabWidget().getChildAt(0)
+//                .setBackgroundResource(R.drawable.selector_tab_background);
     }
 
+    /**
+     * 初始化Fragment
+     */
+    private void initPage() {
+        switchFragment = new SwitchFragment();
+        maptabFragment = new MaptabFragment();
+        settingsFragment = new SettingsFragment();
+        list.add(switchFragment);
+        list.add(maptabFragment);
+        list.add(settingsFragment);
+        vp.setAdapter(new XCFragmentAdapter(getSupportFragmentManager(), list));
+    }
 
     /**
      * 初始化首个Fragment
      */
     private void initFragment() {
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        switchFragment = new SwitchFragment();
-        ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
+        //FragmentTransaction ft = m_FMer.beginTransaction();
+        //ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
         //ft.addToBackStack("switchFragment");
-
-        maptabFragment = new MaptabFragment();
-        ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
-        ft.hide(maptabFragment);
+        switchFragment = (SwitchFragment)getSupportFragmentManager().getFragments().get(0);
+        maptabFragment = (MaptabFragment)getSupportFragmentManager().getFragments().get(1);
+       // ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
+        //ft.hide(maptabFragment);
         //ft.addToBackStack("mapFragment");
-
-        settingsFragment = new SettingsFragment();
-        ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
-        ft.hide(settingsFragment);
+        settingsFragment = (SettingsFragment)getSupportFragmentManager().getFragments().get(2);
+        //ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
+        //ft.hide(settingsFragment);
         //ft.addToBackStack("settingsFragment");
 
-        ft.commit();
+        //ft.commit();
     }
 
     /**
@@ -531,7 +605,35 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     public void locationTVClicked() {
         mapTabClicked();
+        rbMap.setChecked(true);
+        rbSwitch.setChecked(false);
+    }
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int arg0) {
+        TabWidget widget = mTabHost.getTabWidget();
+        int oldFocusability = widget.getDescendantFocusability();
+        widget.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        mTabHost.setCurrentTab(arg0);
+        widget.setDescendantFocusability(oldFocusability);
+        mTabHost.getTabWidget().getChildAt(arg0)
+                .setBackgroundResource(R.drawable.selector_tab_background);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    public void onTabChanged(String s) {
+        int position = mTabHost.getCurrentTab();
+        vp.setCurrentItem(position, false);
     }
 
     public class MyReceiver extends BroadcastReceiver {
@@ -628,5 +730,20 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 //            isExit = false;
 //        }
 //    };
+
+    /**
+     * 给Tab按钮设置图标和文字
+     */
+    private View getTabItemView(int index){
+        View view = layoutInflater.inflate(R.layout.tab_item_view, null);
+
+        ImageView imageView = (ImageView) view.findViewById(R.id.imageview);
+        imageView.setImageResource(mImageViewArray[index]);
+
+//        TextView textView = (TextView) view.findViewById(R.id.textview);
+//        textView.setText(mTextviewArray[index]);
+
+        return view;
+    }
 
 }

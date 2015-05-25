@@ -173,9 +173,9 @@ public class CmdCenter {
 	//返回时间
 	public int parsePushServiceTime(byte[] mData){
 		return (mData[5]&0xFF       |
-				 mData[4]&0xFF << 8  |
-				 mData[3]&0xFF << 16 |
-				 mData[2]&0xFF << 24 );
+                (mData[4]&0xFF) << 8  |
+                (mData[3]&0xFF) << 16 |
+                (mData[2]&0xFF) << 24 );
 	}
 
 
@@ -184,6 +184,13 @@ public class CmdCenter {
         float y = gps - 60*x;
         y = y/60;
         return x+y;
+    }
+
+    public int parseGPSDataToInt(float gps){
+        int x =(int) gps/60;
+        float y = gps - 60*x;
+        y = y/60;
+        return (int)(x+y);
     }
 
     public LatLng convertPoint(LatLng sourcePoint){
