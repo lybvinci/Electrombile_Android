@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/logo4"
+        android:id="@+id/iv_logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_appInfo"
+        android:layout_below="@+id/iv_logo"
+        android:textColor="@color/firebrick"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_companyInfo"
+        android:layout_below="@+id/iv_logo"
+        android:text="@string/companyInfo"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:layout_marginTop="90dp"
+        android:layout_centerHorizontal="true"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"/>
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_below="@+id/tv_companyInfo"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginTop="60dp">-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="联系电话："-->
+            <!--android:textSize="20sp"/>-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="15623068409"-->
+            <!--android:inputType="number"-->
+            <!--android:textSize="20sp"-->
+            <!--android:autoLink="phone" />-->
+    <!--</LinearLayout>-->
+
+    <Button
+        android:id="@+id/btn_feadBack"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="100dp"
+        android:text="反馈"
+        android:textSize="20sp"
+        android:background="@drawable/common_btn"/>
+
+    <Button
+        android:id="@+id/btn_returnFromFelp"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="40dp"
+        android:text="返回"
+        android:textSize="20sp"
+        android:background="@drawable/special_btn"/>
+
+
+
+</RelativeLayout>

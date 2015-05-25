@@ -37,7 +37,6 @@ Thumbs.db
 *.o.d
 *_g
 *.a
-*.so
 *.pinfo
 *.gcno
 *.bar

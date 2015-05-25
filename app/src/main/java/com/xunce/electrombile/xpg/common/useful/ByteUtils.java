@@ -143,4 +143,65 @@ public class ByteUtils {
 		else
 			return false;
 	}
+
+	/**
+	 * 十六进制转字符串
+	 *
+	 * @param hexString
+	 *            十六进制字符串
+	 * @param encodeType
+	 *            编码类型4：Unicode，2：普通编码
+	 * @return 字符串
+	 */
+	public static String hexStringToString(String hexString, int encodeType) {
+		String result = "";
+		int max = hexString.length() / encodeType;
+		for (int i = 0; i < max; i++) {
+			char c = (char) ByteUtils.hexStringToAlgorism(hexString
+					.substring(i * encodeType, (i + 1) * encodeType));
+			result += c;
+		}
+		return result;
+	}
+	/**
+	 * 十六进制字符串装十进制
+	 *
+	 * @param hex
+	 *            十六进制字符串
+	 * @return 十进制数值
+	 */
+	public static int hexStringToAlgorism(String hex) {
+		hex = hex.toUpperCase();
+		int max = hex.length();
+		int result = 0;
+		for (int i = max; i > 0; i--) {
+			char c = hex.charAt(i - 1);
+			int algorism = 0;
+			if (c >= '0' && c <= '9') {
+				algorism = c - '0';
+			} else {
+				algorism = c - 55;
+			}
+			result += Math.pow(16, max - i) * algorism;
+		}
+		return result;
+	}
+
+	public static byte[] arrayCat(byte[] buf1,byte[] buf2)
+	{
+		byte[] bufret=null;
+		int len1=0;
+		int len2=0;
+		if(buf1!=null)
+			len1=buf1.length;
+		if(buf2!=null)
+			len2=buf2.length;
+		if(len1+len2>0)
+			bufret=new byte[len1+len2];
+		if(len1>0)
+			System.arraycopy(buf1,0,bufret,0,len1);
+		if(len2>0)
+			System.arraycopy(buf2,0,bufret,len1,len2);
+		return bufret;
+	}
 }

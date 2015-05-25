@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">安全宝</string>
+    <string name="action_settings">设置</string>
+    <string name="title_activity_login">登陆界面</string>
+    <string name="title_activity_register">注册界面</string>
+    <string name="title_activity_validate">验证界面</string>
+    <string name="title_activity_binding">绑定界面</string>
+    <string name="title_activity_forget">找回密码界面</string>
+    <string name="title_activity_main">主界面</string>
+    <string name="title_activity_fragment">主界面</string>
+    <string name="phoneNumberIsRegistered">电话已注册</string>
     <string name="login_username_hint">请输入用户名</string>
     <string name="login_password_hint">请输入密码</string>
     <string name="login">登录</string>
@@ -28,13 +38,16 @@
     <string name="networkError">网络无连接</string>
     <string name="networkErrorSet">网络连接不可用，是否进行设置？</string>
     <string name="networkSet">网络设置提示</string>
-    <string name="networkSettings">设置</string>
+    <string name="bindErrorSet">未绑定设备，是否要绑定设备？</string>
+    <string name="bindSet">绑定设备提示</string>
+    <string name="goBind">去绑定</string>
     <string name="skip">跳过</string>
     <string name="wifi_first">请先连上Wi-Fi网络</string>
     <string name="wifi_name">Wi-Fi名称</string>
     <string name="tip_exit">再按一次退出程序</string>
     <string name="title_about">关于</string>
     <string name="pull_to_refresh">下拉刷新</string>
+    <string name="networkSettings">网络设置</string>
     <string name="dialog_sure_to_delete">确定要删除设备吗？</string>
     <string name="dialog_sure_to_off">确定要关闭设备吗？</string>
     <string name="dialog_btn_back">返回</string>
@@ -55,14 +68,14 @@
     <string name="device_name">设备名称</string>
     <string name="name">名称</string>
     <string name="forget_password">忘记密码</string>
-    <string name="forget_password_hint1">手机号/邮箱</string>
+    <string name="forget_password_hint1">手机号</string>
     <string name="forget_password_get_verifycode">获取验证码</string>
     <string name="forget_password_verifycode">验证码</string>
     <string name="forget_password_get_verifycode_again">重新获取\n验证码</string>
     <string name="help">帮助</string>
     <string name="help_for_device">设备使用帮助</string>
     <string name="help_for_app">APP使用帮助</string>
-    <string name="login_name_hint">手机／邮箱</string>
+    <string name="login_name_hint">手机</string>
     <string name="login_forget_password">忘记密码?</string>
     <string name="register">注册</string>
     <string name="register_email">邮箱</string>
@@ -77,4 +90,7 @@
     <string name="user_name">用户名</string>
     <string name="logout">注销</string>
     <string name="dialog_call_sure_to_logout">确定要注销，返回登陆界面吗？</string>
+    <string name="appInfo">安全宝 V1.7</string>
+    <string name="companyInfo">武汉小安科技有限公司是电动车防盗智能硬件领域的领跑者,专注于用最新的技术解决每一个客户的电动车安全问题。</string>
+    <string name="company_name">武汉小安科技有限公司</string>
 </resources>

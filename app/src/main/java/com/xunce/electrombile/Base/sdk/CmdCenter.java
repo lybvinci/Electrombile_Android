@@ -20,21 +20,15 @@ package com.xunce.electrombile.Base.sdk;
 import android.content.Context;
 import android.util.Log;
 
-import com.xunce.electrombile.Base.config.Configs;
+import com.avos.avoscloud.LogUtil;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.CoordinateConverter;
 import com.xunce.electrombile.Base.config.JsonKeys;
-import com.xtremeprog.xpgconnect.XPGWifiDevice;
-import com.xtremeprog.xpgconnect.XPGWifiSDK;
-import com.xtremeprog.xpgconnect.XPGWifiSDK.XPGWifiConfigureMode;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.xunce.electrombile.xpg.common.useful.ByteUtils;
+import com.xunce.electrombile.xpg.common.useful.JSONUtils;
 
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static com.xunce.electrombile.xpg.common.useful.ByteUtils.Bytes2HexString;
-import static com.xunce.electrombile.xpg.common.useful.ByteUtils.HexString2Bytes;
 import static com.xunce.electrombile.xpg.common.useful.ByteUtils.judgeLength;
 
 
@@ -49,11 +43,6 @@ public class CmdCenter {
 	private static final String TAG = "CmdCenter";
 
 	/**
-	 * The xpg wifi sdk.
-	 */
-	private static XPGWifiSDK xpgWifiGCC;
-
-	/**
 	 * The m center.
 	 */
 	private static CmdCenter mCenter;
@@ -62,6 +51,9 @@ public class CmdCenter {
 	 * The m setting manager.
 	 */
 	private SettingManager mSettingManager;
+
+    //报警用的标志位
+
 
 	/**
 	 * Instantiates a new cmd center.
@@ -97,319 +89,134 @@ public class CmdCenter {
 	 */
 	private void init(Context c) {
 		mSettingManager = new SettingManager(c);
-
-		xpgWifiGCC = XPGWifiSDK.sharedInstance();
-
 	}
 
-	/**
-	 * Gets the XPG wifi sdk.
-	 * 
-	 * @return the XPG wifi sdk
-	 */
-	public XPGWifiSDK getXPGWifiSDK() {
-		return xpgWifiGCC;
-	}
-
-	// =================================================================
-	//
-	// 关于账号的指令
-	//
-	// =================================================================
-
-	/**
-	 * 注册账号.
-	 * 
-	 * @param phone
-	 *            注册手机号
-	 * @param code
-	 *            验证码
-	 * @param password
-	 *            注册密码
-	 */
-	public void cRegisterPhoneUser(String phone, String code, String password) {
-		xpgWifiGCC.registerUserByPhoneAndCode(phone, password, code);
-	}
-
-	/**
-	 * C register mail user.
-	 *
-	 * @param mailAddr the mail addr
-	 * @param password the password
-	 */
-	public void cRegisterMailUser(String mailAddr, String password) {
-		xpgWifiGCC.registerUserByEmail(mailAddr, password);
-	}
-
-	/**
-	 * 匿名登录
-	 * <p/>
-	 * 如果一开始不需要直接注册账号，则需要进行匿名登录.
-	 */
-	public void cLoginAnonymousUser() {
-		xpgWifiGCC.userLoginAnonymous();
-	}
-
-	/**
-	 * 账号注销.
-	 */
-	public void cLogout() {
-		Log.e(TAG, "cLogout:uesrid=" + mSettingManager.getUid());
-		xpgWifiGCC.userLogout(mSettingManager.getUid());
-	}
-
-	/**
-	 * 账号登陆.
-	 * 
-	 * @param name
-	 *            用户名
-	 * @param psw
-	 *            密码
-	 */
-	public void cLogin(String name, String psw) {
-		xpgWifiGCC.userLoginWithUserName(name, psw);
-	}
-
-	/**
-	 * 忘记密码.
-	 * 
-	 * @param phone
-	 *            手机号
-	 * @param code
-	 *            验证码
-	 * @param newPassword
-	 *            the new password
-	 */
-	public void cChangeUserPasswordWithCode(String phone, String code,
-			String newPassword) {
-		xpgWifiGCC.changeUserPasswordByCode(phone, code, newPassword);
-	}
-
-	/**
-	 * 修改密码.
-	 * 
-	 * @param token
-	 *            令牌
-	 * @param oldPsw
-	 *            旧密码
-	 * @param newPsw
-	 *            新密码
-	 */
-	public void cChangeUserPassword(String token, String oldPsw, String newPsw) {
-		xpgWifiGCC.changeUserPassword(token, oldPsw, newPsw);
-	}
-
-	/**
-	 * 根据邮箱修改密码.
-	 *
-	 * @param email            邮箱地址
-	 */
-	public void cChangePassworfByEmail(String email) {
-		xpgWifiGCC.changeUserPasswordByEmail(email);
-	}
-
-	/**
-	 * 请求向手机发送验证码.
-	 * 
-	 * @param phone
-	 *            手机号
-	 */
-	public void cRequestSendVerifyCode(String phone) {
-		xpgWifiGCC.requestSendVerifyCode(phone);
-	}
-
-	/**
-	 * 发送airlink广播，把需要连接的wifi的ssid和password发给模块。.
-	 * 
-	 * @param wifi
-	 *            wifi名字
-	 * @param password
-	 *            wifi密码
-	 */
-	public void cSetAirLink(String wifi, String password) {
-		xpgWifiGCC.setDeviceWifi(wifi, password,
-				XPGWifiConfigureMode.XPGWifiConfigureModeAirLink, 60);
-	}
-
-	/**
-	 * softap，把需要连接的wifi的ssid和password发给模块。.
-	 * 
-	 * @param wifi
-	 *            wifi名字
-	 * @param password
-	 *            wifi密码
-	 */
-	public void cSetSoftAp(String wifi, String password) {
-		xpgWifiGCC.setDeviceWifi(wifi, password,
-				XPGWifiConfigureMode.XPGWifiConfigureModeSoftAP, 30);
-	}
-
-	/**
-	 * 绑定后刷新设备列表，该方法会同时获取本地设备以及远程设备列表.
-	 * 
-	 * @param uid
-	 *            用户名
-	 * @param token
-	 *            令牌
-	 */
-	public void cGetBoundDevices(String uid, String token) {
-		xpgWifiGCC.getBoundDevices(uid, token, Configs.PRODUCT_KEY);
-		// xpgWifiSdk.getBoundDevices(uid, token);
-	}
-
-	/**
-	 * 绑定设备.
-	 * 
-	 * @param uid
-	 *            用户名
-	 * @param token
-	 *            密码
-	 * @param did
-	 *            did
-	 * @param passcode
-	 *            passcode
-	 * @param remark
-	 *            备注
-	 */
-	public void cBindDevice(String uid, String token, String did,
-			String passcode, String remark) {
-
-		xpgWifiGCC.bindDevice(uid, token, did, passcode, remark);
-	}
-
-	// =================================================================
-	//
-	// 关于控制设备的指令
-	//
-	// =================================================================
-
-	/**
-	 * 发送指令.
-	 *
-	 * @param xpgWifiDevice            the xpg wifi device
-	 * @param key the key
-	 * @param value the value
-	 */
-	public void cWrite(XPGWifiDevice xpgWifiDevice, String key, Object value) {
-
-		try {
-			final JSONObject jsonSend = new JSONObject();
-			JSONObject jsonParam = new JSONObject();
-			jsonSend.put("cmd", 1);
-			jsonParam.put(key, value);
-			jsonSend.put(JsonKeys.KEY_ACTION, jsonParam);
-			Log.i("sendjson", jsonSend.toString());
-			xpgWifiDevice.write(jsonSend.toString());
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * 获取设备状态.
-	 *
-	 * @param xpgWifiDevice            the xpg wifi device
-	 */
-	public void cGetStatus(XPGWifiDevice xpgWifiDevice) {
-		JSONObject json = new JSONObject();
-		try {
-			json.put("cmd", 2);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		xpgWifiDevice.write(json.toString());
-	}
-
-    private String packetOrder(String order,String remarks){
+    private byte[] packetOrder(byte[] cmd,byte[] serial,String order,String remarks){
         order = order + remarks;
-        char[] frameHead = {0x0000,0x0003};
-        byte[] flags = {0x00};
-        char[] cmd = {0x0090};
+		//char frameHead = 0x2A55;
+		byte[] frameHead = {-0x56,0x55};
         byte[] orderByte = order.getBytes();
-        int length = flags.length + cmd.length + orderByte.length;
-        byte[] len = judgeLength(length);
-        String orderData1 = new String(frameHead);
-        String orderData2 = new String(len);
-        String orderData3 = new String(flags);
-        String orderData4 = new String(cmd);
-        String orderData = orderData1 + orderData2 + orderData3 + orderData4 + order;
-        Log.i("OrderData:::",orderData);
+        int length = 2 + orderByte.length;
+		byte[] len ={(byte) (length>>8 & 0xff),(byte)(length & 0xff)};
+		byte[] orderData = ByteUtils.arrayCat(frameHead,cmd);
+		orderData = ByteUtils.arrayCat(orderData,len);
+		orderData = ByteUtils.arrayCat(orderData,serial);
+		orderData = ByteUtils.arrayCat(orderData,orderByte);
+		//String len1 = len;
+		//byte[] len ={(byte)(length>>8&0xFF),(byte)(length & 0xFF)};
+
+//      //  String orderData1 = String.valueOf(frameHead);
+		//String orderData1 = ByteUtils.hexStringToString(frameHead,2);
+//		// String orderData2 = String.valueOf(cmd);
+//		String orderData2 = ByteUtils.Bytes2HexString(cmd);
+//       // String orderData3 = String.valueOf(len);
+//		String orderData3 = ByteUtils.Bytes2HexString(len);
+//		//String orderData4 = String.valueOf(serial);
+//		String orderData4 = ByteUtils.Bytes2HexString(serial);
+//		StringBuilder sb = new StringBuilder();
+//		sb.append(frameHead);
+//		sb.append(cmd);
+//		sb.append(len);
+//		sb.append(serial);
+//		sb.append(order);
+//		sb.append(orderData1);
+//		sb.append(orderData2);
+//		sb.append(orderData3);
+//		sb.append(orderData4);
+//		sb.append(order);
+	//	String orderData = sb.toString();
+       // String orderData = orderData1 + orderData2 + orderData3 +orderData4 + order;
+		Log.i("OrderData:::",orderData.toString());
         return orderData;
     }
 
-	/**
-	 * 断开连接.
-	 * 
-	 * @param xpgWifiDevice
-	 *            the xpg wifi device
-	 */
-	public void cDisconnect(XPGWifiDevice xpgWifiDevice) {
-		xpgWifiDevice.disconnect();
+
+    //解析gps数据
+	//返回经度
+    public float parsePushServiceLat(byte[] mData){
+		return (mData[9]&0xFF        |
+				(mData[8]&0xFF) << 8  |
+				(mData[7]&0xFF) << 16 |
+				(mData[6]&0xFF) << 24 );
+	}
+	public int parsePushServiceLongInt(byte[] mData){
+		return (mData[9]&0xFF        |
+				(mData[8]&0xFF) << 8  |
+				(mData[7]&0xFF) << 16 |
+				(mData[6]&0xFF) << 24 );
+	}
+	//返回纬度
+	public float parsePushServiceLong(byte[] mData){
+		return (mData[13]&0xFF        |
+				(mData[12]&0xFF) << 8  |
+				(mData[11]&0xFF) << 16 |
+				(mData[10]&0xFF) << 24 );
+	}
+	public int parsePushServiceLat2(byte[] mData){
+		return (mData[13]&0xFF        |
+				(mData[12]&0xFF) << 8  |
+				(mData[11]&0xFF) << 16 |
+				(mData[10]&0xFF) << 24 );
+	}
+	//返回方向
+	public String parsePushServiceDirection(byte[] mData){
+		return String.valueOf(mData[14]) + String.valueOf(mData[15]);
+	}
+	//返回速度
+	public int parsePushServiceSpeed(byte[] mData){
+		return Integer.valueOf(mData[16]);
+	}
+	//返回是否是GPS定位
+	public boolean parsePushServiceIsGPS(byte[] mData){
+		return Boolean.valueOf(String.valueOf(mData[17]));
+	}
+	//返回时间
+	public int parsePushServiceTime(byte[] mData){
+		return (mData[5]&0xFF       |
+				 mData[4]&0xFF << 8  |
+				 mData[3]&0xFF << 16 |
+				 mData[2]&0xFF << 24 );
 	}
 
-	/**
-	 * 解除绑定.
-	 * 
-	 * @param uid
-	 *            the uid
-	 * @param token
-	 *            the token
-	 * @param did
-	 *            the did
-	 * @param passCode
-	 *            the pass code
-	 */
-	public void cUnbindDevice(String uid, String token, String did,
-			String passCode) {
-        mSettingManager.cleanDevice();
-		xpgWifiGCC.unbindDevice(uid, token, did, passCode);
+
+    public float parseGPSData(float gps){
+        int x =(int) gps/60;
+        float y = gps - 60*x;
+        y = y/60;
+        return x+y;
+    }
+
+    public LatLng convertPoint(LatLng sourcePoint){
+        CoordinateConverter cdc = new CoordinateConverter();
+        cdc.from(CoordinateConverter.CoordType.GPS);
+        cdc.coord(sourcePoint);
+        LatLng desPoint = cdc.convert();
+        return desPoint;
+    }
+
+	//3 、GPRS 定时发送设置
+	public void cGprsSend(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.GPRS_SEND,"");
+		Log.i("定时发送设置", data.toString());
+		//发送数据
+		//xpgWifiDevice.write(data);
 	}
 
-	/**
-	 * 更新备注.
-	 * 
-	 * @param uid
-	 *            the uid
-	 * @param token
-	 *            the token
-	 * @param did
-	 *            the did
-	 * @param passCode
-	 *            the pass code
-	 * @param remark
-	 *            the remark
-	 */
-	public void cUpdateRemark(String uid, String token, String did,
-			String passCode, String remark) {
-		xpgWifiGCC.bindDevice(uid, token, did, passCode, remark);
+	//6 、设置 SOS 管理员
+	public void cSOSManagerAdd(String phoneNumber){
+		phoneNumber = phoneNumber + "#";
+	//	String data = packetOrder(JsonKeys.SOS_ADD,phoneNumber);
+		//xpgWifiDevice.write(data);
 	}
 
-    //安全宝相关
+	//7 、删除 SOS  管理员
+	public void cSOSManagerDelete(String phoneNumber){
+		phoneNumber = phoneNumber + "#";
+	//	String data = packetOrder(JsonKeys.SOS_DELETE,phoneNumber);
+		//xpgWifiDevice.write(data);
+	}
 
-    //3 、GPRS 定时发送设置
-    public void cGprsSend(XPGWifiDevice xpgWifiDevice){
-        Log.i("CmdCenterAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",xpgWifiDevice.toString() +"qqqqqqqqqqqqqqqqqqqqqqq");
-        String data = packetOrder(JsonKeys.GPRS_SEND,"");
-        Log.i("定时发送设置",data);
-        xpgWifiDevice.write(data);
-    }
-
-    //6 、设置 SOS 管理员
-    public void cSOSManagerAdd(XPGWifiDevice xpgWifiDevice, String phoneNumber){
-        phoneNumber = phoneNumber + "#";
-        String data = packetOrder(JsonKeys.SOS_ADD,phoneNumber);
-        xpgWifiDevice.write(data);
-    }
-
-    //7 、删除 SOS  管理员
-    public void cSOSManagerDelete(XPGWifiDevice xpgWifiDevice, String phoneNumber){
-        phoneNumber = phoneNumber + "#";
-        String data = packetOrder(JsonKeys.SOS_DELETE,phoneNumber);
-        xpgWifiDevice.write(data);
-    }
-
-    //10 工作模式设置
+	//10 工作模式设置
      /*
     *  0# 追踪模式：GPS 一直开启；
     *  1# 智能省电：设备静止时 GPS 关闭，运动或被查询位置时，GPS 会开启； （有些设备有传感器检测自身运动状态）
@@ -417,218 +224,78 @@ public class CmdCenter {
     *  3# 冬眠模式：GPS 一直关闭；
     *  若设置成功，设备会回复：SET SAVING OK
     */
-    //模式一
-    public void cModeSet0(XPGWifiDevice xpgWifiDevice){
-        String data = packetOrder(JsonKeys.MODE_SET_0,"");
-        xpgWifiDevice.write(data);
-    }
-    //模式二
-    public void cModeSet1(XPGWifiDevice xpgWifiDevice){
-        String data = packetOrder(JsonKeys.MODE_SET_1,"");
-        xpgWifiDevice.write(data);
-    }
-    //模式三
-    public void cModeSet2(XPGWifiDevice xpgWifiDevice){
-        String data = packetOrder(JsonKeys.MODE_SET_2,"");
-        xpgWifiDevice.write(data);
-    }
-    //模式四
-    public void cModeSet3(XPGWifiDevice xpgWifiDevice){
-        String data = packetOrder(JsonKeys.MODE_SET_3,"");
-        xpgWifiDevice.write(data);
-    }
-
-    //13 添加电子围栏
-    public void cFenceAdd(XPGWifiDevice xpgWifiDevice){
-        String data = packetOrder(JsonKeys.FENCE_SET_1,"");
-        xpgWifiDevice.write(data);
-    }
-
-    //14删除电子围栏
-    public void cFenceDelete(XPGWifiDevice xpgWifiDevice){
-        String data = packetOrder(JsonKeys.FENCE_DELETE,"");
-        xpgWifiDevice.write(data);
-    }
-
-    //21 重启设备
-    public void cResetDevice(XPGWifiDevice xpgWifiDevice){
-        String data = packetOrder(JsonKeys.RESET,"");
-        xpgWifiDevice.write(data);
-    }
-
-    //25 查询经纬度
-    public void cWhere(XPGWifiDevice xpgWifiDevice){
-        String data = packetOrder(JsonKeys.WHERE,"");
-        xpgWifiDevice.write(data);
-    }
-
-
-    //解析收到的字符串 分解成命令
-    public String cParseString(byte[] binary) {
-        String str1 = Bytes2HexString(binary);
-        Log.i("CmdCenter.....",str1);
-        String s = str1.replaceAll(" ", "");
-        Log.i("CmdCenter.....",s);
-        byte[] buf1 = HexString2Bytes(s);
-        String parseString = buf1.toString();
-        Log.i("CmdCenter.....",parseString);
-        if (parseString.contains("SET TIMER OK")) {
-            return "SET_TIMER_OK";
-        }
-        if (parseString.contains("SET SOS OK")) {
-            return "SET_SOS_OK";
-        }
-        if (parseString.contains("DEL SOS OK")) {
-            return "DEL_SOS_OK";
-        }
-        if (parseString.contains("SET SAVING OK")) {
-            return "SET_SAVING_OK";
-        }
-        if (parseString.contains("RESET OK")) {
-            return "RESET_OK";
-        }
-        if(parseString.contains("Lat:")) {
-            Pattern p = Pattern.compile("Lat:.*");
-            Matcher m = p.matcher(parseString);
-            if (m.find()) {
-                String data = m.group();
-                Log.i("gpsData...",data);
-                return data;
-            }
-        }
-        return null;
-    }
-
-    //解析gps数据
-    public HashMap<String, String> parseGps(String data){
-        String Lat = null;
-        String Lon = null;
-        String Course = null;
-        String Speed = null;
-        String DateTime = null;
-        Pattern pLat = Pattern.compile("(Lat:)(\\.*)(,)");
-        Pattern pLon = Pattern.compile("(Lon:)(\\.*)(,)");
-        Pattern pCourse = Pattern.compile("(Course:)(\\.*)(,)");
-        Pattern pSpeed = Pattern.compile("(Speed:)(\\.*)(,)");
-        Pattern pDateTime = Pattern.compile("(DateTime:)(\\.*)");
-        Matcher m = pLat.matcher(data);
-        if(m.find()){
-            Lat = m.group(2);
-        }
-        m = pLon.matcher(data);
-        if(m.find()){
-            Lon = m.group(2);
-        }
-        m = pCourse.matcher(data);
-        if(m.find()){
-            Course = m.group(2);
-        }
-        m = pSpeed.matcher(data);
-        if(m.find()){
-            Speed = m.group(2);
-        }
-        m = pDateTime.matcher(data);
-        if(m.find()){
-            DateTime = m.group(2);
-        }
-        if(Lat != null
-                && Lon != null
-                && Course != null
-                && Speed != null
-                && DateTime != null) {
-            HashMap<String, String> hm = new HashMap<String, String>();
-            hm.put("Lat", Lat);
-            hm.put("Lon", Lon);
-            hm.put("Course",Course);
-            hm.put("Speed",Speed);
-            hm.put("DateTime", DateTime);
-            return hm;
-        }
-        else{
-            return null;
-        }
-    }
-
-	// =================================================================
-	//
-	// 智能云空调控制相关
-	//
-	// =================================================================
-	/**
-	 * C switch on.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param isOn the is on
-	 */
-	public void cSwitchOn(XPGWifiDevice xpgWifiDevice, boolean isOn) {
-		cWrite(xpgWifiDevice, JsonKeys.ON_OFF, isOn);
-		cGetStatus(xpgWifiDevice);
+	//模式一
+	public void cModeSet0(){
+	//	String data = packetOrder(JsonKeys.MODE_SET_0,"");
+		//xpgWifiDevice.write(data);
+	}
+	//模式二
+	public void cModeSet1(){
+	//	String data = packetOrder(JsonKeys.MODE_SET_1,"");
+		//xpgWifiDevice.write(data);
+	}
+	//模式三
+	public void cModeSet2(){
+	//	String data = packetOrder(JsonKeys.MODE_SET_2,"");
+	//	xpgWifiDevice.write(data);
+	}
+	//模式四
+	public void cModeSet3(){
+	//	String data = packetOrder(JsonKeys.MODE_SET_3,"");
+	//	xpgWifiDevice.write(data);
 	}
 
-	/**
-	 * C set shake.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param isOn the is on
-	 */
-	public void cSetShake(XPGWifiDevice xpgWifiDevice, boolean isOn) {
-		cWrite(xpgWifiDevice, JsonKeys.FAN_SHAKE, isOn);
-		cGetStatus(xpgWifiDevice);
+	//13 添加电子围栏
+	public byte[] cFenceAdd(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.FENCE_SET_1,"");
+		return data;
 	}
 
-	/**
-	 * C mode.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param mode the mode
-	 */
-	public void cMode(XPGWifiDevice xpgWifiDevice, int mode) {
-		cWrite(xpgWifiDevice, JsonKeys.MODE, mode);
-		cGetStatus(xpgWifiDevice);
+	//14删除电子围栏
+	public byte[] cFenceDelete(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.FENCE_DELETE,"");
+		return data;
+	}
+	//查询电子围栏
+	public byte[] cFenceSearch(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,0x03},serial,"FENCE,1?","");
+		return data;
+	}
+	//测试报警
+	public byte[] cTest(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,-1},serial,"AA","");
+		return data;
 	}
 
-	/**
-	 * C fan speed.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param fanSpeed the fan speed
-	 */
-	public void cFanSpeed(XPGWifiDevice xpgWifiDevice, int fanSpeed) {
-		cWrite(xpgWifiDevice, JsonKeys.FAN_SPEED, fanSpeed);
-		cGetStatus(xpgWifiDevice);
+	//测试GPS
+	public byte[] cTestGPS(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,-2},serial,"AA","");
+		return data;
 	}
 
-	/**
-	 * C time on.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param time the time
-	 */
-	public void cTimeOn(XPGWifiDevice xpgWifiDevice, int time) {
-		cWrite(xpgWifiDevice, JsonKeys.TIME_ON, time);
-		cGetStatus(xpgWifiDevice);
+	//21 重启设备
+	public void cResetDevice(){
+	//	String data = packetOrder(JsonKeys.RESET,"");
+		//xpgWifiDevice.write(data);
 	}
 
-	/**
-	 * C time off.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param time the time
-	 */
-	public void cTimeOff(XPGWifiDevice xpgWifiDevice, int time) {
-		cWrite(xpgWifiDevice, JsonKeys.TIME_OFF, time);
-		cGetStatus(xpgWifiDevice);
+	//25 查询经纬度
+	public void cWhere(){
+	//	String data = packetOrder(JsonKeys.WHERE,"");
+		//xpgWifiDevice.write(data);
 	}
 
-	/**
-	 * C set temp.
-	 *
-	 * @param xpgWifiDevice the xpg wifi device
-	 * @param templature the templature
-	 */
-	public void cSetTemp(XPGWifiDevice xpgWifiDevice, int templature) {
-		cWrite(xpgWifiDevice, JsonKeys.SET_TEMP, templature);
-		cGetStatus(xpgWifiDevice);
+	public byte[] getSerial(byte firstByte,byte secondByte){
+		if(secondByte == 127){
+			secondByte = 0x00;
+			if(firstByte == 127){
+				firstByte =0x00;
+			}else {
+				firstByte++;
+			}
+		}else{
+			secondByte ++;
+		}
+		return new byte[]{firstByte,secondByte};
 	}
-
 }

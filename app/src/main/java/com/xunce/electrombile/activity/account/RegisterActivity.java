@@ -22,31 +22,34 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.InputType;
-import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVMobilePhoneVerifyCallback;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.LogUtil;
+import com.avos.avoscloud.RequestMobileCodeCallback;
+import com.avos.avoscloud.SignUpCallback;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.xpg.common.system.IntentUtils;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.common.useful.StringUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-// TODO: Auto-generated Javadoc
 
 /**
  * ClassName: Class RegisterActivity. <br/>
@@ -104,16 +107,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	 * The ll input psw.
 	 */
 	private LinearLayout llInputPsw;
-
-	/**
-	 * The iv back.
-	 */
-	private ImageView ivBack;
-
-	/**
-	 * The iv step.
-	 */
-	//private ImageView ivStep;
 
 	/**
 	 * The tb psw flag.
@@ -222,7 +215,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				break;
 
 			case TOAST:
-				ToastUtils.showShort(RegisterActivity.this, (String) msg.obj);
+                ToastUtils.showShort(RegisterActivity.this, (String) msg.obj);
 				dialog.cancel();
 				break;
 			}
@@ -230,18 +223,17 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	};
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
-		initViews();
-		initEvents();
+        super.onCreate(savedInstanceState);
+//		initViews();
+//		initEvents();
 	}
 
-	/**
+    /**
 	 * Inits the views.
 	 */
-	private void initViews() {
-		tvTips = (TextView) findViewById(R.id.tvTips);
-		tvPhoneSwitch = (TextView) findViewById(R.id.tvPhoneSwitch);
+    @Override
+	public void initViews() {
 		etName = (EditText) findViewById(R.id.etName);
 		etInputCode = (EditText) findViewById(R.id.etInputCode);
 		etInputPsw = (EditText) findViewById(R.id.etInputPsw);
@@ -250,19 +242,17 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		btnSure = (Button) findViewById(R.id.btnSure);
 		llInputCode = (LinearLayout) findViewById(R.id.llInputCode);
 		llInputPsw = (LinearLayout) findViewById(R.id.llInputPsw);
-		ivBack = (ImageView) findViewById(R.id.ivBack);
 		tbPswFlag = (ToggleButton) findViewById(R.id.tbPswFlag);
 		toogleUI(ui_statue.DEFAULT);
 		dialog = new ProgressDialog(this);
 		dialog.setMessage("处理中，请稍候...");
 	}
 
-	private void initEvents() {
+    @Override
+	public void initEvents() {
 		btnGetCode.setOnClickListener(this);
 		btnReGetCode.setOnClickListener(this);
 		btnSure.setOnClickListener(this);
-		tvPhoneSwitch.setOnClickListener(this);
-		ivBack.setOnClickListener(this);
 		tbPswFlag.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
@@ -271,15 +261,9 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				if (isChecked) {
 					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-					etInputPsw.setKeyListener(DigitsKeyListener
-							.getInstance(getResources().getString(
-                                    R.string.register_name_digits)));
 				} else {
 					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 							| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-					etInputPsw.setKeyListener(DigitsKeyListener
-							.getInstance(getResources().getString(
-                                    R.string.register_name_digits)));
 				}
 
 			}
@@ -291,198 +275,205 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btnGetCode:
-			String phone = etName.getText().toString().trim();
-			if (!StringUtils.isEmpty(phone) && phone.length() == 11) {
-				toogleUI(ui_statue.PHONE);
-				sendVerifyCode(phone);
-			} else {
-				ToastUtils.showShort(this, "请输入正确的手机号码。");
-			}
-
+            //注册并且发送验证码
+            getVerifyCode();
 			break;
 		case R.id.btnReGetCode:
-			String phone2 = etName.getText().toString().trim();
-			if (!StringUtils.isEmpty(phone2) && phone2.length() == 11) {
-				toogleUI(ui_statue.PHONE);
-				sendVerifyCode(phone2);
-			} else {
-				ToastUtils.showShort(this, "请输入正确的手机号码。");
-			}
+            //重新获取短信验证码
+            reGetVerifyCode();
 			break;
 		case R.id.btnSure:
-			doRegister();
-			break;
-		case R.id.tvPhoneSwitch:
-			if (isEmail) {
-				toogleUI(ui_statue.PHONE);
-				isEmail = false;
-			} else {
-				toogleUI(ui_statue.EMAIL);
-				isEmail = true;
-			}
-			break;
-		case R.id.ivBack:
-			onBackPressed();
+			//验证短信验证码是否正确
+            verifySmsCode();
 			break;
 		}
 
 	}
 
-	/**
-	 * Toogle ui.
-	 * 
-	 * @param statue
-	 *            the statu
-	 */
-	private void toogleUI(ui_statue statue) {
-		if (statue == ui_statue.DEFAULT) {
-			llInputCode.setVisibility(View.GONE);
-			llInputPsw.setVisibility(View.GONE);
-			btnSure.setVisibility(View.GONE);
-			btnGetCode.setVisibility(View.VISIBLE);
-			etName.setHint("手机号");
-			etName.setText("");
-			tvTips.setVisibility(View.GONE);
-		} else if (statue == ui_statue.PHONE) {
-			llInputCode.setVisibility(View.VISIBLE);
-			llInputPsw.setVisibility(View.VISIBLE);
-			btnSure.setVisibility(View.VISIBLE);
-			btnGetCode.setVisibility(View.GONE);
-			etName.setHint("手机号");
-			tvPhoneSwitch.setText("邮箱注册");
-			tvTips.setVisibility(View.GONE);
-		} else {
-			llInputCode.setVisibility(View.GONE);
-			btnGetCode.setVisibility(View.GONE);
-			llInputPsw.setVisibility(View.VISIBLE);
-			btnSure.setVisibility(View.VISIBLE);
-			etName.setHint("邮箱");
-			etName.setText("");
-			tvPhoneSwitch.setText("手机注册");
-			tvTips.setVisibility(View.VISIBLE);
-		}
-	}
 
-	/**
-	 * 处理注册动作
-	 */
-	private void doRegister() {
-		if (!isEmail) {
+    //验证短信验证码
+    private void verifySmsCode() {
+        String code = etInputCode.getText().toString().trim();
+        if("".equals(code)){
+            ToastUtils.showShort(getApplicationContext(), getString(R.string.validateCodeNull));
+        }else{
+            AVUser.verifyMobilePhoneInBackground(code, new AVMobilePhoneVerifyCallback() {
+                @Override
+                public void done(AVException e) {
+                    if (e == null) {
+                        LogUtil.log.i(getString(R.string.validateSuccess));
+                        ToastUtils.showShort(getApplicationContext(), getString(R.string.validateSuccess));
+                        Message msg = new Message();
+                        msg.what = handler_key.REG_SUCCESS.ordinal();
+                        msg.obj = "注册成功";
+                        handler.sendMessage(msg);
+                    } else if (AVException.CONNECTION_FAILED == e.getCode()) {
+                        Message msg = new Message();
+                        msg.what = handler_key.TOAST.ordinal();
+                        msg.obj = "网络连接失败";
+                        handler.sendMessage(msg);
+                    } else {
+                        Message msg = new Message();
+                        msg.what = handler_key.TOAST.ordinal();
+                        msg.obj = "验证失败";
+                        handler.sendMessage(msg);
+                    }
+                }
+            });
+        }
+    }
 
-			String phone = etName.getText().toString().trim();
-			String code = etInputCode.getText().toString().trim();
-			String password = etInputPsw.getText().toString();
-			if (phone.length() != 11) {
-				Toast.makeText(this, "电话号码格式不正确", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (code.length() == 0) {
-				Toast.makeText(this, "请输入验证码", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (password.contains(" ")) {
-				Toast.makeText(this, "密码不能有空格", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (password.length() < 6 || password.length() > 16) {
-				Toast.makeText(this, "密码长度应为6~16", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			mCenter.cRegisterPhoneUser(phone, code, password);
-			Log.e("Register", "phone=" + phone + ";code=" + code + ";password="
-                    + password);
-			dialog.show();
-		} else {
-			String mail = etName.getText().toString().trim();
-			String password = etInputPsw.getText().toString();
-			if (!mail.contains("@")) {
-				Toast.makeText(this, "邮箱格式不正确", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (password.contains(" ")) {
-				Toast.makeText(this, "密码不能有空格", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			if (password.length() < 6 || password.length() > 16) {
-				Toast.makeText(this, "密码长度应为6~16", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			mCenter.cRegisterMailUser(mail, password);
-			Log.e("Register", "mail=" + mail + ";password=" + password);
-			dialog.show();
-		}
+    //获取短信验证码
+    private void getVerifyCode() {
+        String phone = etName.getText().toString().trim();
+        String password = etInputPsw.getText().toString();
+        if (StringUtils.isEmpty(phone) || phone.length() != 11) {
+            ToastUtils.showShort(this, "请输入正确的手机号码。");
+            return;
+        }
+        if (password.contains(" ")) {
+            Toast.makeText(this, "密码不能有空格", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (password.length() < 6 || password.length() > 16) {
+            Toast.makeText(this, "密码长度应为6~16", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        toogleUI(ui_statue.PHONE);
+        registerAndSendVerifyCode(phone, password);
+    }
 
-	}
+    //再次获取验证码的方法
+    private void reGetVerifyCode() {
+        String phone = etName.getText().toString().trim();
+        if (StringUtils.isEmpty(phone) || phone.length() != 11) {
+            ToastUtils.showShort(this, "请输入正确的手机号码。");
+            return;
+        }
+        toogleUI(ui_statue.PHONE);
+        dialog.show();
+        btnReGetCode.setEnabled(false);
+        btnReGetCode.setBackgroundResource(R.drawable.button_gray_short);
+        secondleft = 60;
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.sendEmptyMessage(handler_key.TICK_TIME.ordinal());
+            }
+        }, 1000, 1000);
+        //此方法会再次发送验证短信
+        AVUser.requestMobilePhoneVerifyInBackground(phone,new RequestMobileCodeCallback() {
+            @Override
+            public void done(AVException e) {
+                if (e == null) {
+                    Message msg = new Message();
+                    msg.what = handler_key.TOAST.ordinal();
+                    msg.obj = "发送成功";
+                    handler.sendMessage(msg);
+                } else {
+                    Message msg = new Message();
+                    msg.what = handler_key.TOAST.ordinal();
+                    msg.obj = "发送失败";
+                    handler.sendMessage(msg);
+                }
+            }
+        });
+    }
 
-	/**
+
+
+    /**
 	 * 处理发送验证码动作
-	 * 
+	 * 实际上是先注册，再验证。
 	 * @param phone
 	 *            the phone
 	 */
-	private void sendVerifyCode(final String phone) {
-		// TODO Auto-generated method stub
-		dialog.show();
-		btnReGetCode.setEnabled(false);
-		btnReGetCode.setBackgroundResource(R.drawable.button_gray_short);
-		secondleft = 60;
-		timer = new Timer();
-		timer.schedule(new TimerTask() {
+	private void registerAndSendVerifyCode(final String phone, final String password) {
+        dialog.show();
+        btnReGetCode.setEnabled(false);
+        btnReGetCode.setBackgroundResource(R.drawable.button_gray_short);
+        secondleft = 60;
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
 
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				handler.sendEmptyMessage(handler_key.TICK_TIME.ordinal());
-			}
-		}, 1000, 1000);
+            @Override
+            public void run() {
+                handler.sendEmptyMessage(handler_key.TICK_TIME.ordinal());
+            }
+        }, 1000, 1000);
 
-		mCenter.cRequestSendVerifyCode(phone);
-	}
-
-	/*
-	 * 用户注册结果回调接口.
-	 */
-	/* (non-Javadoc)
-	 * @see com.gizwits.framework.activity.BaseActivity#didRegisterUser(int, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	@Override
-	protected void didRegisterUser(int error, String errorMessage, String uid,
-			String token) {
-		Log.i("error message uid token", error + " " + errorMessage + " " + uid
-                + " " + token);
-		if (!uid.equals("") && !token.equals("")) {// 注册成功
-			Message msg = new Message();
-			msg.what = handler_key.REG_SUCCESS.ordinal();
-			msg.obj = "注册成功";
-			handler.sendMessage(msg);
-			setManager.setUid(uid);
-			setManager.setToken(token);
-
-		} else {// 注册失败
-			Message msg = new Message();
-			msg.what = handler_key.TOAST.ordinal();
-			msg.obj = errorMessage;
-			handler.sendMessage(msg);
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see com.gizwits.framework.activity.BaseActivity#didRequestSendVerifyCode(int, java.lang.String)
-	 */
-	@Override
-	protected void didRequestSendVerifyCode(int error, String errorMessage) {
-		Log.i("error message ", error + " " + errorMessage);
-		if (error == 0) {// 发送成功
-			Message msg = new Message();
-			msg.what = handler_key.TOAST.ordinal();
-			msg.obj = "发送成功";
-			handler.sendMessage(msg);
-		} else {// 发送失败
-			Message msg = new Message();
-			msg.what = handler_key.TOAST.ordinal();
-			msg.obj = errorMessage;
-			handler.sendMessage(msg);
-		}
-	}
+        AVUser user = new AVUser();
+        user.setUsername(phone);
+        user.setPassword(password);
+        user.setMobilePhoneNumber(phone);
+        //此方法会注册并且发送验证短信
+        user.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(AVException e) {
+                if (e == null) {
+                    setManager.setPhoneNumber(phone);
+                    LogUtil.log.i(getString(R.string.registerSuccess));
+                    ToastUtils.showShort(getApplicationContext(), getString(R.string.registerSuccess));
+                    Message msg = new Message();
+                    msg.what = handler_key.TOAST.ordinal();
+                    msg.obj = "发送成功";
+                    handler.sendMessage(msg);
+                } else {
+                    Message msg = new Message();
+                    msg.what = handler_key.TOAST.ordinal();
+                    msg.obj = "发送失败";
+                    handler.sendMessage(msg);
+                }
+            }
+        });
+    }
+    /**
+     * 改变布局
+     *
+     * @param statue
+     *            the statu
+     */
+    private void toogleUI(ui_statue statue) {
+        if (statue == ui_statue.DEFAULT) {
+            llInputCode.setVisibility(View.GONE);
+            //	llInputPsw.setVisibility(View.GONE);
+            btnSure.setVisibility(View.GONE);
+            btnGetCode.setVisibility(View.VISIBLE);
+            etName.setHint("手机号");
+            etName.setText("");
+			/*tvTips.setVisibility(View.GONE);*/
+        } else if (statue == ui_statue.PHONE) {
+            llInputCode.setVisibility(View.VISIBLE);
+            //	llInputPsw.setVisibility(View.VISIBLE);
+            btnSure.setVisibility(View.VISIBLE);
+            btnGetCode.setVisibility(View.GONE);
+            etName.setHint("手机号");
+			/*tvPhoneSwitch.setText("邮箱注册");*/
+			/*tvTips.setVisibility(View.GONE);*/
+        } else {
+            llInputCode.setVisibility(View.GONE);
+            btnGetCode.setVisibility(View.GONE);
+            //	llInputPsw.setVisibility(View.VISIBLE);
+            btnSure.setVisibility(View.VISIBLE);
+            etName.setHint("邮箱");
+            etName.setText("");
+            tvPhoneSwitch.setText("手机注册");
+            tvTips.setVisibility(View.VISIBLE);
+        }
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            if(builder == null) {
+                builder = NetworkUtils.networkDialogNoCancel(this);
+            }else{
+                builder.show();
+            }
+        }else{
+            builder = null;
+        }
+    }
 
 }

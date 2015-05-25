@@ -18,12 +18,11 @@
 package com.xunce.electrombile.activity.account;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.InputType;
-import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -35,8 +34,14 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.LogUtil;
+import com.avos.avoscloud.RequestMobileCodeCallback;
+import com.avos.avoscloud.UpdatePasswordCallback;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.common.useful.StringUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -45,7 +50,7 @@ import java.util.TimerTask;
 
 /**
  * ClassName: Class ForgetPswActivity. <br/>
- * 忘记密码，该类主要包含了两个修改密码的方法，手机号注册的用户通过获取验证码修改密码，邮箱注册的用户需要通过注册邮箱的重置邮件进行重置。<br/>
+ * 忘记密码，该类主要包含了两个修改密码的方法，手机号注册的用户通过获取验证码修改密码.<br/>
  * date: 2014-12-09 17:27:10 <br/>
  * 
  * @author StephenC
@@ -105,9 +110,6 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 	 * The tb psw flag.
 	 */
 	private ToggleButton tbPswFlag;
-
-	/** 是否邮箱注册标识位 */
-	private boolean isEmail = false;
 
 	/**
 	 * The secondleft.
@@ -218,16 +220,15 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_forget_reset);
-		initViews();
-		initEvents();
+        super.onCreate(savedInstanceState);
 	}
 
 	/**
 	 * Inits the views.
 	 */
-	private void initViews() {
+    @Override
+	public void initViews() {
 		etName = (EditText) findViewById(R.id.etName);
 		etInputCode = (EditText) findViewById(R.id.etInputCode);
 		etInputPsw = (EditText) findViewById(R.id.etInputPsw);
@@ -246,11 +247,11 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 	/**
 	 * Inits the events.
 	 */
-	private void initEvents() {
+    @Override
+	public void initEvents() {
 		btnGetCode.setOnClickListener(this);
 		btnReGetCode.setOnClickListener(this);
 		btnSure.setOnClickListener(this);
-		// tvPhoneSwitch.setOnClickListener(this);
 		ivBack.setOnClickListener(this);
 		tbPswFlag
 				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -262,15 +263,9 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 							etInputPsw
 									.setInputType(InputType.TYPE_CLASS_TEXT
 											| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-							etInputPsw.setKeyListener(DigitsKeyListener
-									.getInstance(getResources().getString(
-                                            R.string.register_name_digits)));
 						} else {
 							etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
 									| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-							etInputPsw.setKeyListener(DigitsKeyListener
-									.getInstance(getResources().getString(
-                                            R.string.register_name_digits)));
 						}
 					}
 
@@ -286,31 +281,10 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.btnGetCode:
-			String name = etName.getText().toString().trim();
-			if (!StringUtils.isEmpty(name)) {
-				if (name.contains("@")) {
-					isEmail = true;
-					toogleUI(ui_statu.EMAIL);
-					getEmail(name);
-				} else if (name.length() == 11) {
-					toogleUI(ui_statu.PHONE);
-					sendVerifyCode(name);
-				} else {
-					ToastUtils.showShort(this, "请输入正确的账号。");
-				}
-			} else {
-				ToastUtils.showShort(this, "请输入正确的账号。");
-			}
-
+            getVerifyCode();
 			break;
 		case R.id.btnReGetCode:
-			String phone2 = etName.getText().toString().trim();
-			if (!StringUtils.isEmpty(phone2) && phone2.length() == 11) {
-				toogleUI(ui_statu.PHONE);
-				sendVerifyCode(phone2);
-			} else {
-				ToastUtils.showShort(this, "请输入正确的手机号码。");
-			}
+            getVerifyCode();
 			break;
 		case R.id.btnSure:
 			doChangePsw();
@@ -324,38 +298,15 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 		}
 	}
 
-	/**
-	 * Toogle ui.
-	 * 
-	 * @param statu
-	 *            the statu
-	 */
-	private void toogleUI(ui_statu statu) {
-		if (statu == ui_statu.DEFAULT) {
-			llInputCode.setVisibility(View.GONE);
-			llInputPsw.setVisibility(View.GONE);
-			btnSure.setVisibility(View.GONE);
-			btnGetCode.setVisibility(View.VISIBLE);
-		} else if (statu == ui_statu.PHONE) {
-			llInputCode.setVisibility(View.VISIBLE);
-			llInputPsw.setVisibility(View.VISIBLE);
-			btnSure.setVisibility(View.VISIBLE);
-			btnGetCode.setVisibility(View.GONE);
-		} else {
-
-		}
-	}
-
-	/**
-	 * Gets the email.
-	 * 
-	 * @param email
-	 *            the email
-	 * @return the email
-	 */
-	private void getEmail(String email) {
-		mCenter.cChangePassworfByEmail(email);
-	}
+    private void getVerifyCode() {
+        String name = etName.getText().toString().trim();
+        if (!StringUtils.isEmpty(name) && name.length() == 11) {
+            toogleUI(ui_statu.PHONE);
+            sendVerifyCode(name);
+        } else {
+            ToastUtils.showShort(this, "请输入正确的手机号码!");
+        }
+    }
 
 	/**
 	 * 执行手机号重置密码操作
@@ -381,7 +332,26 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 			Toast.makeText(this, "密码长度应为6~16", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		mCenter.cChangeUserPasswordWithCode(phone, code, password);
+        AVUser.resetPasswordBySmsCodeInBackground(code,password,new UpdatePasswordCallback() {
+            @Override
+            public void done(AVException e) {
+                if( e == null){
+                    Message msg = new Message();
+			        msg.what = handler_key.TOAST.ordinal();
+			        msg.obj = "修改成功";
+			        handler.sendMessage(msg);
+			        handler.sendEmptyMessageDelayed(
+					handler_key.CHANGE_SUCCESS.ordinal(), 2000);
+                }else{
+                    LogUtil.log.i(e.toString());
+                    ToastUtils.showShort(getApplicationContext(), getString(R.string.validatedFailed));
+                    Message msg = new Message();
+                    msg.what = handler_key.TOAST.ordinal();
+                    msg.obj = "修改失败,验证码错误";
+                    handler.sendMessage(msg);
+                }
+            }
+        });
 		dialog.show();
 	}
 
@@ -406,59 +376,59 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 			}
 		}, 1000, 1000);
 		//发送请求验证码指令
-		mCenter.cRequestSendVerifyCode(phone);
+        AVUser.requestPasswordResetBySmsCodeInBackground(phone, new RequestMobileCodeCallback() {
+            @Override
+            public void done(AVException e) {
+                if (e == null) {
+                    Message msg = new Message();
+			        msg.what = handler_key.TOAST.ordinal();
+			        msg.obj = "发送成功";
+			        handler.sendMessage(msg);
+                } else {
+                    LogUtil.log.i(e.toString());
+                    Message msg = new Message();
+                    msg.what = handler_key.TOAST.ordinal();
+                    msg.obj = "发送失败";
+                    handler.sendMessage(msg);
+                }
+            }
+        });
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.gizwits.framework.activity.BaseActivity#didRequestSendVerifyCode(int,
-	 * java.lang.String)
-	 */
-	@Override
-	protected void didRequestSendVerifyCode(int error, String errorMessage) {
-		Log.i("error message ", error + " " + errorMessage);
-		if (error == 0) {// 发送成功
-			Message msg = new Message();
-			msg.what = handler_key.TOAST.ordinal();
-			msg.obj = "发送成功";
-			handler.sendMessage(msg);
-		} else {// 发送失败
-			Message msg = new Message();
-			msg.what = handler_key.TOAST.ordinal();
-			msg.obj = errorMessage;
-			handler.sendMessage(msg);
-		}
-	}
+    /**
+     * Toogle ui.
+     *
+     * @param statu
+     *            the statu
+     */
+    private void toogleUI(ui_statu statu) {
+        if (statu == ui_statu.DEFAULT) {
+            llInputCode.setVisibility(View.GONE);
+            llInputPsw.setVisibility(View.GONE);
+            btnSure.setVisibility(View.GONE);
+            btnGetCode.setVisibility(View.VISIBLE);
+        } else if (statu == ui_statu.PHONE) {
+            llInputCode.setVisibility(View.VISIBLE);
+            llInputPsw.setVisibility(View.VISIBLE);
+            btnSure.setVisibility(View.VISIBLE);
+            btnGetCode.setVisibility(View.GONE);
+        } else {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.gizwits.framework.activity.BaseActivity#didChangeUserPassword(int,
-	 * java.lang.String)
-	 */
-	@Override
-	protected void didChangeUserPassword(int error, String errorMessage) {
-		if (error == 0) {// 修改成功
-			Message msg = new Message();
-			msg.what = handler_key.TOAST.ordinal();
-			if (isEmail) {
-				msg.obj = "重置密码链接已发送您的邮箱，在邮箱中可执行重置密码操作";
-			} else {
-				msg.obj = "修改成功";
-			}
-			handler.sendMessage(msg);
-			handler.sendEmptyMessageDelayed(
-					handler_key.CHANGE_SUCCESS.ordinal(), 2000);
+        }
+    }
 
-		} else {// 修改失败
-			Message msg = new Message();
-			msg.what = handler_key.TOAST.ordinal();
-			msg.obj = errorMessage;
-			handler.sendMessage(msg);
-		}
-		super.didChangeUserPassword(error, errorMessage);
-	}
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            if(builder == null) {
+                builder = NetworkUtils.networkDialogNoCancel(this);
+            }else{
+                builder.show();
+            }
+        }else{
+            builder = null;
+        }
+    }
+
 }

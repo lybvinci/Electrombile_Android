@@ -1,10 +1,20 @@
 package com.xunce.electrombile.xpg.common.useful;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.provider.Settings;
+
+import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.FragmentActivity;
 
 /**
  * 
@@ -101,4 +111,89 @@ public class NetworkUtils {
 		 }
 		 return ssid;
 	 }
+
+    //提醒设置网络,并且设置是否可以点击旁边取消
+    public static AlertDialog networkDialog(final Context context,boolean cancelAble) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog dialog = builder.setMessage(R.string.networkErrorSet)
+                .setCancelable(cancelAble)
+                .setTitle(R.string.networkSet)
+                .setPositiveButton(R.string.networkSettings, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = null;
+                        if (Build.VERSION.SDK_INT > 10) {
+                            intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                        } else {
+                            intent = new Intent();
+                            ComponentName componentName = new ComponentName("com.android.settings", "com.android.settings.WirelessSettings");
+                            intent.setComponent(componentName);
+                            intent.setAction("android.intent.action.VIEW");
+                        }
+                        context.startActivity(intent);
+                    }
+                })
+                .setNegativeButton(R.string.skip, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                }).show();
+        return dialog;
+    }
+    //提醒设置网络并且没有取消按钮
+    public static AlertDialog.Builder networkDialogNoCancel(final Context context) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(R.string.networkErrorSet)
+                .setCancelable(false)
+                .setTitle(R.string.networkSet)
+                .setPositiveButton(R.string.networkSettings, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = null;
+                        if (Build.VERSION.SDK_INT > 10) {
+                            intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                        } else {
+                            intent = new Intent();
+                            ComponentName componentName = new ComponentName("com.android.settings", "com.android.settings.WirelessSettings");
+                            intent.setComponent(componentName);
+                            intent.setAction("android.intent.action.VIEW");
+                        }
+                        context.startActivity(intent);
+                    }
+                }).show();
+        return builder;
+    }
+
+    //网络设置同时需要跳转页面的
+    public static void networkDialog(final Context context, final Activity activity1, final Class activity2) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(R.string.networkErrorSet)
+                .setCancelable(false)
+                .setTitle(R.string.networkSet)
+                .setPositiveButton(R.string.networkSettings, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = null;
+                        if (Build.VERSION.SDK_INT > 10) {
+                            intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                        } else {
+                            intent = new Intent();
+                            ComponentName componentName = new ComponentName("com.android.settings","com.android.settings.WirelessSettings");
+                            intent.setComponent(componentName);
+                            intent.setAction("android.intent.action.VIEW");
+                        }
+                        context.startActivity(intent);
+                    }
+                })
+                .setNegativeButton(R.string.skip, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(context, activity2);
+                        context.startActivity(intent);
+                        activity1.finish();
+                    }
+                }).show();
+    }
+
 }

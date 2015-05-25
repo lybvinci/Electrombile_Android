@@ -1,14 +1,10 @@
 package com.xunce.electrombile.widget;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.PixelFormat;
-import android.os.Handler;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -44,7 +40,7 @@ public class OverlayView{
             mOverlay2.removeAllViews();
             wm.removeView(mOverlay);
                 //wm.removeViewImmediate(mOverlay);
-                Log.e("", "closed?");
+            //    Log.e("", "closed?");
             mOverlay = null;
         }
     }

@@ -1,10 +1,8 @@
 <resources>
-    <string name="app_name">Electrombile</string>
+    <string name="app_name">SafeBaby</string>
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_login">LoginActivity</string>
-
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_register">RegisterActivity</string>
 
     <string name="login_username_hint">user name</string>
@@ -42,7 +40,60 @@
     <string name="networkError">network is not connected</string>
     <string name="networkErrorSet">network is not available,please set</string>
     <string name="networkSet">network setting</string>
-    <string name="networkSettings">settings</string>
     <string name="skip">skip</string>
+    <string name="appInfo">Security Guard V1.7</string>
+    <string name="companyInfo">Wuhan Xiaoan technology co., LTD</string>
+    <string name="wifi_first">please connect to wifi</string>
+    <string name="wifi_name">Wi-Fi name</string>
+    <string name="tip_exit">touch twice</string>
+    <string name="title_about">about</string>
+    <string name="pull_to_refresh">push refresh</string>
+    <string name="networkSettings">network settings</string>
+    <string name="dialog_sure_to_delete">delete  sure?</string>
+    <string name="dialog_sure_to_off">sure to off ?</string>
+    <string name="dialog_btn_back">back</string>
+    <string name="dialog_btn_logout">logout</string>
+    <string name="dialog_btn_delete">delete</string>
+    <string name="dialog_btn_cancel">cancel</string>
+    <string name="dialog_btn_confirm">ok</string>
+    <string name="dialog_logout_msg">sure to logout</string>
+    <string name="register_name_digits">0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLIMNOPQRSTUVWXYZ</string>
+    <string name="btn_next">next</string>
+    <string name="new_password">new password</string>
+    <string name="change_password">change password</string>
+    <string name="old_password">old password</string>
+    <string name="confirm">ok</string>
+    <string name="cancel">cancel</string>
+    <string name="password">password</string>
+    <string name="device_manage">device manage</string>
+    <string name="device_name">device name</string>
+    <string name="name">name</string>
+    <string name="forget_password">forget password</string>
+    <string name="forget_password_hint1">tel/mail</string>
+    <string name="forget_password_get_verifycode">get verifycode</string>
+    <string name="forget_password_verifycode">verifycode</string>
+    <string name="forget_password_get_verifycode_again">reget your \n verifycode</string>
+    <string name="help">help</string>
+    <string name="help_for_device">help</string>
+    <string name="help_for_app">APP help</string>
+    <string name="login_name_hint">tel／mail</string>
+    <string name="login_forget_password">forget password?</string>
+    <string name="register">register</string>
+    <string name="register_email">mail</string>
+    <string name="register_use_mobilephone">register by your tel</string>
+    <string name="register_use_email">register by your mail</string>
+    <string name="register_tips1">please input your real mai.\n if success you will get a letter</string>
+    <string name="register_phone_num">tel</string>
+    <string name="search_device_already_configure">device that already configure</string>
+    <string name="account_manage">account manage</string>
+    <string name="about">about</string>
+    <string name="user_manage">user manage</string>
+    <string name="user_name">user name</string>
+    <string name="logout">logout</string>
+    <string name="dialog_call_sure_to_logout">sure logout？</string>
+    <string name="company_name">武汉小安科技有限公司</string>
+    <string name="bindErrorSet">Not binding equipment, whether to binding equipment?</string>
+    <string name="bindSet">Binding equipment prompt</string>
+    <string name="goBind">GoBind</string>
 
 </resources>

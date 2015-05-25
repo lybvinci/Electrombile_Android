@@ -9,4 +9,6 @@
     <dimen name="text_size_warning">35sp</dimen>
     <dimen name="btn_width_warning">200dp</dimen>
     <dimen name="btn_height_warning">60dp</dimen>
+    <dimen name="btn_padding">45dp</dimen>
+    <dimen name="common_btn_width">100dp</dimen>
 </resources>

@@ -11,30 +11,35 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.xtremeprog.xpgconnect.XPGWifiDevice;
-import com.xunce.electrombile.Base.config.Configs;
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.FindCallback;
+import com.avos.avoscloud.SaveCallback;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.xpg.common.useful.JSONUtils;
+import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.List;
 
 public class BindingActivity extends BaseActivity implements View.OnClickListener {
     private Button bind_btn;
-    private TextView equipment_info;
     private TextView jump_bind;
 
     //passCode
-    private EditText et_passCode;
+  //  private EditText et_passCode;
 
-    //did
+    //IMEI
     private EditText et_did;
 
     //bindSuccess
     private Button bindSuccess;
 
     //String
-    private String did;
-    private String passcode;
+    private String IMEI;
+ //   private String passcode;
     /** The progress dialog. */
     private ProgressDialog progressDialog;
 
@@ -42,14 +47,12 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         START_BIND,
         SUCCESS,
         FAILED,
-        LOGIN,
-        GET_LIST,
     }
     //自动重登的次数
     private int times = 0;
 //绑定步骤：
     /*
-    * 1.先 获取passcede 和 did  进行startBind
+    * 1.先 获取passcede 和 IMEI  进行startBind
     * 2.接着回调 didBindDevice 如果成功getBoundDevices函数，进行搜索
     * 3.接着回调 didDiscovered 如果成功，会获取一个设备列表
     * 4.接着调用 loginDevice 登陆设备，如果成功 会回调 didlogin函数。
@@ -61,20 +64,18 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
           super.handleMessage(msg);
           handler_key key = handler_key.values()[msg.what];
           switch (key){
-              case GET_LIST:
-                  mCenter.getXPGWifiSDK().getBoundDevices(setManager.getUid(),setManager.getToken(), Configs.PRODUCT_KEY);
-                  break;
-              case LOGIN:
-                  loginDevice();
-                  break;
               case START_BIND:
                   progressDialog.show();
-                  startBind(passcode, did);
+                  startBind(IMEI);
+                  //超时设置
+                  timeOut();
                   break;
               case SUCCESS:
-               //   ToastUtils.showShort(BindingActivity.this, "添加成功");
+                  setManager.setIMEI(IMEI);
+//                  Intent localIntent = new Intent();
+//                  localIntent.setClass(BindingActivity.this,GPSDataService.class);
+//                  BindingActivity.this.startService(localIntent);
                   ToastUtils.showShort(BindingActivity.this, "设备登陆成功");
-                  setManager.setPassCode(passcode);
                   progressDialog.cancel();
                   Intent intent = new Intent(BindingActivity.this,FragmentActivity.class);
                   startActivity(intent);
@@ -82,9 +83,8 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                   break;
               case FAILED:
                   times = 0;
-                  bind_btn.setVisibility(View.INVISIBLE);
-                  ToastUtils.showShort(BindingActivity.this, "添加失败，请返回重试");
                   progressDialog.cancel();
+                  ToastUtils.showShort(BindingActivity.this, msg.obj.toString());
                   break;
           }
       }
@@ -93,19 +93,18 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setTitle(getString(R.string.bindEquipment));
         setContentView(R.layout.activity_binding);
-        initView();
+        super.onCreate(savedInstanceState);
     }
 
-    private void initView(){
+    @Override
+    public void initViews(){
         bind_btn = (Button) findViewById(R.id.bind_btn);
-        equipment_info = (TextView) findViewById(R.id.equipment_info);
         jump_bind = (TextView) findViewById(R.id.jump_bind);
 
         et_did = (EditText) findViewById(R.id.et_did);
-        et_passCode = (EditText) findViewById(R.id.et_passCode);
+        //et_passCode = (EditText) findViewById(R.id.et_passCode);
 
         bindSuccess = (Button) findViewById(R.id.bindSuccess);
         jump_bind.setOnClickListener(this);
@@ -133,9 +132,9 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                 this.finish();
                 break;
             case R.id.bindSuccess:
-                if(et_passCode != null && et_did != null){
-                    passcode = et_passCode.getText().toString();
-                    did = et_did.getText().toString();
+                if( et_did != null){
+                  //  passcode = et_passCode.getText().toString();
+                    IMEI = et_did.getText().toString();
                     mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());
                 }
                 break;
@@ -143,8 +142,45 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
-    private void startBind(final String passcode,final String did){
-        mCenter.cBindDevice(setManager.getUid(),setManager.getToken(),did,passcode,"");
+    private void startBind(final String IMEI){
+        final AVObject bindDevice = new AVObject("Bindings");
+        AVUser currentUser = AVUser.getCurrentUser();
+        bindDevice.put("user",currentUser);
+        AVQuery<AVObject> query = new AVQuery<AVObject>("DID");
+        query.whereEqualTo("IMEI", this.IMEI);
+        query.findInBackground(new FindCallback<AVObject>() {
+            @Override
+            public void done(List<AVObject> avObjects, AVException e) {
+                if(e == null && avObjects.size() > 0){
+                    Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
+                    bindDevice.put("device", avObjects.get(0));
+                    bindDevice.put("isAdmin",true);
+                    bindDevice.put("IMEI",IMEI);
+                    bindDevice.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(AVException e) {
+                            if(e == null){
+                                mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
+                            }else{
+                                Log.d("失败", "绑定错误: " + e.getMessage());
+                                Message message = new Message();
+                                message.what = handler_key.FAILED.ordinal();
+                                message.obj = e.getMessage();
+                                mHandler.sendMessage(message);
+                            }
+                        }
+                    });
+
+                }else{
+                    Log.d("失败", "查询错误: " + e.getMessage());
+                    Message message = new Message();
+                    message.what = handler_key.FAILED.ordinal();
+                    message.obj = e.getMessage();
+                    mHandler.sendMessage(message);
+                }
+            }
+        });
+      //  mCenter.cBindDevice(setManager.getUid(),setManager.getToken(),IMEI,passcode,"");
     }
     /**
      * 扫描结果处理
@@ -155,92 +191,67 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         if (requestCode == 0x01 && resultCode == 0x02 && data != null) {
             if (data.getExtras().containsKey("result")) {
                 String text = data.getExtras().getString("result");
-                if (text.contains("product_key=") & text.contains("did=")
-                        && text.contains("passcode=")) {
-                    did = getParamFomeUrl(text,"did");
-                    passcode = getParamFomeUrl(text,"passcode");
-                    Log.i("",did+"#######"+passcode);
-                    et_did.setText(did);
-                    setManager.setDid(did);
-                    et_passCode.setText(passcode);
-                    bind_btn.setVisibility(View.INVISIBLE);
+                if (text.contains("IMEI")) {
+                    IMEI = JSONUtils.ParseJSON(text,"IMEI");
+                    et_did.setText(IMEI);
+                    setManager.setIMEI(IMEI);
+                  //  setManager.setPassCode(passcode);
+                  //  et_passCode.setText(passcode);
                     mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());
                 }
+            }else{
+                ToastUtils.showShort(BindingActivity.this, "扫描失败，请重新扫描！");
             }
         }else{
-            equipment_info.setText(getString(R.string.scannerFailed));
+            ToastUtils.showShort(BindingActivity.this, "扫描失败，请重新扫描！");
         }
     }
 
-    private String getParamFomeUrl(String url, String param) {
-        String product_key = "";
-        int startindex = url.indexOf(param + "=");
-        startindex += (param.length() + 1);
-        String subString = url.substring(startindex);
-        int endindex = subString.indexOf("&");
-        if (endindex == -1) {
-            product_key = subString;
-        } else {
-            product_key = subString.substring(0, endindex);
-        }
-        return product_key;
-    }
+//    @Override
+//    protected void didBindDevice(int error, String errorMessage, String IMEI) {
+////        Log.d("扫描结果", "error=" + error + ";errorMessage=" + errorMessage
+////                + ";IMEI=" + IMEI);
+//        if (error == 0) {
+//            mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
+//        } else {
+//            Message message = new Message();
+//            message.what = handler_key.FAILED.ordinal();
+//            message.obj = errorMessage;
+//            mHandler.sendMessage(message);
+//        }
+//    }
 
     @Override
-    protected void didBindDevice(int error, String errorMessage, String did) {
-        Log.d("扫描结果", "error=" + error + ";errorMessage=" + errorMessage
-                + ";did=" + did);
-        if (error == 0) {
-            mHandler.sendEmptyMessage(handler_key.GET_LIST.ordinal());
-            setManager.setDid(did);
-        } else {
-            Message message = new Message();
-            message.what = handler_key.FAILED.ordinal();
-            message.obj = errorMessage;
-            mHandler.sendMessage(message);
-        }
+    public void onBackPressed() {
+        super.onBackPressed();
+        progressDialog.cancel();
     }
 
-    /**
-     * 登陆设备
-     *            the xpg wifi device
-     */
-    private void loginDevice() {
-
-        Log.i("绑定设备列表",devicesList.toString());
-        for (int i = 0; i < devicesList.size(); i++) {
-            XPGWifiDevice device = devicesList.get(i);
-            if (device != null && device.getDid().equals(setManager.getDid())) {
-                mXpgWifiDevice = device;
-                mXpgWifiDevice.setListener(deviceListener);
-                mXpgWifiDevice.login(setManager.getUid(), setManager.getToken());
-                break;
-            }else{
-                times++;
-                if(times < 5)
-                    mHandler.sendEmptyMessage(handler_key.LOGIN.ordinal());
+    private void timeOut(){
+        new Thread() {
+            public void run() {
+                try {
+                    sleep(10000);
+                    if(progressDialog.isShowing())
+                        mHandler.sendEmptyMessage(handler_key.FAILED.ordinal());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-
-        }
+        }.start();
     }
 
     @Override
-    protected void didLogin(XPGWifiDevice device, int result) {
-        if (result == 0) {
-            mXpgWifiDevice = device;
-            Log.i("进入login",device.toString());
-            mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
-        } else {
-            mHandler.sendEmptyMessage(handler_key.FAILED.ordinal());
+    protected void onStart() {
+        super.onStart();
+        if(!NetworkUtils.isNetworkConnected(this)){
+            if(builder == null) {
+                builder = NetworkUtils.networkDialogNoCancel(this);
+            }else{
+                builder.show();
+            }
+        }else{
+            builder = null;
         }
-
-    }
-
-    @Override
-    protected void didDiscovered(int error, List<XPGWifiDevice> devicesList) {
-        super.didDiscovered(error, devicesList);
-        this.devicesList =  devicesList ;
-        Log.i("设备列表",devicesList.toString());
-        mHandler.sendEmptyMessage(handler_key.LOGIN.ordinal());
     }
 }
