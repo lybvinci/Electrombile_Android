@@ -58,7 +58,7 @@ public class TracksManager {
         tracks = data;
     }
 
-    public  ArrayList<ArrayList<TrackPoint>> getTracks(){
+    public  static ArrayList<ArrayList<TrackPoint>> getTracks(){
         return tracks;
     }
 

@@ -7,22 +7,35 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTabHost;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.FindCallback;
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
@@ -33,9 +46,12 @@ import com.xunce.electrombile.Updata.UpdateAppService;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
-import com.xunce.electrombile.service.GPSDataService;
 
+import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.TabHost;
+import android.widget.TabWidget;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
@@ -47,6 +63,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -55,19 +73,28 @@ import java.io.UnsupportedEncodingException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
+import com.xunce.electrombile.fragment.XCFragmentAdapter;
+import com.xunce.electrombile.service.PushService;
+import com.xunce.electrombile.widget.CustomViewPager;
+import com.xunce.electrombile.xpg.common.device.DeviceUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.TimeZone;
+
+import io.yunba.android.manager.YunBaManager;
 
 
 /**
  * Created by heyukun on 2015/3/24.
  */
 
-public class FragmentActivity extends android.support.v4.app.FragmentActivity implements SwitchFragment.GPSDataChangeListener,LocationTVClickedListener {
+public class FragmentActivity extends android.support.v4.app.FragmentActivity
+        implements SwitchFragment.GPSDataChangeListener,LocationTVClickedListener,
+        ViewPager.OnPageChangeListener, TabHost.OnTabChangeListener {
     private static String TAG = "FragmentActivity:";
     public static boolean ISSTARTED = false;
     //设置菜单条目
@@ -82,7 +109,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private SettingsFragment settingsFragment;
     public static String THE_INSTALLATION_ID;
     private ImageButton btnSettings = null;
-    public static NotificationManager manager;
+//    public NotificationManager manager;
 //    Handler MyHandler;
     RadioButton rbSwitch;
     RadioButton rbMap;
@@ -96,39 +123,152 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     //接收广播
     private MyReceiver receiver;
     private SettingManager setManager;
+    //推送通知用的
+    public static  PushService pushService;
 
+
+    //5.19日为解决重影bug调整架构
+    //定义FragmentTabHost对象
+    private FragmentTabHost mTabHost;
+
+    //定义一个布局
+    private LayoutInflater layoutInflater;
+
+    private CustomViewPager vp;
+
+    //定义数组来存放Fragment界面
+    private Class fragmentArray[] = {SwitchFragment.class, MaptabFragment.class, SettingsFragment.class};
+
+    //定义数组来存放按钮图片
+    private int mImageViewArray[] = {R.drawable.tab_switch_btn,R.drawable.tab_map_btn,R.drawable.tab_settings_btn};
+
+    //Tab选项卡的文字
+    private String mTextviewArray[] = {"switch", "map", "settings"};
+
+    private List<Fragment> list = new ArrayList<Fragment>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fragment);
+//        setContentView(R.layout.activity_fragment);
+        setContentView(R.layout.main_tab_layout);
         mCenter = CmdCenter.getInstance(this);
         setManager = new SettingManager(this);
         m_FMer = getSupportFragmentManager();
 
+        //检查版本
         checkVersion();
-        initNotificaton();
+        //初始化通知栏
+     //   initNotificaton();
+        //初始化界面
         initView();
 
-        dealBottomButtonsClickEvent();
+        initPage();
 
+        //第一次启动时，存在第一个item的背景错误的bug，这样可以暂时解决
+        vp.setCurrentItem(1);
+        vp.setCurrentItem(0);
+
+        //处理按键事件
+        //dealBottomButtonsClickEvent();
         //注册广播
         registerBroadCast();
-        if(!isServiceWork(FragmentActivity.this, "com.xunce.electrombile.service")) {
-            if(!GPSDataService.isRunning && !setManager.getDid().isEmpty()){
-                Intent localIntent = new Intent();
-                localIntent.setClass(this,GPSDataService.class);
-                this.startService(localIntent);
-            }
-            //    startService(new Intent(FragmentActivity.this, GPSDataService.class));
-        }
-        if(setManager.getDid().isEmpty()){
-            ToastUtils.showShort(this,"请先绑定设备");
+        //判断是否需要开启服务
+        startServer();
+    }
+
+    private void startServer() {
+        if(setManager.getIMEI().isEmpty()){
+            AVQuery<AVObject> query = new AVQuery<AVObject>("Bindings");
+            final AVUser currentUser = AVUser.getCurrentUser();
+            query.whereEqualTo("user",currentUser);
+            query.findInBackground(new FindCallback<AVObject>() {
+                @Override
+                public void done(List<AVObject> avObjects, AVException e) {
+                    if(e == null && avObjects.size() > 0){
+                        setManager.setIMEI((String) avObjects.get(0).get("IMEI"));
+                        Log.i(TAG + "AAAAAA", setManager.getIMEI());
+                        final String topic = "e2link_" + setManager.getIMEI();
+                        Log.i(TAG+"SSSSSSSSSS", topic);
+                        //启动服务
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent("com.xunce.electrombile.service.PushService.MSG_ACTION");
+                                bindService(intent, conn, Context.BIND_AUTO_CREATE);
+                                //订阅云巴推送
+                                YunBaManager.subscribe(getApplicationContext(), topic, new IMqttActionListener() {
+
+                                    @Override
+                                    public void onSuccess(IMqttToken arg0) {
+                                        Log.d(TAG, "Subscribe topic succeed");
+                                    }
+
+                                    @Override
+                                    public void onFailure(IMqttToken arg0, Throwable arg1) {
+                                        Log.d(TAG, "Subscribe topic failed");
+                                    }
+                                });
+                            }
+                        }).start();
+
+                        Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
+                        ToastUtils.showShort(FragmentActivity.this, "设备登陆成功");
+                    }else{
+                        Log.d("失败", "查询错误2: " + e.getMessage());
+                        ToastUtils.showShort(FragmentActivity.this, "请先绑定设备");
+                    }
+                }
+            });
+
         }else{
+            Log.i(TAG, setManager.getIMEI());
+            final String topic = "e2link_" + setManager.getIMEI();
+            Log.i(TAG+"SSSSSSSSSS", topic);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent("com.xunce.electrombile.service.PushService.MSG_ACTION");
+                    bindService(intent, conn, Context.BIND_AUTO_CREATE);
+                    YunBaManager.subscribe(getApplicationContext(),topic, new IMqttActionListener() {
+
+                        @Override
+                        public void onSuccess(IMqttToken arg0) {
+                            Log.d(TAG, "Subscribe topic succeed");
+                        }
+
+                        @Override
+                        public void onFailure(IMqttToken arg0, Throwable arg1) {
+                            if(arg0 != null)
+                                Log.i(arg0.toString(),"XXXX");
+                            if(arg1 != null)
+                                Log.i("AAAA", arg1.toString());
+                            Log.d(TAG, "Subscribe topic failed");
+                        }
+                    });
+                }
+            }).start();
+
             ToastUtils.showShort(this,"登陆成功");
         }
     }
+
+    //my service
+    ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            //返回一个MsgService实例
+            pushService = ((PushService.MsgBinder)service).getService();
+
+        }
+    };
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -136,6 +276,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             NetworkUtils.networkDialog(this,true);
         }
     }
+
 
     private void registerBroadCast() {
         receiver = new MyReceiver();
@@ -167,35 +308,67 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
      * 界面初始化
      */
     private void initView() {
-        initFragment();
-        rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
-        rbMap = (RadioButton) findViewById(R.id.rbMap);
-        rbSettings = (RadioButton)findViewById(R.id.rbSettings);
-        //实例化标题栏弹窗
-        //titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        //initFragment();
+        //rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
+       // rbMap = (RadioButton) findViewById(R.id.rbMap);
+       // rbSettings = (RadioButton)findViewById(R.id.rbSettings);
+//        //实例化标题栏弹窗
+//        //titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        vp = (CustomViewPager) findViewById(R.id.pager);
+        vp.setOnPageChangeListener(this);
+        //实例化布局对象
+        layoutInflater = LayoutInflater.from(this);
+
+        //实例化TabHost对象，得到TabHost
+        mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
+        mTabHost.setup(this, getSupportFragmentManager(), R.id.pager);
+        //取消滑动，会与地图界面冲突
+        mTabHost.setOnTabChangedListener(this);
+        //得到fragment的个数
+        int count = fragmentArray.length;
+
+        for(int i = 0; i < count; i++){
+            //为每一个Tab按钮设置图标、文字和内容
+            TabHost.TabSpec tabSpec = mTabHost.newTabSpec(mTextviewArray[i]).setIndicator(getTabItemView(i));
+            //将Tab按钮添加进Tab选项卡中
+            mTabHost.addTab(tabSpec, fragmentArray[i], null);
+        }
+
+//        mTabHost.getTabWidget().getChildAt(0)
+//                .setBackgroundResource(R.drawable.selector_tab_background);
     }
 
+    /**
+     * 初始化Fragment
+     */
+    private void initPage() {
+        switchFragment = new SwitchFragment();
+        maptabFragment = new MaptabFragment();
+        settingsFragment = new SettingsFragment();
+        list.add(switchFragment);
+        list.add(maptabFragment);
+        list.add(settingsFragment);
+        vp.setAdapter(new XCFragmentAdapter(getSupportFragmentManager(), list));
+    }
 
     /**
      * 初始化首个Fragment
      */
     private void initFragment() {
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        switchFragment = new SwitchFragment();
-        ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
+        //FragmentTransaction ft = m_FMer.beginTransaction();
+        //ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
         //ft.addToBackStack("switchFragment");
-
-        maptabFragment = new MaptabFragment();
-        ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
-        ft.hide(maptabFragment);
+        switchFragment = (SwitchFragment)getSupportFragmentManager().getFragments().get(0);
+        maptabFragment = (MaptabFragment)getSupportFragmentManager().getFragments().get(1);
+       // ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
+        //ft.hide(maptabFragment);
         //ft.addToBackStack("mapFragment");
-
-        settingsFragment = new SettingsFragment();
-        ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
-        ft.hide(settingsFragment);
+        settingsFragment = (SettingsFragment)getSupportFragmentManager().getFragments().get(2);
+        //ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
+        //ft.hide(settingsFragment);
         //ft.addToBackStack("settingsFragment");
 
-        ft.commit();
+        //ft.commit();
     }
 
     /**
@@ -329,15 +502,16 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     protected void onDestroy() {
         ISSTARTED = false;
-        cancelNotification();
+        //cancelNotification();
         unregisterReceiver(receiver);
-        TracksManager.clearTracks();
+        if(!setManager.getIMEI().isEmpty()) {
+            pushService.actionStop(this);
+            unbindService(conn);
+        }
+        if(TracksManager.getTracks() !=null) TracksManager.clearTracks();
         super.onDestroy();
     }
 
-    public void initNotificaton() {
-        manager = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
-    }
 
     public void checkVersion() {
         //    Log.i("updata version","aaaaaaaaaaaaa");
@@ -414,49 +588,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }).start();
     }
 
-    //显示常驻通知栏
-    public void showNotification(String text){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
-        //下面这句用来自定义通知栏
-        //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
-        Intent intent = new Intent(this,FragmentActivity.class);
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-        PendingIntent contextIntent = PendingIntent.getActivity(this,0,intent,0);
-        notification.setLatestEventInfo(getApplicationContext(),"安全宝",text,contextIntent);
-        notificationManager.notify(R.string.app_name, notification);
-    }
-    //取消显示常驻通知栏
-    void cancelNotification(){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(R.string.app_name);
-    }
 
-    /**
-     * 重复按下返回键退出app方法
-     */
-    public void exit() {
-        if (!isExit) {
-            isExit = true;
-            Toast.makeText(getApplicationContext(),
-                    "退出程序", Toast.LENGTH_SHORT).show();
-            exitHandler.sendEmptyMessageDelayed(0, 2000);
-        } else {
 
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            this.startActivity(intent);
-            Historys.exit();
-        }
-    }
 
-    /** The handler. to process exit()*/
-    private Handler exitHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            isExit = false;
-        }
-    };
 
     @Override
     public void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint) {
@@ -470,57 +604,147 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     @Override
     public void locationTVClicked() {
-        mapTabClicked();
+        //mapTabClicked();
+        //rbMap.setChecked(true);
+        //rbSwitch.setChecked(false);
+        vp.setCurrentItem(1);
+    }
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int arg0) {
+        TabWidget widget = mTabHost.getTabWidget();
+        int oldFocusability = widget.getDescendantFocusability();
+        widget.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        mTabHost.setCurrentTab(arg0);
+        widget.setDescendantFocusability(oldFocusability);
+        mTabHost.getTabWidget().getChildAt(arg0)
+                .setBackgroundResource(R.drawable.selector_tab_background);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    public void onTabChanged(String s) {
+        int position = mTabHost.getCurrentTab();
+        vp.setCurrentItem(position, false);
     }
 
     public class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-          //  Log.i(TAG,"我的接收调用了？？？？？？");
-            Bundle bundle=intent.getExtras();
-            float Flat = bundle.getFloat("LAT");
-            float Flong = bundle.getFloat("LONG");
-            String date = bundle.getString("DATE");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-            TracksManager.TrackPoint trackPoint = null;
-            try {
-                trackPoint  = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
-            } catch (ParseException e) {
-                e.printStackTrace();
+            Log.i(TAG, "我的接收调用了？？？？？？");
+
+            Bundle bundle = intent.getExtras();
+            boolean cmdOrGPS = bundle.getBoolean("CMDORGPS");
+            if (!cmdOrGPS) {
+                Log.i(TAG, "GPS？？？？？？");
+                float Flat = bundle.getFloat("LAT");
+                float Flong = bundle.getFloat("LONG");
+                String date = bundle.getString("DATE");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+                TracksManager.TrackPoint trackPoint = null;
+                try {
+                    trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
+                if (!maptabFragment.isPlaying) {
+                    maptabFragment.locateMobile(trackPoint);
+                }
+                switchFragment.reverserGeoCedec(trackPoint.point);
+            } else {
+                Log.i(TAG, "弹不出来？？？");
+                byte[] cmd = bundle.getByteArray("CMD");
+                pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
+               // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
+                //pushService.sendMessage1(mCenter.cTest(new byte[]{0x00,0x11}));
+                if(cmd[3] == 0x01) {
+                    DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
+                    ToastUtils.showShort(FragmentActivity.this, "设置成功");
+                }else if(cmd[3] == 0x03){
+                    String cmdString = new String(cmd);
+                    Log.i(TAG,cmdString);
+                    if(cmdString.contains("NONE")){
+                        setManager.setAlarmFlag(false);
+                    }else{
+                        setManager.setAlarmFlag(true);
+                    }
+                }
             }
-            //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
-            if (!maptabFragment.isPlaying) {
-                maptabFragment.locateMobile(trackPoint);
-            }
-            switchFragment.reverserGeoCedec(trackPoint.point);
         }
     }
 
+    //    //取消显示常驻通知栏
+//    void cancelNotification(){
+////        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        manager.cancel(R.string.app_name);
+//    }
+    //    public void initNotificaton() {
+//        manager = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
+//    }
+
+
+    //显示常驻通知栏
+//    public void showNotification(String text){
+//        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
+//        //下面这句用来自定义通知栏
+//        //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
+//        Intent intent = new Intent(this,FragmentActivity.class);
+//        notification.flags = Notification.FLAG_ONGOING_EVENT;
+//        PendingIntent contextIntent = PendingIntent.getActivity(this,0,intent,0);
+//        notification.setLatestEventInfo(getApplicationContext(),"安全宝",text,contextIntent);
+//        notificationManager.notify(R.string.app_name, notification);
+//    }
+    //    /**
+//     * 重复按下返回键退出app方法
+//     */
+//    public void exit() {
+//        if (!isExit) {
+//            isExit = true;
+//            Toast.makeText(getApplicationContext(),
+//                    "退出程序", Toast.LENGTH_SHORT).show();
+//            exitHandler.sendEmptyMessageDelayed(0, 2000);
+//        } else {
+//
+//            Intent intent = new Intent(Intent.ACTION_MAIN);
+//            intent.addCategory(Intent.CATEGORY_HOME);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            this.startActivity(intent);
+//            Historys.exit();
+//        }
+//    }
+//
+//    /** The handler. to process exit()*/
+//    private Handler exitHandler = new Handler() {
+//        public void handleMessage(android.os.Message msg) {
+//            isExit = false;
+//        }
+//    };
+
     /**
-     * 判断某个服务是否正在运行的方法
-     *
-     * @param mContext
-     * @param serviceName
-     *            是包名+服务的类名（例如：net.loonggg.testbackstage.TestService）
-     * @return true代表正在运行，false代表服务没有正在运行
+     * 给Tab按钮设置图标和文字
      */
-    public boolean isServiceWork(Context mContext, String serviceName) {
-        boolean isWork = false;
-        ActivityManager myAM = (ActivityManager) mContext
-                .getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> myList = myAM.getRunningServices(40);
-        if (myList.size() <= 0) {
-            return false;
-        }
-        for (int i = 0; i < myList.size(); i++) {
-            String mName = myList.get(i).service.getClassName().toString();
-            if (mName.equals(serviceName)) {
-                isWork = true;
-                break;
-            }
-        }
-        return isWork;
+    private View getTabItemView(int index){
+        View view = layoutInflater.inflate(R.layout.tab_item_view, null);
+
+        ImageView imageView = (ImageView) view.findViewById(R.id.imageview);
+        imageView.setImageResource(mImageViewArray[index]);
+
+//        TextView textView = (TextView) view.findViewById(R.id.textview);
+//        textView.setText(mTextviewArray[index]);
+
+        return view;
     }
+
 }

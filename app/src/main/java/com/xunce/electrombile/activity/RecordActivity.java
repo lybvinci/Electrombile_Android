@@ -35,7 +35,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -269,10 +268,10 @@ public class RecordActivity extends Activity{
         totalSkip += skip;
         final int finalSkip = totalSkip;
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
-        String did = sm.getDid();
-            // Log.i(TAG, "did+++++" + did);
+        String IMEI = sm.getIMEI();
+            // Log.i(TAG, "IMEI+++++" + IMEI);
         query.setLimit(1000);
-        query.whereEqualTo("did", did);
+        query.whereEqualTo("IMEI", IMEI);
         query.whereGreaterThanOrEqualTo("createdAt", startT);
         query.whereLessThan("createdAt", endT);
         query.setSkip(finalSkip);

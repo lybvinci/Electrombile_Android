@@ -2,19 +2,41 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "21.1.2"
+    buildToolsVersion '22.0.1'
 
     defaultConfig {
         applicationId "com.xunce.electrombile"
-        minSdkVersion 15
-        targetSdkVersion 22
-        versionCode 17
+        minSdkVersion 9
+       // targetSdkVersion 3
+        versionCode 16
         versionName "2.2"
     }
+
+    signingConfigs {
+        debug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'Xc20150101'
+            storeFile file('../keystore/Electromile.debug.keystore')
+            storePassword 'Xc20150101'
+        }
+        release {
+            keyAlias 'androidreleasekey'
+            keyPassword 'Xc20150101'
+            storeFile file('../keystore/Electromile.release.keystore')
+            storePassword 'Xc20150101'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            debuggable false
+        }
+        debug {
+            signingConfig signingConfigs.debug
+            debuggable true
         }
     }
 }
@@ -22,16 +44,6 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:support-v4:22.0.0'
-    compile files('libs/ZxingScanner.jar')
     compile files('libs/BaiduLBS_Android.jar')
-    compile files('libs/XPGWiFiSDK.jar')
-    compile files('libs/avoscloud-sdk-v3.1.5.jar')
-    compile files('libs/feedback_v6.jar')
 }
-android{
-        signingConfigs {
-            debug {
-         //       storeFile file("C:\\Users/Administrator\\.android\\debug.keystore")
-            }
-        }
-}
+

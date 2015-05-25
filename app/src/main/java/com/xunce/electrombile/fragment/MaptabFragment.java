@@ -4,15 +4,13 @@ package com.xunce.electrombile.fragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ComponentName;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,6 +106,7 @@ public class MaptabFragment extends Fragment {
     //dialogs
     Dialog networkDialog;
     Dialog didDialog;
+    private ProgressDialog watiDialog;
 
     @Override
     public void onCreate (Bundle savedInstanceState){
@@ -146,6 +145,9 @@ public class MaptabFragment extends Fragment {
 
                     }
                 }).create();
+
+        watiDialog = new ProgressDialog(m_context);
+        watiDialog.setMessage("正在查询位置信息，请稍后……");
     }
 
 	@Override
@@ -219,6 +221,7 @@ public class MaptabFragment extends Fragment {
 
                 if(mBaiduMap != null){
                     //LatLng point = getLatestLocation();
+                    watiDialog.show();
                     updateLocation();
                 }
             }
@@ -271,7 +274,7 @@ public class MaptabFragment extends Fragment {
     }
 
     private boolean checkBind() {
-        if(settingManager.getDid().isEmpty()){
+        if(settingManager.getIMEI().isEmpty()){
             didDialog.show();
             return true;
         }
@@ -451,7 +454,7 @@ public class MaptabFragment extends Fragment {
         SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         tvUpdateTime.setText(sdfWithSecond.format(track.time));
-        mBaiduMap.showInfoWindow(mInfoWindow);
+        //mBaiduMap.showInfoWindow(mInfoWindow);
 //        new Timer().schedule(new TimerTask() {
 //            @Override
 //            public void run() {
@@ -470,8 +473,8 @@ public class MaptabFragment extends Fragment {
 
         AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
         query.setLimit(1);
-        String did = new SettingManager(m_context).getDid();
-        query.whereEqualTo("did",did) ;
+        String IMEI = new SettingManager(m_context).getIMEI();
+        query.whereEqualTo("IMEI",IMEI) ;
         query.whereLessThanOrEqualTo("createdAt", Calendar.getInstance().getTime());
         query.orderByDescending("createdAt");
         query.findInBackground(new FindCallback<AVObject>() {
@@ -489,6 +492,9 @@ public class MaptabFragment extends Fragment {
                     msg.what = handleKey.LOCATEMESSAGE.ordinal();
                     msg.obj = ppp;
                     playHandler.sendMessage(msg);
+                }
+                else{
+                    watiDialog.dismiss();
                 }
             }
         });
@@ -562,7 +568,10 @@ public class MaptabFragment extends Fragment {
                     }
                     break;
                 case LOCATEMESSAGE:{
-                    if(msg.obj!= null){
+
+                    watiDialog.dismiss();
+
+                    if(msg.obj != null) {
                         locateMobile((TrackPoint) msg.obj);
                         break;
                     }else{

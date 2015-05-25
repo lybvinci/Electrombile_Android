@@ -12,14 +12,47 @@
         android:background="@drawable/register_input_password"
         android:layout_marginTop="100dp"
         android:gravity="center"
+        android:textColorHint="@color/base_color_text_gray"
         android:hint="@string/register_phone_num" />
 
+
+    <LinearLayout
+        android:id="@+id/llInputPsw"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/register_input_password"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:layout_height="40dp"
+            android:layout_width="60dp"
+            android:id="@+id/etInputPsw"
+            android:layout_weight="3"
+            android:inputType="textPassword"
+            android:gravity="center"
+            android:textColor="@color/base_color_text_black"
+            android:background="@drawable/register_input_password"
+            android:layout_marginLeft="10dp"
+            android:textColorHint="@color/base_color_text_gray"
+            android:hint="@string/password" />
+
+        <ToggleButton
+            android:id="@+id/tbPswFlag"
+            android:layout_width="50dp"
+            android:layout_height="24dp"
+            android:layout_marginRight="35dp"
+            android:background="@drawable/toggle_selector"
+            android:textOff=""
+            android:textOn="" />
+    </LinearLayout>
     <Button
         android:id="@+id/btnGetCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:layout_marginLeft="30dp"
+        android:layout_marginLeft="250dp"
         android:background="@drawable/common_btn"
         android:text="获取验证码"/>
 
@@ -42,6 +75,7 @@
             android:layout_marginRight="30dp"
             android:layout_weight="3"
             android:gravity="center"
+            android:textColorHint="@color/base_color_text_gray"
             android:hint="@string/forget_password_verifycode" />
 
         <Button
@@ -55,38 +89,6 @@
             android:textColor="@android:color/background_light"
             android:textSize="14sp" />
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llInputPsw"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="15dp"
-        android:background="@drawable/register_input_password"
-        android:gravity="center_vertical"
-        android:orientation="horizontal" >
-
-        <EditText
-            android:layout_height="40dp"
-            android:layout_width="60dp"
-            android:id="@+id/etInputPsw"
-            android:layout_weight="3"
-            android:inputType="textPassword"
-            android:gravity="center"
-            android:textColor="@color/base_color_text_black"
-            android:background="@drawable/register_input_password"
-            android:layout_marginLeft="10dp"
-            android:hint="@string/password" />
-
-        <ToggleButton
-            android:id="@+id/tbPswFlag"
-            android:layout_width="50dp"
-            android:layout_height="24dp"
-            android:layout_marginRight="35dp"
-            android:background="@drawable/toggle_selector"
-            android:textOff=""
-            android:textOn="" />
-    </LinearLayout>
-
     <Button
         android:id="@+id/btnSure"
         android:layout_height="30dp"
