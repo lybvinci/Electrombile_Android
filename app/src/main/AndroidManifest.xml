@@ -67,13 +67,7 @@
                 <action android:name="android.media.RINGER_MODE_CHANGED"/>
             </intent-filter>
         </receiver>
-        <meta-data
-            android:name="com.baidu.lbsapi.API_KEY"
-            android:value="tgBlpsLTTholncv8jYqOZ4dQ" />
-            <!--debug LnfIE5HKF0zbDiZmm8ZiVIch-->
-            <!--android:value="eyVZSbgbfVGt9Y0BaKaYY5vF" />-->
-        <!--  debug  LnfIE5HKF0zbDiZmm8ZiVIch-->
-        <!--release eyVZSbgbfVGt9Y0BaKaYY5vF-->
+
         <!-- 云巴相关-->
         <meta-data android:name="YUNBA_APPKEY" android:value="554ab0957e353f5814e12100" />
         <service android:name="io.yunba.android.core.YunBaService"> </service>
@@ -114,7 +108,7 @@
         </activity>
         <activity
             android:name=".activity.account.ForgetPswActivity"
-            android:theme="@style/App2Theme"
+            android:theme="@style/registerActivity"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_forget" >
         </activity>

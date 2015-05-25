@@ -91,11 +91,11 @@
 
     <style name="registerActivity">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/skyblue</item>
+        <item name="android:windowBackground">@drawable/bg_bind</item>
     </style>
     <style name="changePswActivity">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/skyblue</item>
+        <item name="android:windowBackground">@drawable/bg_bind</item>
     </style>
 
     <style name="settings_fragment_iv">

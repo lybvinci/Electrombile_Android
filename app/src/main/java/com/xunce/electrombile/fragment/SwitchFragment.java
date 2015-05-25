@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
@@ -197,10 +199,14 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
 
     @Override
     public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
+        LogUtil.log.i("进入位置设置:" +result.getAddress());
         if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
+          //  LogUtil.log.i("AAAAAAAAAAAAAAA进入位置设置？？？？？？");
             return;
         }
-        switch_fragment_tvLocation.setText(result.getAddress());
+      //  LogUtil.log.i("AAAAAAAAAAAAAAA进入位置设BBBBBBBBBBBBBB");
+        switch_fragment_tvLocation.setText(result.getAddress().trim());
+        //LogUtil.log.i("AAAAAAAAAAAAAAA进入位置设CCCCCCCCCCC");
     }
 
     //显示常驻通知栏

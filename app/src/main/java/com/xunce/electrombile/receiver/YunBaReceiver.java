@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 
+import com.avos.avoscloud.LogUtil;
 import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.AlarmActivity;
@@ -37,12 +38,15 @@ public class YunBaReceiver extends BroadcastReceiver{
         String msg = intent.getStringExtra(YunBaManager.MQTT_MSG);
         SettingManager setManager = new SettingManager(context);
         //在这里处理从服务器发布下来的消息， 比如显示通知栏， 打开 Activity 等等
-        DeviceUtils.showNotifation(context, topic, msg);
-        DeviceUtils.wakeUpAndUnlock(context);
-        Intent intentMy = new Intent(context, AlarmActivity.class);
-        intentMy.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intentMy);
-        setManager.setAlarmFlag(false);
+        if(AlarmActivity.instance == null) {
+            LogUtil.log.i("创建界面了么？？？");
+           // DeviceUtils.showNotifation(context, topic, msg);
+            DeviceUtils.wakeUpAndUnlock(context);
+            Intent intentMy = new Intent(context, AlarmActivity.class);
+            intentMy.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intentMy);
+            setManager.setAlarmFlag(false);
+        }
 
         //        StringBuilder showMsg = new StringBuilder();
 //        showMsg.append("Received message from server: ")
