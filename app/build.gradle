@@ -11,29 +11,38 @@ android {
         versionCode 16
         versionName "2.2"
     }
+
+    signingConfigs {
+        debug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'Xc20150101'
+            storeFile file('../keystore/Electromile.debug.keystore')
+            storePassword 'Xc20150101'
+        }
+        release {
+            keyAlias 'androidrleasekey'
+            keyPassword 'Xc20150101'
+            storeFile file('../keystore/Electromile.release.keystore')
+            storePassword 'Xc20150101'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            debuggable false
+        }
+        debug {
+            signingConfig signingConfigs.debug
+            debuggable true
         }
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    provided fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:support-v4:22.0.0'
-    compile files('libs/ZxingScanner.jar')
-    compile files('libs/BaiduLBS_Android.jar')
-    compile files('libs/avoscloud-sdk-v3.1.5.jar')
-    compile files('libs/feedback_v6.jar')
-    compile files('libs/wmqtt.jar')
-    compile files('libs/yunba-sdk-release1.4.5.jar')
-    compile files('libs/avoscloud-android-sdk-v3.1.5/avoscloud-statistics-v3.1.5.jar')
 }
-android{
-        signingConfigs {
-            debug {
-         //       storeFile file("C:\\Users/Administrator\\.android\\debug.keystore")
-            }
-        }
-}
+

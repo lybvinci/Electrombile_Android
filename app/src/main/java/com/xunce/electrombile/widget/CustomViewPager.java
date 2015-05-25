@@ -20,7 +20,6 @@ public class CustomViewPager extends ViewPager {
         this.enabled = false;
     }
 
-    //触摸没有反应就可以了
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (this.enabled) {
