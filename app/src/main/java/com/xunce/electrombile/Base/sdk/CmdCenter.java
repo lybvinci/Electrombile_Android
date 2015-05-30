@@ -171,13 +171,12 @@ public class CmdCenter {
 		return Boolean.valueOf(String.valueOf(mData[17]));
 	}
 	//返回时间
-	public int parsePushServiceTime(byte[] mData){
-		return (mData[5]&0xFF       |
-				 mData[4]&0xFF << 8  |
-				 mData[3]&0xFF << 16 |
-				 mData[2]&0xFF << 24 );
+	public int parsePushServiceTime(byte[] mData) {
+		return (mData[5] & 0xFF |
+				(mData[4] & 0xFF) << 8 |
+				(mData[3] & 0xFF) << 16 |
+				(mData[2] & 0xFF) << 24);
 	}
-
 
     public float parseGPSData(float gps){
         int x =(int) gps/60;
