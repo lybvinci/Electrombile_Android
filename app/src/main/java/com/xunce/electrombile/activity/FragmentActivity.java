@@ -393,14 +393,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         alert.create().show();
     }
 
-    /**
-     * 从back stack弹出所有的fragment，保留首页的那个
-     */
-    public static void popAllFragmentsExceptTheBottomOne() {
-        for (int i = 0, count = m_FMer.getBackStackEntryCount() - 1; i < count; i++) {
-            m_FMer.popBackStack();
-        }
-    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -437,7 +429,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         if(TracksManager.getTracks() !=null) TracksManager.clearTracks();
         super.onDestroy();
     }
-
 
     public void checkVersion() {
         //    Log.i("updata version","aaaaaaaaaaaaa");
@@ -514,10 +505,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }).start();
     }
 
-
-
-
-
     @Override
     public void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint) {
         //传递数据给地图的Fragment
@@ -531,7 +518,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     public void locationTVClicked() {
         mapTabClicked();
-
+        rbMap.setChecked(true);
+        rbSwitch.setChecked(false);
     }
 
     public class MyReceiver extends BroadcastReceiver {
@@ -580,53 +568,4 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             }
         }
     }
-
-    //    //取消显示常驻通知栏
-//    void cancelNotification(){
-////        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        manager.cancel(R.string.app_name);
-//    }
-    //    public void initNotificaton() {
-//        manager = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
-//    }
-
-
-    //显示常驻通知栏
-//    public void showNotification(String text){
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
-//        //下面这句用来自定义通知栏
-//        //notification.contentView = new RemoteViews(getPackageName(),R.layout.notification);
-//        Intent intent = new Intent(this,FragmentActivity.class);
-//        notification.flags = Notification.FLAG_ONGOING_EVENT;
-//        PendingIntent contextIntent = PendingIntent.getActivity(this,0,intent,0);
-//        notification.setLatestEventInfo(getApplicationContext(),"安全宝",text,contextIntent);
-//        notificationManager.notify(R.string.app_name, notification);
-//    }
-    //    /**
-//     * 重复按下返回键退出app方法
-//     */
-//    public void exit() {
-//        if (!isExit) {
-//            isExit = true;
-//            Toast.makeText(getApplicationContext(),
-//                    "退出程序", Toast.LENGTH_SHORT).show();
-//            exitHandler.sendEmptyMessageDelayed(0, 2000);
-//        } else {
-//
-//            Intent intent = new Intent(Intent.ACTION_MAIN);
-//            intent.addCategory(Intent.CATEGORY_HOME);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            this.startActivity(intent);
-//            Historys.exit();
-//        }
-//    }
-//
-//    /** The handler. to process exit()*/
-//    private Handler exitHandler = new Handler() {
-//        public void handleMessage(android.os.Message msg) {
-//            isExit = false;
-//        }
-//    };
-
 }
