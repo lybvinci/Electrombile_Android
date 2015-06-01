@@ -96,8 +96,6 @@
     <string name="bindSet">Binding equipment prompt</string>
     <string name="goBind">GoBind</string>
     <string name="title_activity_add_sos">addSosActivity</string>
-
-    <string name="hello_world">Hello world!</string>
     <string name="delete_contact_person">*****删除联系人*****</string>
     <string name="delete_this_person">删除此人</string>
     <string name="no">否</string>

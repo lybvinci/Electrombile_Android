@@ -197,8 +197,10 @@ public class CmdCenter {
 	}
 
 	//7 、删除 SOS  管理员
-	public void cSOSManagerDelete(String phoneNumber){
+	public byte[] cSOSManagerDelete(byte[] serial,String phoneNumber){
 		phoneNumber = phoneNumber + "#";
+		byte[] data = packetOrder(new byte[]{ 0x00,0x05},serial,JsonKeys.SOS_DELETE,phoneNumber);
+		return data;
 	//	String data = packetOrder(JsonKeys.SOS_DELETE,phoneNumber);
 		//xpgWifiDevice.write(data);
 	}

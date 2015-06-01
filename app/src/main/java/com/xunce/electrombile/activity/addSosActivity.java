@@ -30,9 +30,11 @@ public class addSosActivity extends Activity {
     private MyAdapter mAdapter;
     private ArrayList<String> arrayList;
     private CmdCenter mCenter;
-    //命令字序号
-    byte firstByteSOS = 0x00;
-    byte secondByteSOS = 0x00;
+    //
+    byte firstByteSOSAdd = 0x00;
+    byte secondByteSOSAdd = 0x00;
+    byte firstByteSOSDelete = 0x00;
+    byte secondByteSOSDelete = 0x00;
     public static ProgressDialog SOSWaitDialog;
 
     @Override
@@ -86,14 +88,15 @@ public class addSosActivity extends Activity {
         }
         settingManager.setSOS(sb.toString());
 
-        //发送命令
-        byte[] serial = mCenter.getSerial(firstByteSOS, secondByteSOS);
+        byte[] serial = mCenter.getSerial(firstByteSOSAdd, secondByteSOSAdd);
+        for(int i=1;i<arrayList.size();i++){
+            phone = "," + phone;
+        }
         FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerAdd(serial,phone));
         SOSWaitDialog.show();
         mAdapter.notifyDataSetChanged();
     }
 
-    // listview中点击按键弹出对话框
     public void showInfo(final int position) {
         AlertDialog dialog2 = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.delete_contact_person))
@@ -107,6 +110,7 @@ public class addSosActivity extends Activity {
                         }).setNegativeButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        String phone = arrayList.get(position);
                         arrayList.remove(arrayList.get(position));
                         if(arrayList.isEmpty()){
                             settingManager.setSOS("");
@@ -118,8 +122,10 @@ public class addSosActivity extends Activity {
                             }
                             settingManager.setSOS(sb.toString());
                         }
+                        byte[] serial = mCenter.getSerial(firstByteSOSDelete, secondByteSOSDelete);
+                        FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerDelete(serial,phone));
+                        SOSWaitDialog.show();
                         mAdapter.notifyDataSetChanged();
-                      //  lv_SOS.setAdapter(mAdapter);
                     }
                 }).create();
         dialog2.show();
@@ -130,7 +136,6 @@ public class addSosActivity extends Activity {
 
         @Override
         public int getCount() {
-            LogUtil.log.i("SSSSSSSSSSSSSSSSSS");
             if(arrayList != null) {
                 return arrayList.size();
             }else{
@@ -148,10 +153,6 @@ public class addSosActivity extends Activity {
         public long getItemId(int i) {
             return 0;
         }
-
-        //i 代表listview中的列表中的每一行的view对象
-        // view 就是缓存对象
-        //viewgroup 是listview对象
         @Override
         public View getView(final int i, View view, ViewGroup viewGroup) {
             if(arrayList == null)

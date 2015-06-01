@@ -147,29 +147,46 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         AVUser currentUser = AVUser.getCurrentUser();
         bindDevice.put("user",currentUser);
         AVQuery<AVObject> query = new AVQuery<AVObject>("DID");
+        final AVQuery<AVObject> queryBinding = new AVQuery<AVObject>("Bindings");
         query.whereEqualTo("IMEI", this.IMEI);
         query.findInBackground(new FindCallback<AVObject>() {
             @Override
-            public void done(List<AVObject> avObjects, AVException e) {
+            public void done(final List<AVObject> avObjects, AVException e) {
                 if(e == null && avObjects.size() > 0){
                     Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
-                    bindDevice.put("device", avObjects.get(0));
-                    bindDevice.put("isAdmin",true);
-                    bindDevice.put("IMEI",IMEI);
-                    bindDevice.saveInBackground(new SaveCallback() {
+                    queryBinding.whereEqualTo("IMEI", IMEI);
+                    queryBinding.findInBackground(new FindCallback<AVObject>() {
                         @Override
-                        public void done(AVException e) {
-                            if(e == null){
-                                mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
-                            }else{
-                                Log.d("失败", "绑定错误: " + e.getMessage());
+                        public void done(List<AVObject> list, AVException e) {
+                            Log.d("成功", "IMEI查询到" + list.size() + " 条符合条件的数据");
+                            if(list.size()>0){
                                 Message message = new Message();
                                 message.what = handler_key.FAILED.ordinal();
-                                message.obj = e.getMessage();
+                                message.obj = "设备已经被绑定！";
                                 mHandler.sendMessage(message);
+                                return;
                             }
+                            bindDevice.put("device", avObjects.get(0));
+                            bindDevice.put("isAdmin", true);
+                            bindDevice.put("IMEI", IMEI);
+                            bindDevice.saveInBackground(new SaveCallback() {
+                                @Override
+                                public void done(AVException e) {
+                                    if (e == null) {
+                                        mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
+                                    } else {
+                                        Log.d("失败", "绑定错误: " + e.getMessage());
+                                        Message message = new Message();
+                                        message.what = handler_key.FAILED.ordinal();
+                                        message.obj = e.getMessage();
+                                        mHandler.sendMessage(message);
+                                    }
+                                }
+                            });
+
                         }
                     });
+
 
                 }else{
                     Log.d("失败", "查询错误: " + e.getMessage());

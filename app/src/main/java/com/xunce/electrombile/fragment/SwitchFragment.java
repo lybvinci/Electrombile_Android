@@ -46,6 +46,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
 //    private byte firstByte = 0x00;
 //    private byte secondByte = 0x00;
 //    private byte[] serial = {firstByte,secondByte};
+    private boolean ToggleButtonState;
 
     private String[] SWITCHKEY = {
             "switch",
@@ -90,6 +91,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         //设置报警进度框初始化
         setAlarmDialog = new ProgressDialog(m_context);
         setAlarmDialog.setMessage("正在设置，请稍后......");
+      //  setAlarmDialog.setCancelable(false);
     }
 
     @Override
@@ -109,9 +111,11 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             showNotification("安全宝防盗系统已启动");
             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
             btnSystem.setChecked(false);
+            ToggleButtonState = false;
         }else{
             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
             btnSystem.setChecked(true);
+            ToggleButtonState = true;
         }
         btnSystem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             byte firstByteAdd = 0x00;
@@ -136,17 +140,20 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                             VibratorUtil.Vibrate(getActivity(), 700);
                             byte[] serial = mCenter.getSerial(firstByteAdd, secondByteAdd);
                             FragmentActivity.pushService.sendMessage1(mCenter.cFenceAdd(serial));
+                            ToggleButtonState = !b;
+                            setManager.setAlarmFlag(true);
                             setAlarmDialog.show();
                         } else {
                             //   Log.d(TAG, "device failed!");
                             ToastUtils.showShort(m_context, "请先绑定设备");
-                            btnSystem.setChecked(false);
+                            btnSystem.setChecked(!b);
+                            ToggleButtonState = !b;
                             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                         }
                     } else {
                         ToastUtils.showShort(m_context, "网络连接失败");
-                        btnSystem.setChecked(false);
-                        //btnSystem.set
+                        btnSystem.setChecked(!b);
+                        ToggleButtonState = !b;
                         iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                     }
                 } else {
@@ -158,14 +165,19 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                             setManager.setAlarmFlag(false);
                             byte[] serial = mCenter.getSerial(firstByteDelete, secondByteDelete);
                             FragmentActivity.pushService.sendMessage1(mCenter.cFenceDelete(serial));
+                            ToggleButtonState = !b;
+                            setManager.setAlarmFlag(false);
                             setAlarmDialog.show();
+
                         } else {
                             ToastUtils.showShort(m_context, "网络连接失败");
-                            btnSystem.setChecked(true);
+                            btnSystem.setChecked(b);
+                            ToggleButtonState = b;
                             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                         }
                     } else {
-                        btnSystem.setChecked(true);
+                        btnSystem.setChecked(b);
+                        ToggleButtonState = b;
                         iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                         ToastUtils.showShort(m_context, "请等待设备绑定");
                     }
@@ -181,10 +193,13 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
      //   Log.i("BAOJING","CHAKAN");
         if(setManager.getAlarmFlag()){
             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-            btnSystem.setChecked(false);
+            //false
+          //  btnSystem.setChecked(true);
+            alarmState = true;
         }else{
             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-            btnSystem.setChecked(true);
+           // btnSystem.setChecked(false);
+            alarmState = false;
         }
 
     }
@@ -243,10 +258,12 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         if(setManager.getAlarmFlag()){
             showNotification("安全宝防盗系统已启动");
             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
+            setManager.setAlarmFlag(true);
         }else {
             showNotification("安全宝防盗系统已关闭");
             VibratorUtil.Vibrate(getActivity(), 500);
             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
+            setManager.setAlarmFlag(false);
         }
     }
 

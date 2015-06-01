@@ -64,6 +64,7 @@ import java.io.UnsupportedEncodingException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 import com.xunce.electrombile.service.PushService;
@@ -148,7 +149,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         setManager.setIMEI((String) avObjects.get(0).get("IMEI"));
                         Log.i(TAG + "AAAAAA", setManager.getIMEI());
                         final String topic = "e2link_" + setManager.getIMEI();
-                        Log.i(TAG+"SSSSSSSSSS", topic);
+                        Log.i(TAG + "SSSSSSSSSS", topic);
                         //启动服务
                         new Thread(new Runnable() {
                             @Override
@@ -172,7 +173,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         }).start();
 
                         Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
-                        ToastUtils.showShort(FragmentActivity.this, "设备登陆成功");
+                        ToastUtils.showShort(FragmentActivity.this, "设备查询成功");
                     }else{
                         Log.d("失败", "查询错误2: " + e.getMessage());
                         ToastUtils.showShort(FragmentActivity.this, "请先绑定设备");
@@ -449,9 +450,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 Bundle bundle=new Bundle();
                 boolean isupdate;
                 String baseUrl = "http://fir.im/api/v2/app/version/%s?token=%s";
-                //test String checkUpdateUrl = String.format(baseUrl, "554331e6bf7f222c2600493b", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
-
-                //下面是正式的
+                //下面是正式的 版本调整
+               // String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 HttpClient httpClient = new DefaultHttpClient();
                 //请求超时
@@ -563,13 +563,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             } else {
                 Log.i(TAG, "弹不出来？？？");
                 byte[] cmd = bundle.getByteArray("CMD");
+                //test用
                // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
                 // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
                 //pushService.sendMessage1(mCenter.cTest(new byte[]{0x00,0x11}));
-                ToastUtils.showShort(FragmentActivity.this,"命令字是"+cmd[3]);
+              //  ToastUtils.showShort(FragmentActivity.this,"命令字是"+cmd[3]);
                 if(cmd[3] == 0x01) {
                     switchFragment.cancelDialog();
-                    DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
+                   // DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
                     ToastUtils.showShort(FragmentActivity.this, "设置成功");
                 }else if(cmd[3] == 0x03){
                     String cmdString = new String(cmd);
@@ -586,11 +587,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                     String date = bundle.getString("DATE");
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+                    Date curDate = new Date(System.currentTimeMillis());//获取当前时间
+
                     TracksManager.TrackPoint trackPoint = null;
                     try {
-                        trackPoint = new TracksManager.TrackPoint(sdf.parse(date),mCenter.convertPoint(new LatLng(Flat, Flong)));
+                        Date mDate = sdf.parse(sdf.format(curDate));
+                        trackPoint = new TracksManager.TrackPoint(mDate,mCenter.convertPoint(new LatLng(Flat, Flong)));
                        // trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
-                    } catch (ParseException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
@@ -598,8 +602,10 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         maptabFragment.locateMobile(trackPoint);
                     }
                     switchFragment.reverserGeoCedec(trackPoint.point);
+                    ToastUtils.showShort(FragmentActivity.this,"查询成功");
                 }else if(cmd[3] == 0x05){
                     addSosActivity.cancleDialog();
+                    ToastUtils.showShort(FragmentActivity.this, "设置成功");
                 }
             }
         }

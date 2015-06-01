@@ -107,6 +107,7 @@ public class SettingManager {
 		setUserName("");
         setIMEI("");
         setAlarmFlag(false);
+		setSOS("");
 	}
     public void cleanDevice() {
         setIMEI("");

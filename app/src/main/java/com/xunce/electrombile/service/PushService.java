@@ -35,6 +35,7 @@ import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Random;
 import java.util.TimeZone;
 
 /* 
@@ -48,7 +49,7 @@ public class PushService extends Service
 	public static final String TAG = "PushService";
 
 	// the IP address, where your MQTT broker is running.
-	private static final String MQTT_HOST = "112.74.94.150";
+	private static final String MQTT_HOST = "server.xiaoan110.com";
 	// the port at which the broker is running. 
 	private static int				MQTT_BROKER_PORT_NUM      = 1883;
 	// Let's not use the MQTT persistence.
@@ -146,7 +147,7 @@ public class PushService extends Service
 		super.onCreate();
 		settingManager = new SettingManager(this);
 		mCenter = CmdCenter.getInstance(this);
-		MQTT_CLIENT_ID = settingManager.getPhoneNumber();
+		MQTT_CLIENT_ID = settingManager.getPhoneNumber()+ (int)(Math.random() * 10);
 		log(MQTT_CLIENT_ID);
 		log("Creating service");
 		mStartTime = System.currentTimeMillis();
