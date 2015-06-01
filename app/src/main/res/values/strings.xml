@@ -95,5 +95,17 @@
     <string name="bindErrorSet">Not binding equipment, whether to binding equipment?</string>
     <string name="bindSet">Binding equipment prompt</string>
     <string name="goBind">GoBind</string>
+    <string name="title_activity_add_sos">addSosActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="delete_contact_person">*****删除联系人*****</string>
+    <string name="delete_this_person">删除此人</string>
+    <string name="no">否</string>
+    <string name="yes">是</string>
+    <string name="input_true_text">请输入合法字符</string>
+    <string name="input_yes_phonenumber">请输入正确的手机号码</string>
+    <string name="set_success">设置成功！</string>
+    <string name="wait_for_i_miss">正在设置，请等待我消失……</string>
+    <string name="init_failed">初始化失败，请关闭APP重试。</string>
 
 </resources>

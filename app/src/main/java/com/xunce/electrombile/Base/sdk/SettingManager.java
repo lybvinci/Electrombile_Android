@@ -17,8 +17,15 @@
  */
 package com.xunce.electrombile.Base.sdk;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 // TODO: Auto-generated Javadoc
 
@@ -74,6 +81,11 @@ public class SettingManager {
 
     public final  String  ALARMFLAG = "alarmFlag";
 
+	//添加SOS管理员
+	public final String SOS = "sos";
+
+
+
 	/**
 	 * Instantiates a new setting manager.
 	 *
@@ -117,6 +129,14 @@ public class SettingManager {
         return spf.getBoolean(ALARMFLAG, false);
     }
 
+
+	//添加sos管理员
+	public void setSOS(String list){
+		spf.edit().putString(SOS, list).commit();
+	}
+	public String getSOS(){
+		return spf.getString(SOS,"");
+	}
 	/**
 	 * Gets the user name.
 	 *

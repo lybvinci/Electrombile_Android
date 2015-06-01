@@ -538,12 +538,12 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     public class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "我的接收调用了？？？？？？");
+            Log.i(TAG, "接收调用");
 
             Bundle bundle = intent.getExtras();
             boolean cmdOrGPS = bundle.getBoolean("CMDORGPS");
             if (!cmdOrGPS) {
-                Log.i(TAG, "GPS？？？？？？");
+                Log.i(TAG, "GPS？");
                 float Flat = bundle.getFloat("LAT");
                 float Flong = bundle.getFloat("LONG");
                 String date = bundle.getString("DATE");
@@ -563,10 +563,12 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             } else {
                 Log.i(TAG, "弹不出来？？？");
                 byte[] cmd = bundle.getByteArray("CMD");
-                pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
+               // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
                 // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
                 //pushService.sendMessage1(mCenter.cTest(new byte[]{0x00,0x11}));
+                ToastUtils.showShort(FragmentActivity.this,"命令字是"+cmd[3]);
                 if(cmd[3] == 0x01) {
+                    switchFragment.cancelDialog();
                     DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
                     ToastUtils.showShort(FragmentActivity.this, "设置成功");
                 }else if(cmd[3] == 0x03){
@@ -577,6 +579,27 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                     }else{
                         setManager.setAlarmFlag(true);
                     }
+                }else if(cmd[3] == 0x04){
+                    Log.i(TAG, "查询所得到的结果");
+                    float Flat = bundle.getFloat("LAT");
+                    float Flong = bundle.getFloat("LONG");
+                    String date = bundle.getString("DATE");
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+                    TracksManager.TrackPoint trackPoint = null;
+                    try {
+                        trackPoint = new TracksManager.TrackPoint(sdf.parse(date),mCenter.convertPoint(new LatLng(Flat, Flong)));
+                       // trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
+                    if (!maptabFragment.isPlaying) {
+                        maptabFragment.locateMobile(trackPoint);
+                    }
+                    switchFragment.reverserGeoCedec(trackPoint.point);
+                }else if(cmd[3] == 0x05){
+                    addSosActivity.cancleDialog();
                 }
             }
         }

@@ -87,6 +87,18 @@
             style="@style/clickableLayoutTextview"
             android:text="解除绑定"/>
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_addSOS"
+        android:layout_below="@+id/layout_release_bind"
+        android:layout_marginTop="1dp"
+        style="@style/clickableLayout">
+        <ImageView
+            style="@style/settings_fragment_iv"
+            android:src="@drawable/setting_tel"/>
+        <TextView
+            style="@style/clickableLayoutTextview"
+            android:text="添加管理员"/>
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_logout"

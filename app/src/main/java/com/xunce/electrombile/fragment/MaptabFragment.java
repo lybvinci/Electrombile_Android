@@ -51,15 +51,22 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
+import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 public class MaptabFragment extends Fragment {
 
     private static String TAG = "MaptabFragment:";
     private final String KET_LONG = "lon";
     private final String KET_LAT = "lat";
+
+    //命令字计数器
+    byte firstByteWhere = 0x00;
+    byte secondByteWhere = 0x00;
 
     //播放线程消息类型
     enum handleKey{
@@ -173,7 +180,7 @@ public class MaptabFragment extends Fragment {
         mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
             public boolean onMarkerClick(final Marker marker) {
                 if(marker == markerMobile){
-                    mBaiduMap.hideInfoWindow();
+                //    mBaiduMap.hideInfoWindow();
                 }
                 return true;
             }
@@ -268,7 +275,6 @@ public class MaptabFragment extends Fragment {
                             }
                         }).create();
                 dialog.show();
-
             }
         });
     }
@@ -448,22 +454,23 @@ public class MaptabFragment extends Fragment {
         markerMobile.setPosition(track.point);
 
         //显示悬浮窗，一定时间后消失
-        mBaiduMap.hideInfoWindow();
+      //  mBaiduMap.hideInfoWindow();
         mInfoWindow = new InfoWindow(markerView, track.point, -90);
 
         SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         tvUpdateTime.setText(sdfWithSecond.format(track.time));
-        //mBaiduMap.showInfoWindow(mInfoWindow);
-//        new Timer().schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                playHandler.sendEmptyMessage(handleKey.HIDEINFOWINDOW.ordinal());
-//            }
-//        }, 1000);
+        mBaiduMap.showInfoWindow(mInfoWindow);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                playHandler.sendEmptyMessage(handleKey.HIDEINFOWINDOW.ordinal());
+            }
+        }, 10000);
 
         //更新当前轨迹
         currentTrack = track;
+        watiDialog.dismiss();
     }
 
 
@@ -471,33 +478,43 @@ public class MaptabFragment extends Fragment {
     //return longitude and latitude data,if no data, returns null
     public void updateLocation(){
 
-        AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
-        query.setLimit(1);
-        String IMEI = new SettingManager(m_context).getIMEI();
-        query.whereEqualTo("IMEI",IMEI) ;
-        query.whereLessThanOrEqualTo("createdAt", Calendar.getInstance().getTime());
-        query.orderByDescending("createdAt");
-        query.findInBackground(new FindCallback<AVObject>() {
-            @Override
-            public void done(List<AVObject> avObjects, AVException e) {
-              //  Log.i(TAG, e + "");
-                if (e == null) {
-                    AVObject avObject = avObjects.get(0);
-                    float fLat = mCenter.parseGPSData((float) avObject.getDouble(KET_LAT));
-                    float fLong = mCenter.parseGPSData((float) avObject.getDouble(KET_LONG));
-                    Date date = avObject.getCreatedAt();
-                    TrackPoint ppp = new TrackPoint(date, mCenter.convertPoint(new LatLng(fLat, fLong)));
-                    //向主线程发出消息，地图定位成功
-                    Message msg = Message.obtain();
-                    msg.what = handleKey.LOCATEMESSAGE.ordinal();
-                    msg.obj = ppp;
-                    playHandler.sendMessage(msg);
-                }
-                else{
-                    watiDialog.dismiss();
-                }
-            }
-        });
+        //透传
+        byte[] serial = mCenter.getSerial(firstByteWhere,secondByteWhere);
+        if(FragmentActivity.pushService != null) {
+            FragmentActivity.pushService.sendMessage1(mCenter.cWhere(serial));
+
+        }else{
+            ToastUtils.showShort(getActivity().getApplicationContext(),"请稍后...");
+        }
+
+//        AVQuery<AVObject> query = new AVQuery<AVObject>("GPS");
+//        query.setLimit(1);
+//        String IMEI = new SettingManager(m_context).getIMEI();
+//        query.whereEqualTo("IMEI",IMEI) ;
+//        query.whereLessThanOrEqualTo("createdAt", Calendar.getInstance().getTime());
+//        query.orderByDescending("createdAt");
+//        query.findInBackground(new FindCallback<AVObject>() {
+//            @Override
+//            public void done(List<AVObject> avObjects, AVException e) {
+//              //  Log.i(TAG, e + "");
+//                if (e == null) {
+//                    AVObject avObject = avObjects.get(0);
+//                    float fLat = mCenter.parseGPSData((float) avObject.getDouble(KET_LAT));
+//                    float fLong = mCenter.parseGPSData((float) avObject.getDouble(KET_LONG));
+//                    Date date = avObject.getCreatedAt();
+//                    TrackPoint ppp = new TrackPoint(date, mCenter.convertPoint(new LatLng(fLat, fLong)));
+//                    //向主线程发出消息，地图定位成功
+//                    Message msg = Message.obtain();
+//                    msg.what = handleKey.LOCATEMESSAGE.ordinal();
+//                    msg.obj = ppp;
+//                    playHandler.sendMessage(msg);
+//                }
+//                else{
+//                    watiDialog.dismiss();
+//                }
+//            }
+//        });
+
     }
 
     private void drawLine(){
@@ -582,7 +599,7 @@ public class MaptabFragment extends Fragment {
 
                 }
                 case HIDEINFOWINDOW:{
-                    mBaiduMap.hideInfoWindow();
+                   // mBaiduMap.hideInfoWindow();
                     break;
                 }
 

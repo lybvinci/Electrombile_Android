@@ -27,6 +27,7 @@ import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.activity.AboutActivity;
 import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
+import com.xunce.electrombile.activity.addSosActivity;
 import com.xunce.electrombile.xpg.common.device.DeviceUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.DialogUtils;
@@ -49,7 +50,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
     private LinearLayout btnAbout;
     private LinearLayout btnHelp;
     private LinearLayout releaseBind;
-  //  private LinearLayout login_again;
+    private LinearLayout btnAddSOS;
     private Button btnLogout;
 
     GeoCoder mSearch = null; // 搜索模块，也可去掉地图模块独立使用
@@ -72,6 +73,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
         view.findViewById(R.id.layout_help).setOnClickListener(this);
         view.findViewById(R.id.layout_release_bind).setOnClickListener(this);
         view.findViewById(R.id.btn_logout).setOnClickListener(this);
+        view.findViewById(R.id.layout_addSOS).setOnClickListener(this);
 
         releaseBind = (LinearLayout) view.findViewById(R.id.layout_release_bind);
       //  view.findViewById(R.id.layout_login_again).setOnClickListener(this);
@@ -125,8 +127,6 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                                 setManager.cleanAll();
                                 Intent intentStartLogin = new Intent(m_context, LoginActivity.class);
                                 startActivity(intentStartLogin);
-//                                getActivity().stopService(new Intent(m_context, GPSDataService.class));
-//                                GPSDataService.isRunning = false;
                                 AVUser.logOut();
                                 getActivity().finish();
                             }
@@ -146,7 +146,6 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();
-
                                     }
                                 }).setNegativeButton("是", new DialogInterface.OnClickListener() {
                             @Override
@@ -157,6 +156,11 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                             }
                         }).create();
                 dialog2.show();
+                break;
+            case R.id.layout_addSOS:
+                Intent intent = new Intent(m_context,addSosActivity.class);
+                startActivity(intent);
+                break;
             default:
                 break;
         }

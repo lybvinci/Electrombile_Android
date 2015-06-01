@@ -18,6 +18,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 
+import com.avos.avoscloud.LogUtil;
 import com.ibm.mqtt.IMqttClient;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
@@ -30,7 +31,9 @@ import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.FragmentActivity;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -604,7 +607,17 @@ public class PushService extends Service
 			switch (msg.what){
 				case 0x01:
 					byte[] cmd = (byte[]) msg.obj;
-					handArrivedCmd(cmd);
+					String data = new String(cmd);
+					if(data.contains("Lat:")){
+						cmd[3] = 0x04;
+						handArrivedGPSString(cmd);
+					} else if (data.contains("FENCE")){
+						cmd[3] = 0x01;
+						handArrivedCmd(cmd);
+					} else if (data.contains("SOS")){
+						cmd[3] = 0x05;
+						handArrivedCmd(cmd);
+					}
 					break;
 				case 0x02:
 					byte[] payload = (byte[]) msg.obj;
@@ -613,6 +626,32 @@ public class PushService extends Service
 			}
 		}
 	};
+
+	private void handArrivedGPSString(byte[] cmd) {
+		byte[] newData = Arrays.copyOfRange(cmd,8,cmd.length-1);
+		String data = new String(newData);
+		LogUtil.log.i("收到的包："+ data);
+		if(data.contains("Lat") && data.contains("Lon")
+				&& data.contains("Course") && data.contains("Speed")
+				&& data.contains("DateTime")){
+			String[] strArray=data.split(",");
+			float lat = Float.parseFloat(strArray[0].substring(5));
+			float longitude = Float.parseFloat(strArray[1].substring(5));
+			String dateTime = strArray[4].substring(9);
+			Intent intent = new Intent();
+			intent.putExtra("CMD",cmd);
+			intent.putExtra("CMDORGPS",true);
+			intent.putExtra("LAT",lat);
+			intent.putExtra("LONG",longitude);
+			intent.putExtra("DATE",dateTime);
+			LogUtil.log.i("解析到的数据：LAT="+lat +"  Long="+longitude+"  date="+dateTime);
+			intent.setAction("com.xunce.electrombile.service");
+			sendBroadcast(intent);
+		}else{
+			LogUtil.log.i("收到错误的包");
+			return ;
+		}
+	}
 
 	private void handArrivedCmd(byte[] b) {
             Intent intent = new Intent();
