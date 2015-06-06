@@ -98,9 +98,12 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private ImageButton btnSettings = null;
     //    public NotificationManager manager;
 //    Handler MyHandler;
-    RadioButton rbSwitch;
-    RadioButton rbMap;
-    RadioButton rbSettings;
+//    RadioButton rbSwitch;
+//    RadioButton rbMap;
+//    RadioButton rbSettings;
+
+    //viewpager切换使用
+
     boolean isupde;int a=0;
     //退出使用
     private boolean isExit = false;
@@ -135,6 +138,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         registerBroadCast();
         //判断是否需要开启服务
         startServer();
+        Historys.put(this);
     }
 
     private void startServer() {
@@ -405,15 +409,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            moveTaskToBack(false);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
+    public void onBackPressed() {
+        exit();
     }
-
-
 
     @Override
     protected void onPause() {
@@ -633,30 +631,30 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 //        notification.setLatestEventInfo(getApplicationContext(),"安全宝",text,contextIntent);
 //        notificationManager.notify(R.string.app_name, notification);
 //    }
-    //    /**
-//     * 重复按下返回键退出app方法
-//     */
-//    public void exit() {
-//        if (!isExit) {
-//            isExit = true;
-//            Toast.makeText(getApplicationContext(),
-//                    "退出程序", Toast.LENGTH_SHORT).show();
-//            exitHandler.sendEmptyMessageDelayed(0, 2000);
-//        } else {
-//
-//            Intent intent = new Intent(Intent.ACTION_MAIN);
-//            intent.addCategory(Intent.CATEGORY_HOME);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            this.startActivity(intent);
-//            Historys.exit();
-//        }
-//    }
-//
-//    /** The handler. to process exit()*/
-//    private Handler exitHandler = new Handler() {
-//        public void handleMessage(android.os.Message msg) {
-//            isExit = false;
-//        }
-//    };
+        /**
+     * 重复按下返回键退出app方法
+     */
+    public void exit() {
+        if (!isExit) {
+            isExit = true;
+            Toast.makeText(getApplicationContext(),
+                    "退出程序", Toast.LENGTH_SHORT).show();
+            exitHandler.sendEmptyMessageDelayed(0, 2000);
+        } else {
+
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(intent);
+            Historys.exit();
+        }
+    }
+
+    /** The handler. to process exit()*/
+    private Handler exitHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            isExit = false;
+        }
+    };
 
 }
