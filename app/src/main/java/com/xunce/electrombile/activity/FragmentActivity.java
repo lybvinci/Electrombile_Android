@@ -1,11 +1,6 @@
 package com.xunce.electrombile.activity;
 
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -19,7 +14,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -31,6 +28,7 @@ import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
+import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
@@ -38,11 +36,13 @@ import com.xunce.electrombile.Base.utils.Historys;
 import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.Updata.UpdateAppService;
+import com.xunce.electrombile.fragment.BaseFragment;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
 
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
@@ -64,10 +64,12 @@ import java.io.UnsupportedEncodingException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 import com.xunce.electrombile.service.PushService;
+import com.xunce.electrombile.viewpager.CustomViewPager;
 import com.xunce.electrombile.xpg.common.device.DeviceUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
@@ -103,6 +105,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 //    RadioButton rbSettings;
 
     //viewpager切换使用
+    private CustomViewPager mViewPager;
+    private RadioGroup main_radio;
+    private int checkId = R.id.rbSwitch;
 
     boolean isupde;int a=0;
     //退出使用
@@ -132,8 +137,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         //   initNotificaton();
         //初始化界面
         initView();
+        initData();
         //处理按键事件
-        dealBottomButtonsClickEvent();
+     //   dealBottomButtonsClickEvent();
         //注册广播
         registerBroadCast();
         //判断是否需要开启服务
@@ -271,110 +277,164 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
      * 界面初始化
      */
     private void initView() {
-        initFragment();
-        rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
-        rbMap = (RadioButton) findViewById(R.id.rbMap);
-        rbSettings = (RadioButton)findViewById(R.id.rbSettings);
+        main_radio = (RadioGroup) findViewById(R.id.main_radio);
+        mViewPager = (CustomViewPager) findViewById(R.id.viewpager);
+        switchFragment = new SwitchFragment();
+        maptabFragment = new MaptabFragment();
+        settingsFragment = new SettingsFragment();
+       // initFragment();
+//        rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
+//        rbMap = (RadioButton) findViewById(R.id.rbMap);
+//        rbSettings = (RadioButton)findViewById(R.id.rbSettings);
         //实例化标题栏弹窗
         //titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     }
 
+    private void initData() {
+        List<Fragment> list = new ArrayList<Fragment>();
+        list.add(switchFragment);
+        list.add(maptabFragment);
+        list.add(settingsFragment);
+        HomePagerAdapter mAdapter = new HomePagerAdapter(m_FMer,list);
+        mViewPager.setAdapter(mAdapter);
+        main_radio.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i){
+                    case R.id.rbSwitch:
+                        mViewPager.setCurrentItem(0, false);
+                        checkId = 0;
+                        break;
+                    case R.id.rbMap:
+                        mViewPager.setCurrentItem(1, false);
+                        checkId = 1;
+                        break;
+                    case R.id.rbSettings:
+                        mViewPager.setCurrentItem(2, false);
+                        checkId = 2;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        main_radio.check(checkId);
+    }
+    class HomePagerAdapter extends FragmentPagerAdapter {
 
+        private List<Fragment> list;
+        public HomePagerAdapter(FragmentManager fm,List<Fragment> list) {
+            super(fm);
+            this.list = list;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return list.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+    }
     /**
      * 初始化首个Fragment
      */
-    private void initFragment() {
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        switchFragment = new SwitchFragment();
-        ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
-        //ft.addToBackStack("switchFragment");
+//    private void initFragment() {
+//
 
-        maptabFragment = new MaptabFragment();
-        ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
-        ft.hide(maptabFragment);
-        //ft.addToBackStack("mapFragment");
-
-        settingsFragment = new SettingsFragment();
-        ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
-        ft.hide(settingsFragment);
-        //ft.addToBackStack("settingsFragment");
-
-        ft.commit();
-    }
+//        FragmentTransaction ft = m_FMer.beginTransaction();
+//        switchFragment = new SwitchFragment();
+//        ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
+//        //ft.addToBackStack("switchFragment");
+//
+//        maptabFragment = new MaptabFragment();
+//        ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
+//        ft.hide(maptabFragment);
+//        //ft.addToBackStack("mapFragment");
+//
+//        settingsFragment = new SettingsFragment();
+//        ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
+//        ft.hide(settingsFragment);
+//        //ft.addToBackStack("settingsFragment");
+//
+//        ft.commit();
+//    }
 
     /**
      * 处理底部点击事件
      */
-    private void dealBottomButtonsClickEvent() {
-        findViewById(R.id.rbSwitch).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchTabClicked();
+//    private void dealBottomButtonsClickEvent() {
+//        findViewById(R.id.rbSwitch).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                switchTabClicked();
+//
+//            }
+//        });
+//
+//        findViewById(R.id.rbMap).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mapTabClicked();
+//
+//            }
+//        });
+//
+//        findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                settingsTabClicked();
+//            }
+//        });
+//    }
 
-            }
-        });
-
-        findViewById(R.id.rbMap).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mapTabClicked();
-
-            }
-        });
-
-        findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                settingsTabClicked();
-            }
-        });
-    }
-
-    private void settingsTabClicked() {
-        if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
-            //   Log.e("", "set clicked");
-            return;
-        }
-
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        ft.hide(switchFragment);
-        ft.show(settingsFragment);
-        ft.hide(maptabFragment);
-        ft.commit();
-    }
-
-    private void mapTabClicked() {
-        if (m_FMer.findFragmentByTag("mapFragment").isVisible()) {
-            //  Log.e("", "map clicked");
-            return;
-        }
-        //从backstack中弹出
-        //popAllFragmentsExceptTheBottomOne();
-
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        ft.hide(switchFragment);
-        ft.hide(settingsFragment);
-        ft.show(maptabFragment);
-        rbMap.setChecked(true);
-        //ft.addToBackStack("mapFragment");
-        ft.commit();
-    }
-
-    private void switchTabClicked() {
-        if (m_FMer.findFragmentByTag("switchFragment") != null &&
-                m_FMer.findFragmentByTag("switchFragment").isVisible()) {
-            return;
-        }
-
-        //界面切换
-        //从backstack中弹出
-        //popAllFragmentsExceptTheBottomOne();
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        ft.show(switchFragment);
-        ft.hide(settingsFragment);
-        ft.hide(maptabFragment);
-        ft.commit();
-    }
+//    private void settingsTabClicked() {
+//        if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
+//            //   Log.e("", "set clicked");
+//            return;
+//        }
+//
+//        FragmentTransaction ft = m_FMer.beginTransaction();
+//        ft.hide(switchFragment);
+//        ft.show(settingsFragment);
+//        ft.hide(maptabFragment);
+//        ft.commit();
+//    }
+//
+//    private void mapTabClicked() {
+//        if (m_FMer.findFragmentByTag("mapFragment").isVisible()) {
+//            //  Log.e("", "map clicked");
+//            return;
+//        }
+//        //从backstack中弹出
+//        //popAllFragmentsExceptTheBottomOne();
+//
+//        FragmentTransaction ft = m_FMer.beginTransaction();
+//        ft.hide(switchFragment);
+//        ft.hide(settingsFragment);
+//        ft.show(maptabFragment);
+//        rbMap.setChecked(true);
+//        //ft.addToBackStack("mapFragment");
+//        ft.commit();
+//    }
+//
+//    private void switchTabClicked() {
+//        if (m_FMer.findFragmentByTag("switchFragment") != null &&
+//                m_FMer.findFragmentByTag("switchFragment").isVisible()) {
+//            return;
+//        }
+//
+//        //界面切换
+//        //从backstack中弹出
+//        //popAllFragmentsExceptTheBottomOne();
+//        FragmentTransaction ft = m_FMer.beginTransaction();
+//        ft.show(switchFragment);
+//        ft.hide(settingsFragment);
+//        ft.hide(maptabFragment);
+//        ft.commit();
+//    }
 
     /**
      * 检查更新
@@ -529,8 +589,10 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     @Override
     public void locationTVClicked() {
-        mapTabClicked();
-
+      //  mapTabClicked();
+        checkId = R.id.rbMap;
+        main_radio.check(checkId);
+        checkId = 1;
     }
 
     public class MyReceiver extends BroadcastReceiver {
@@ -553,6 +615,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+                LogUtil.log.i("保存数据1");
+                setManager.setInitLocation(Flat+"",Flong+"");
                 //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
                 if (!maptabFragment.isPlaying) {
                     maptabFragment.locateMobile(trackPoint);
@@ -591,6 +655,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                     try {
                         Date mDate = sdf.parse(sdf.format(curDate));
                         trackPoint = new TracksManager.TrackPoint(mDate,mCenter.convertPoint(new LatLng(Flat, Flong)));
+                        LogUtil.log.i("保存数据2");
+                        setManager.setInitLocation(Flat+"",Flong+"");
                        // trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
                     } catch (Exception e) {
                         e.printStackTrace();
