@@ -1,11 +1,6 @@
 package com.xunce.electrombile.activity;
 
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -19,7 +14,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -31,6 +28,7 @@ import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
+import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
 import com.xunce.electrombile.Base.sdk.SettingManager;
@@ -38,11 +36,13 @@ import com.xunce.electrombile.Base.utils.Historys;
 import com.xunce.electrombile.Base.utils.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.Updata.UpdateAppService;
+import com.xunce.electrombile.fragment.BaseFragment;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
 
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
@@ -64,9 +64,12 @@ import java.io.UnsupportedEncodingException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 import com.xunce.electrombile.service.PushService;
+import com.xunce.electrombile.viewpager.CustomViewPager;
 import com.xunce.electrombile.xpg.common.device.DeviceUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
@@ -97,9 +100,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private ImageButton btnSettings = null;
     //    public NotificationManager manager;
 //    Handler MyHandler;
-    RadioButton rbSwitch;
-    RadioButton rbMap;
-    RadioButton rbSettings;
+//    RadioButton rbSwitch;
+//    RadioButton rbMap;
+//    RadioButton rbSettings;
+
+    //viewpager切换使用
+    private CustomViewPager mViewPager;
+    private RadioGroup main_radio;
+    private int checkId = R.id.rbSwitch;
+
     boolean isupde;int a=0;
     //退出使用
     private boolean isExit = false;
@@ -128,12 +137,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         //   initNotificaton();
         //初始化界面
         initView();
+        initData();
         //处理按键事件
-        dealBottomButtonsClickEvent();
+     //   dealBottomButtonsClickEvent();
         //注册广播
         registerBroadCast();
         //判断是否需要开启服务
         startServer();
+        Historys.put(this);
     }
 
     private void startServer() {
@@ -148,7 +159,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         setManager.setIMEI((String) avObjects.get(0).get("IMEI"));
                         Log.i(TAG + "AAAAAA", setManager.getIMEI());
                         final String topic = "e2link_" + setManager.getIMEI();
-                        Log.i(TAG+"SSSSSSSSSS", topic);
+                        Log.i(TAG + "SSSSSSSSSS", topic);
                         //启动服务
                         new Thread(new Runnable() {
                             @Override
@@ -172,7 +183,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         }).start();
 
                         Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
-                        ToastUtils.showShort(FragmentActivity.this, "设备登陆成功");
+                        ToastUtils.showShort(FragmentActivity.this, "设备查询成功");
                     }else{
                         Log.d("失败", "查询错误2: " + e.getMessage());
                         ToastUtils.showShort(FragmentActivity.this, "请先绑定设备");
@@ -266,110 +277,164 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
      * 界面初始化
      */
     private void initView() {
-        initFragment();
-        rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
-        rbMap = (RadioButton) findViewById(R.id.rbMap);
-        rbSettings = (RadioButton)findViewById(R.id.rbSettings);
+        main_radio = (RadioGroup) findViewById(R.id.main_radio);
+        mViewPager = (CustomViewPager) findViewById(R.id.viewpager);
+        switchFragment = new SwitchFragment();
+        maptabFragment = new MaptabFragment();
+        settingsFragment = new SettingsFragment();
+       // initFragment();
+//        rbSwitch = (RadioButton) findViewById(R.id.rbSwitch);
+//        rbMap = (RadioButton) findViewById(R.id.rbMap);
+//        rbSettings = (RadioButton)findViewById(R.id.rbSettings);
         //实例化标题栏弹窗
         //titlePopup = new TitlePopup(this, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     }
 
+    private void initData() {
+        List<Fragment> list = new ArrayList<Fragment>();
+        list.add(switchFragment);
+        list.add(maptabFragment);
+        list.add(settingsFragment);
+        HomePagerAdapter mAdapter = new HomePagerAdapter(m_FMer,list);
+        mViewPager.setAdapter(mAdapter);
+        main_radio.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i){
+                    case R.id.rbSwitch:
+                        mViewPager.setCurrentItem(0, false);
+                        checkId = 0;
+                        break;
+                    case R.id.rbMap:
+                        mViewPager.setCurrentItem(1, false);
+                        checkId = 1;
+                        break;
+                    case R.id.rbSettings:
+                        mViewPager.setCurrentItem(2, false);
+                        checkId = 2;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        main_radio.check(checkId);
+    }
+    class HomePagerAdapter extends FragmentPagerAdapter {
 
+        private List<Fragment> list;
+        public HomePagerAdapter(FragmentManager fm,List<Fragment> list) {
+            super(fm);
+            this.list = list;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return list.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+    }
     /**
      * 初始化首个Fragment
      */
-    private void initFragment() {
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        switchFragment = new SwitchFragment();
-        ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
-        //ft.addToBackStack("switchFragment");
+//    private void initFragment() {
+//
 
-        maptabFragment = new MaptabFragment();
-        ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
-        ft.hide(maptabFragment);
-        //ft.addToBackStack("mapFragment");
-
-        settingsFragment = new SettingsFragment();
-        ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
-        ft.hide(settingsFragment);
-        //ft.addToBackStack("settingsFragment");
-
-        ft.commit();
-    }
+//        FragmentTransaction ft = m_FMer.beginTransaction();
+//        switchFragment = new SwitchFragment();
+//        ft.add(R.id.fragmentRoot, switchFragment, "switchFragment");
+//        //ft.addToBackStack("switchFragment");
+//
+//        maptabFragment = new MaptabFragment();
+//        ft.add(R.id.fragmentRoot, maptabFragment, "mapFragment");
+//        ft.hide(maptabFragment);
+//        //ft.addToBackStack("mapFragment");
+//
+//        settingsFragment = new SettingsFragment();
+//        ft.add(R.id.fragmentRoot, settingsFragment, "settingsFragment");
+//        ft.hide(settingsFragment);
+//        //ft.addToBackStack("settingsFragment");
+//
+//        ft.commit();
+//    }
 
     /**
      * 处理底部点击事件
      */
-    private void dealBottomButtonsClickEvent() {
-        findViewById(R.id.rbSwitch).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchTabClicked();
+//    private void dealBottomButtonsClickEvent() {
+//        findViewById(R.id.rbSwitch).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                switchTabClicked();
+//
+//            }
+//        });
+//
+//        findViewById(R.id.rbMap).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mapTabClicked();
+//
+//            }
+//        });
+//
+//        findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                settingsTabClicked();
+//            }
+//        });
+//    }
 
-            }
-        });
-
-        findViewById(R.id.rbMap).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mapTabClicked();
-
-            }
-        });
-
-        findViewById(R.id.rbSettings).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                settingsTabClicked();
-            }
-        });
-    }
-
-    private void settingsTabClicked() {
-        if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
-            //   Log.e("", "set clicked");
-            return;
-        }
-
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        ft.hide(switchFragment);
-        ft.show(settingsFragment);
-        ft.hide(maptabFragment);
-        ft.commit();
-    }
-
-    private void mapTabClicked() {
-        if (m_FMer.findFragmentByTag("mapFragment").isVisible()) {
-            //  Log.e("", "map clicked");
-            return;
-        }
-        //从backstack中弹出
-        //popAllFragmentsExceptTheBottomOne();
-
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        ft.hide(switchFragment);
-        ft.hide(settingsFragment);
-        ft.show(maptabFragment);
-        rbMap.setChecked(true);
-        //ft.addToBackStack("mapFragment");
-        ft.commit();
-    }
-
-    private void switchTabClicked() {
-        if (m_FMer.findFragmentByTag("switchFragment") != null &&
-                m_FMer.findFragmentByTag("switchFragment").isVisible()) {
-            return;
-        }
-
-        //界面切换
-        //从backstack中弹出
-        //popAllFragmentsExceptTheBottomOne();
-        FragmentTransaction ft = m_FMer.beginTransaction();
-        ft.show(switchFragment);
-        ft.hide(settingsFragment);
-        ft.hide(maptabFragment);
-        ft.commit();
-    }
+//    private void settingsTabClicked() {
+//        if(m_FMer.findFragmentByTag("settingsFragment").isVisible()){
+//            //   Log.e("", "set clicked");
+//            return;
+//        }
+//
+//        FragmentTransaction ft = m_FMer.beginTransaction();
+//        ft.hide(switchFragment);
+//        ft.show(settingsFragment);
+//        ft.hide(maptabFragment);
+//        ft.commit();
+//    }
+//
+//    private void mapTabClicked() {
+//        if (m_FMer.findFragmentByTag("mapFragment").isVisible()) {
+//            //  Log.e("", "map clicked");
+//            return;
+//        }
+//        //从backstack中弹出
+//        //popAllFragmentsExceptTheBottomOne();
+//
+//        FragmentTransaction ft = m_FMer.beginTransaction();
+//        ft.hide(switchFragment);
+//        ft.hide(settingsFragment);
+//        ft.show(maptabFragment);
+//        rbMap.setChecked(true);
+//        //ft.addToBackStack("mapFragment");
+//        ft.commit();
+//    }
+//
+//    private void switchTabClicked() {
+//        if (m_FMer.findFragmentByTag("switchFragment") != null &&
+//                m_FMer.findFragmentByTag("switchFragment").isVisible()) {
+//            return;
+//        }
+//
+//        //界面切换
+//        //从backstack中弹出
+//        //popAllFragmentsExceptTheBottomOne();
+//        FragmentTransaction ft = m_FMer.beginTransaction();
+//        ft.show(switchFragment);
+//        ft.hide(settingsFragment);
+//        ft.hide(maptabFragment);
+//        ft.commit();
+//    }
 
     /**
      * 检查更新
@@ -404,15 +469,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            moveTaskToBack(false);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
+    public void onBackPressed() {
+        exit();
     }
-
-
 
     @Override
     protected void onPause() {
@@ -449,9 +508,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 Bundle bundle=new Bundle();
                 boolean isupdate;
                 String baseUrl = "http://fir.im/api/v2/app/version/%s?token=%s";
-                //test String checkUpdateUrl = String.format(baseUrl, "554331e6bf7f222c2600493b", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
-
-                //下面是正式的
+                //下面是正式的 版本调整
+               // String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 HttpClient httpClient = new DefaultHttpClient();
                 //请求超时
@@ -531,8 +589,10 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     @Override
     public void locationTVClicked() {
-        mapTabClicked();
-
+      //  mapTabClicked();
+        checkId = R.id.rbMap;
+        main_radio.check(checkId);
+        checkId = 1;
     }
 
     public class MyReceiver extends BroadcastReceiver {
@@ -555,6 +615,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+                LogUtil.log.i("保存数据1");
+                setManager.setInitLocation(Flat+"",Flong+"");
                 //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
                 if (!maptabFragment.isPlaying) {
                     maptabFragment.locateMobile(trackPoint);
@@ -563,13 +625,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             } else {
                 Log.i(TAG, "弹不出来？？？");
                 byte[] cmd = bundle.getByteArray("CMD");
+                //test用
                // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
                 // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
                 //pushService.sendMessage1(mCenter.cTest(new byte[]{0x00,0x11}));
-                ToastUtils.showShort(FragmentActivity.this,"命令字是"+cmd[3]);
+              //  ToastUtils.showShort(FragmentActivity.this,"命令字是"+cmd[3]);
                 if(cmd[3] == 0x01) {
                     switchFragment.cancelDialog();
-                    DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
+                   // DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
                     ToastUtils.showShort(FragmentActivity.this, "设置成功");
                 }else if(cmd[3] == 0x03){
                     String cmdString = new String(cmd);
@@ -586,11 +649,16 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                     String date = bundle.getString("DATE");
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+                    Date curDate = new Date(System.currentTimeMillis());//获取当前时间
+
                     TracksManager.TrackPoint trackPoint = null;
                     try {
-                        trackPoint = new TracksManager.TrackPoint(sdf.parse(date),mCenter.convertPoint(new LatLng(Flat, Flong)));
+                        Date mDate = sdf.parse(sdf.format(curDate));
+                        trackPoint = new TracksManager.TrackPoint(mDate,mCenter.convertPoint(new LatLng(Flat, Flong)));
+                        LogUtil.log.i("保存数据2");
+                        setManager.setInitLocation(Flat+"",Flong+"");
                        // trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
-                    } catch (ParseException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
@@ -598,8 +666,10 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         maptabFragment.locateMobile(trackPoint);
                     }
                     switchFragment.reverserGeoCedec(trackPoint.point);
+                    ToastUtils.showShort(FragmentActivity.this,"查询成功");
                 }else if(cmd[3] == 0x05){
                     addSosActivity.cancleDialog();
+                    ToastUtils.showShort(FragmentActivity.this, "设置成功");
                 }
             }
         }
@@ -627,30 +697,30 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 //        notification.setLatestEventInfo(getApplicationContext(),"安全宝",text,contextIntent);
 //        notificationManager.notify(R.string.app_name, notification);
 //    }
-    //    /**
-//     * 重复按下返回键退出app方法
-//     */
-//    public void exit() {
-//        if (!isExit) {
-//            isExit = true;
-//            Toast.makeText(getApplicationContext(),
-//                    "退出程序", Toast.LENGTH_SHORT).show();
-//            exitHandler.sendEmptyMessageDelayed(0, 2000);
-//        } else {
-//
-//            Intent intent = new Intent(Intent.ACTION_MAIN);
-//            intent.addCategory(Intent.CATEGORY_HOME);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            this.startActivity(intent);
-//            Historys.exit();
-//        }
-//    }
-//
-//    /** The handler. to process exit()*/
-//    private Handler exitHandler = new Handler() {
-//        public void handleMessage(android.os.Message msg) {
-//            isExit = false;
-//        }
-//    };
+        /**
+     * 重复按下返回键退出app方法
+     */
+    public void exit() {
+        if (!isExit) {
+            isExit = true;
+            Toast.makeText(getApplicationContext(),
+                    "退出程序", Toast.LENGTH_SHORT).show();
+            exitHandler.sendEmptyMessageDelayed(0, 2000);
+        } else {
+
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(intent);
+            Historys.exit();
+        }
+    }
+
+    /** The handler. to process exit()*/
+    private Handler exitHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            isExit = false;
+        }
+    };
 
 }

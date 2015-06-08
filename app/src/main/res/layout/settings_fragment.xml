@@ -1,8 +1,16 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:backgroundTint="#ff1d252c">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
     <RelativeLayout
         android:id="@+id/title"
         android:layout_width="fill_parent"
@@ -73,6 +81,7 @@
             android:src="@drawable/setting_tel"/>
         <TextView
             style="@style/clickableLayoutTextview"
+            android:textColor="@color/black"
             android:text="关于与反馈"/>
     </LinearLayout>
     <LinearLayout
@@ -85,6 +94,7 @@
             android:src="@drawable/setting_tel"/>
         <TextView
             style="@style/clickableLayoutTextview"
+            android:textColor="@color/black"
             android:text="解除绑定"/>
     </LinearLayout>
     <LinearLayout
@@ -97,6 +107,7 @@
             android:src="@drawable/setting_tel"/>
         <TextView
             style="@style/clickableLayoutTextview"
+            android:textColor="@color/black"
             android:text="添加管理员"/>
     </LinearLayout>
 
@@ -104,14 +115,14 @@
         android:id="@+id/btn_logout"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginTop="50dp"
         android:text="退出登录"
         android:background="@drawable/special_btn"
         android:textColor="@color/black"
         android:textSize="20sp"/>
-
-</RelativeLayout>
+    </LinearLayout>
+    </ScrollView>
+</LinearLayout>

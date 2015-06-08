@@ -23,6 +23,7 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
+import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
@@ -318,34 +319,46 @@ public class MaptabFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
 
-            /**
-             * 显示车的位置
-             */
-            //定义Maker坐标点
-            //leacloud服务器清空，暂时自定义数据代替
-            LatLng point = new LatLng(30.5171, 114.4392);
-          //  Log.e(point.latitude + "", point.longitude + "");
+        /**
+         * 显示车的位置
+         */
+        //定义Maker坐标点
+        //leacloud服务器清空，暂时自定义数据代替
+        LatLng point = null;
+        if(settingManager.getInitLocationLat()!=null||settingManager.getInitLocationLongitude()!=null){
+            LogUtil.log.i("lat:::"+Double.valueOf(settingManager.getInitLocationLat()));
+            LogUtil.log.i("longitude:::"+Double.valueOf(settingManager.getInitLocationLongitude()));
+            point = new LatLng(Double.valueOf(settingManager.getInitLocationLat()),
+                    Double.valueOf(settingManager.getInitLocationLongitude()));
+            point = mCenter.convertPoint(point);
+        }else {
+            LogUtil.log.i("到了初始位置？");
+            point = new LatLng(30.5171, 114.4392);
+        }
+//        LatLng point = new LatLng(Double.valueOf(settingManager.getInitLocationLat()),
+//                Double.valueOf(settingManager.getInitLocationLongitude()));
+        //  Log.e(point.latitude + "", point.longitude + "");
 
-            //构建Marker图标
-            BitmapDescriptor bitmap = BitmapDescriptorFactory
-                    .fromResource(R.drawable.icon_gcoding);
-            //构建MarkerOption，用于在地图上添加Marker
-            option2 = new MarkerOptions()
-                    .position(point)
-                    .icon(bitmap);
-            //在地图上添加Marker，并显示
-            markerMobile = (Marker)mBaiduMap.addOverlay(option2);
+        //构建Marker图标
+        BitmapDescriptor bitmap = BitmapDescriptorFactory
+                .fromResource(R.drawable.icon_gcoding);
+        //构建MarkerOption，用于在地图上添加Marker
+        option2 = new MarkerOptions()
+                .position(point)
+                .icon(bitmap);
+        //在地图上添加Marker，并显示
+        markerMobile = (Marker)mBaiduMap.addOverlay(option2);
 
 
-            //将电动车位置移至中心
-            MapStatus mMapStatus = new MapStatus.Builder()
-                    .target(point)
-                    .zoom(mBaiduMap.getMapStatus().zoom * new Double(1.5).floatValue())
-                    .build();
-            //float a = mBaiduMap.getMapStatus().zoom;
-            //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
-            MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
-            mBaiduMap.setMapStatus(mMapStatusUpdate);
+        //将电动车位置移至中心
+        MapStatus mMapStatus = new MapStatus.Builder()
+                .target(point)
+                .zoom(mBaiduMap.getMapStatus().zoom * new Double(1.5).floatValue())
+                .build();
+        //float a = mBaiduMap.getMapStatus().zoom;
+        //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
+        MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
+        mBaiduMap.setMapStatus(mMapStatusUpdate);
         }
     //}
 	@Override

@@ -113,7 +113,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
             case R.id.btn_logout:
                 AlertDialog dialog = new AlertDialog.Builder(getActivity())
                         .setTitle("退出登录")
-                        .setMessage("退出登录将清除所有已有账户及已经绑定的设备\n确定退出么？")
+                        .setMessage("退出登录将清除所有已有账户及已经绑定的设备，确定退出么？")
                         .setPositiveButton("否",
                                 new DialogInterface.OnClickListener() {
                                     @Override
@@ -124,7 +124,25 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                                 }).setNegativeButton("是", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                setManager.cleanAll();
+                                String topic = "e2link_" + setManager.getIMEI();
+                                YunBaManager.unsubscribe(m_context, topic, new IMqttActionListener() {
+
+                                    @Override
+                                    public void onSuccess(IMqttToken arg0) {
+                                        Log.d(TAG, "UnSubscribe topic succeed");
+                                        //删除本地的IMEI 和报警标志
+                                        setManager.setIMEI("");
+                                        setManager.setAlarmFlag(false);
+                                        ToastUtils.showShort(m_context, "退出登录成功");
+                                        setManager.cleanAll();
+                                    }
+
+                                    @Override
+                                    public void onFailure(IMqttToken arg0, Throwable arg1) {
+                                        Log.d(TAG, "UnSubscribe topic failed");
+                                        ToastUtils.showShort(m_context, "退订服务失败，请确保网络通畅！");
+                                    }
+                                });
                                 Intent intentStartLogin = new Intent(m_context, LoginActivity.class);
                                 startActivity(intentStartLogin);
                                 AVUser.logOut();
@@ -172,6 +190,10 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
             ToastUtils.showShort(m_context,"未绑定设备");
             return;
         }
+        if(!NetworkUtils.isNetworkConnected(m_context)){
+            ToastUtils.showShort(m_context,"网络连接失败");
+            return;
+        }
         //若不为空，则先查询所在绑定类，再删除，删除成功后取消订阅，并删除本地的IMEI，关闭FragmentActivity,进入绑定页面
         AVQuery<AVObject> query = new AVQuery<AVObject>("Bindings");
         String IMEI = setManager.getIMEI();
@@ -196,6 +218,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                                         //删除本地的IMEI 和报警标志
                                         setManager.setIMEI("");
                                         setManager.setAlarmFlag(false);
+                                        setManager.setSOS("");
                                         ToastUtils.showShort(m_context, "解除绑定成功");
                                         Intent intent = new Intent(m_context, BindingActivity.class);
                                         startActivity(intent);
