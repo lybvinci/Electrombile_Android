@@ -112,9 +112,12 @@ public class SettingManager {
         setIMEI("");
         setAlarmFlag(false);
 		setSOS("");
+        setInitLocation("","");
 	}
     public void cleanDevice() {
         setIMEI("");
+        setSOS("");
+        setInitLocation("","");
     }
 
 	/**

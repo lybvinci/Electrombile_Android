@@ -223,12 +223,9 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
         LogUtil.log.i("进入位置设置:" +result.getAddress());
         if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
-          //  LogUtil.log.i("AAAAAAAAAAAAAAA进入位置设置？？？？？？");
             return;
         }
-      //  LogUtil.log.i("AAAAAAAAAAAAAAA进入位置设BBBBBBBBBBBBBB");
         switch_fragment_tvLocation.setText(result.getAddress().trim());
-        //LogUtil.log.i("AAAAAAAAAAAAAAA进入位置设CCCCCCCCCCC");
     }
 
     //显示常驻通知栏

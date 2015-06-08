@@ -125,7 +125,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                 break;
             case R.id.jump_bind:
                 //第一次登陆
-                if(!FragmentActivity.ISSTARTED) {
+                if(!FragmentActivity.IS_STARTED) {
                     Intent intent2 = new Intent(BindingActivity.this, FragmentActivity.class);
                     startActivity(intent2);
                 }
