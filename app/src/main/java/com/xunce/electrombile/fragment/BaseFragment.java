@@ -32,11 +32,13 @@ public class BaseFragment extends Fragment{
     protected SettingManager setManager;
     protected GPSDataChangeListener mGpsChangedListener;
 
+
     @Override
     public void onCreate(Bundle saveInstanceState){
         super.onCreate(saveInstanceState);
         setManager = new SettingManager(getActivity().getApplicationContext());
         mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
+
     }
 
 
@@ -53,7 +55,7 @@ public class BaseFragment extends Fragment{
         }
 
     public interface GPSDataChangeListener{
-        public void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint);
+         void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint);
     }
     @Override
     public void onAttach(Activity activity) {

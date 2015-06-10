@@ -53,14 +53,17 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
     private LinearLayout btnAddSOS;
     private Button btnLogout;
 
-    GeoCoder mSearch = null; // 搜索模块，也可去掉地图模块独立使用
+    //缓存view
+    private View rootView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
         initView();
-
-		return inflater.inflate(R.layout.settings_fragment, container, false);
+        if(rootView == null) {
+            rootView = inflater.inflate(R.layout.settings_fragment, container, false);
+        }
+		return rootView;
 	}
 
     @Override
@@ -94,6 +97,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                         setManager.cleanDevice();
                         Intent intentStartBinding = new Intent(m_context, BindingActivity.class);
                         startActivity(intentStartBinding);
+                        getActivity().finish();
                     }else{
                         System.out.println(setManager.getIMEI() +"aaaaaaaaaaa");
                         ToastUtils.showShort(m_context,"设备已绑定");
@@ -200,7 +204,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
             return;
         }
         //若不为空，则先查询所在绑定类，再删除，删除成功后取消订阅，并删除本地的IMEI，关闭FragmentActivity,进入绑定页面
-        AVQuery<AVObject> query = new AVQuery<AVObject>("Bindings");
+        AVQuery<AVObject> query = new AVQuery<>("Bindings");
         String IMEI = setManager.getIMEI();
         query.whereEqualTo("IMEI", IMEI);
         query.findInBackground(new FindCallback<AVObject>() {
@@ -240,7 +244,8 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                         }
                     });
                 } else {
-                    Log.d("失败", "问题： " + e.getMessage());
+                    if(e != null)
+                        Log.d("失败", "问题： " + e.getMessage());
                     ToastUtils.showShort(m_context, "解除绑定失败!");
                 }
             }
@@ -261,4 +266,14 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
 		super.onActivityCreated(savedInstanceState);
 	}
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((ViewGroup) rootView.getParent()).removeView(rootView);
+    }
 }

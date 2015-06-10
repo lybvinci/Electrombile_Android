@@ -29,7 +29,7 @@ import io.yunba.android.manager.YunBaManager;
 
 /**
  * Created by lybvinci on 2015/5/1.
- * 
+ *
  */
 public class YunBaReceiver extends BroadcastReceiver{
 
