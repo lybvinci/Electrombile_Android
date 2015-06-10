@@ -92,7 +92,7 @@
 
         <Button
             android:id="@+id/btnReGetCode"
-            android:layout_width="50dp"
+            android:layout_width="wrap_content"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginRight="30dp"

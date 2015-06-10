@@ -84,6 +84,10 @@ public class SettingManager {
 	//添加SOS管理员
 	public final String SOS = "sos";
 
+    //用户的初始位置
+    private final String Lat = "lat";
+    private final String Longitude = "longitude";
+
 
 
 	/**
@@ -122,6 +126,17 @@ public class SettingManager {
 		spf.edit().putString(USER_NAME, name).commit();
 
 	}
+    public void setInitLocation(String lat,String longitude){
+        spf.edit().putString(Lat, lat).commit();
+        spf.edit().putString(Longitude, longitude).commit();
+    }
+    public String getInitLocationLat(){
+        return spf.getString(Lat, null);
+    }
+    public String getInitLocationLongitude(){
+        return spf.getString(Longitude,null);
+    }
+
 
     public void setAlarmFlag(boolean alarmFlag) {
         spf.edit().putBoolean(ALARMFLAG, alarmFlag).commit();
