@@ -181,14 +181,14 @@ public class PushService extends Service
 	// and then restarted
 	private void handleCrashedService() {
 //		if (wasStarted() == true) {
-		if (true) {
+//		if (true) {
 			log("Handling crashed service...");
 			 // stop the keep alives
 			stopKeepAlives(); 
 				
 			// Do a clean start
 			start();
-		}
+//		}
 	}
 	
 	@Override
@@ -196,14 +196,16 @@ public class PushService extends Service
 		log("Service destroyed (started=" + mStarted + ")");
 
 		// Stop the services, if it has been started
-		if (mStarted == true) {
+		if (mStarted) {
 			stop();
 		}
 		
 		try {
 			if (mLog != null)
 				mLog.close();
-		} catch (IOException e) {}
+		} catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 	
 	@Override
@@ -212,14 +214,14 @@ public class PushService extends Service
 		log("Service started with intent=" + intent);
 
 		// Do an appropriate action based on the intent.
-		if (intent.getAction().equals(ACTION_STOP) == true) {
+		if (intent.getAction().equals(ACTION_STOP)) {
 			stop();
 			stopSelf();
-		} else if (intent.getAction().equals(ACTION_START) == true) {
+		} else if (intent.getAction().equals(ACTION_START)) {
 			start();
-		} else if (intent.getAction().equals(ACTION_KEEPALIVE) == true) {
+		} else if (intent.getAction().equals(ACTION_KEEPALIVE)) {
 			keepAlive();
-		} else if (intent.getAction().equals(ACTION_RECONNECT) == true) {
+		} else if (intent.getAction().equals(ACTION_RECONNECT)) {
 			if (isNetworkAvailable()) {
 				reconnectIfNecessary();
 			}
@@ -233,10 +235,7 @@ public class PushService extends Service
 	}
 	//lybvinci
 	public class MsgBinder extends Binder {
-		/**
-		 *
-		 * @return
-		 */
+
 		public PushService getService(){
 			return PushService.this;
 		}
@@ -259,7 +258,9 @@ public class PushService extends Service
 		{
 			try {
 				mLog.println(message);
-			} catch (IOException ex) {}
+			} catch (IOException ex) {
+                ex.printStackTrace();
+            }
 		}		
 	}
 	
@@ -292,7 +293,7 @@ public class PushService extends Service
 
 	private synchronized void stop() {
 		// Do nothing, if the service is not running.
-		if (mStarted == false) {
+		if (!mStarted) {
 			Log.w(TAG, "Attempt to stop connection not active.");
 			return;
 		}
@@ -339,7 +340,7 @@ public class PushService extends Service
 	private synchronized void keepAlive() {
 		try {
 			// Send a keep alive, if there is a connection.
-			if (mStarted == true && mConnection != null) {
+			if (mStarted && mConnection != null) {
 				mConnection.sendKeepAlive();
 			}
 		} catch (MqttException e) {
@@ -415,7 +416,7 @@ public class PushService extends Service
 	}
 	
 	private synchronized void reconnectIfNecessary() {		
-		if (mStarted == true && mConnection == null) {
+		if (mStarted && mConnection == null) {
 			log("Reconnecting...");
 			connect();
 		}
@@ -427,10 +428,10 @@ public class PushService extends Service
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// Get network info
-			NetworkInfo info = (NetworkInfo)intent.getParcelableExtra (ConnectivityManager.EXTRA_NETWORK_INFO);
+			NetworkInfo info = intent.getParcelableExtra (ConnectivityManager.EXTRA_NETWORK_INFO);
 			
 			// Is there connectivity?
-			boolean hasConnectivity = (info != null && info.isConnected()) ? true : false;
+			boolean hasConnectivity = (info != null && info.isConnected());
 
 			log("Connectivity changed: connected=" + hasConnectivity);
 			if(mqttClient != null && hasConnectivity)
@@ -471,10 +472,10 @@ public class PushService extends Service
 	// Check if we are online
 	private boolean isNetworkAvailable() {
 		NetworkInfo info = mConnMan.getActiveNetworkInfo();
-		if (info == null) {
-			return false;
-		}
-		return info.isConnected();
+//		if (info == null) {
+//			return false;
+//		}
+		return info!= null && info.isConnected();
 	}
 	
 	// This inner class is a wrapper on top of MQTT client.
@@ -526,7 +527,7 @@ public class PushService extends Service
 		 */
 		private void subscribeToTopic(String topicName) throws MqttException {
 			
-			if ((mqttClient == null) || (mqttClient.isConnected() == false)) {
+			if ((mqttClient == null) || !mqttClient.isConnected()) {
 				// quick sanity check - don't try and subscribe if we don't have
 				//  a connection
 				log("Connection error" + "No connection");	
@@ -540,7 +541,7 @@ public class PushService extends Service
 		 *  to the specified topic.
 		 */
 		private void publishToTopic(String topicName, String message) throws MqttException {
-			if ((mqttClient == null) || (mqttClient.isConnected() == false)) {
+			if ((mqttClient == null) || !mqttClient.isConnected()) {
 				// quick sanity check - don't try and publish if we don't have
 				//  a connection				
 				log("No connection to public to");
@@ -560,7 +561,7 @@ public class PushService extends Service
 			stopKeepAlives();
 			// null itself
 			mConnection = null;
-			if (isNetworkAvailable() == true) {
+			if (isNetworkAvailable()) {
 				reconnectIfNecessary();	
 			}
 		}		
@@ -609,7 +610,9 @@ public class PushService extends Service
 				case 0x01:
 					byte[] cmd = (byte[]) msg.obj;
 					String data = new String(cmd);
-					if(data.contains("Lat:")){
+                    if(cmd[3] == 0x03){
+                        handArrivedCmd(cmd);
+                    }else if(data.contains("Lat:")){
 						cmd[3] = 0x04;
 						handArrivedGPSString(cmd);
 					} else if (data.contains("FENCE")){
@@ -624,6 +627,7 @@ public class PushService extends Service
 					byte[] payload = (byte[]) msg.obj;
 					handArrivedGPS(payload);
 					break;
+
 			}
 		}
 	};
@@ -650,7 +654,7 @@ public class PushService extends Service
 			sendBroadcast(intent);
 		}else{
 			LogUtil.log.i("收到错误的包");
-			return ;
+			//return ;
 		}
 	}
 
@@ -660,12 +664,6 @@ public class PushService extends Service
 			intent.putExtra("CMD",b);
             intent.setAction("com.xunce.electrombile.service");
             sendBroadcast(intent);
-//		if(b==0x03){
-//			Intent intent = new Intent();
-//			intent.putExtra("CMDORGPS",true);
-//			intent.putExtra("CMD",b);
-//			intent.setAction("com.xunce.electrombile.service");
-//			sendBroadcast(intent);
 //		}
 	}
 
@@ -717,7 +715,7 @@ public class PushService extends Service
 				connect();
 			}
 
-			Log.d(TAG, "send message to  message is " + message);
+			Log.d(TAG, "send message to  message is " + message.toString());
 			// mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
 			// message.getBytes(), 0, false);
 			mqttClient.publish( "app2dev/" + settingManager.getIMEI() + "/e2link/cmd",

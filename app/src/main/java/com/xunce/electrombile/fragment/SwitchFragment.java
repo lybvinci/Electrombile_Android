@@ -43,15 +43,15 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     private boolean systemState = false;
     private boolean alarmState = false;
     GeoCoder mSearch = null; // 搜索模块，也可去掉地图模块独立使用
-//    private byte firstByte = 0x00;
-//    private byte secondByte = 0x00;
-//    private byte[] serial = {firstByte,secondByte};
     private boolean ToggleButtonState;
 
-    private String[] SWITCHKEY = {
-            "switch",
-            "ring"
-    };
+    //缓存view
+    private View rootView;
+
+//    private String[] SWITCHKEY = {
+//            "switch",
+//            "ring"
+//    };
 
 
     private Button btnAlarm;
@@ -68,7 +68,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
 
 
     public interface LocationTVClickedListener{
-        public void locationTVClicked();
+        void locationTVClicked();
     }
 
     @Override
@@ -140,20 +140,20 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                             VibratorUtil.Vibrate(getActivity(), 700);
                             byte[] serial = mCenter.getSerial(firstByteAdd, secondByteAdd);
                             FragmentActivity.pushService.sendMessage1(mCenter.cFenceAdd(serial));
-                            ToggleButtonState = !b;
+                            ToggleButtonState = true;
                             setManager.setAlarmFlag(true);
                             setAlarmDialog.show();
                         } else {
                             //   Log.d(TAG, "device failed!");
                             ToastUtils.showShort(m_context, "请先绑定设备");
-                            btnSystem.setChecked(!b);
-                            ToggleButtonState = !b;
+                            btnSystem.setChecked(true);
+                            ToggleButtonState = true;
                             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                         }
                     } else {
                         ToastUtils.showShort(m_context, "网络连接失败");
-                        btnSystem.setChecked(!b);
-                        ToggleButtonState = !b;
+                        btnSystem.setChecked(true);
+                        ToggleButtonState = true;
                         iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                     }
                 } else {
@@ -165,19 +165,19 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                             setManager.setAlarmFlag(false);
                             byte[] serial = mCenter.getSerial(firstByteDelete, secondByteDelete);
                             FragmentActivity.pushService.sendMessage1(mCenter.cFenceDelete(serial));
-                            ToggleButtonState = !b;
+                            ToggleButtonState = false;
                             setManager.setAlarmFlag(false);
                             setAlarmDialog.show();
 
                         } else {
                             ToastUtils.showShort(m_context, "网络连接失败");
-                            btnSystem.setChecked(b);
-                            ToggleButtonState = b;
+                            btnSystem.setChecked(true);
+                            ToggleButtonState = true;
                             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                         }
                     } else {
-                        btnSystem.setChecked(b);
-                        ToggleButtonState = b;
+                        btnSystem.setChecked(true);
+                        ToggleButtonState = true;
                         iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
                         ToastUtils.showShort(m_context, "请等待设备绑定");
                     }
@@ -207,7 +207,10 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.switch_fragment, container, false);
+        if(rootView == null){
+            rootView = inflater.inflate(R.layout.switch_fragment, container, false);
+        }
+        return rootView;
     }
 
     public void reverserGeoCedec(LatLng pCenter){
@@ -222,18 +225,15 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     @Override
     public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
         LogUtil.log.i("进入位置设置:" +result.getAddress());
-        if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
-          //  LogUtil.log.i("AAAAAAAAAAAAAAA进入位置设置？？？？？？");
+        if (result.error != SearchResult.ERRORNO.NO_ERROR) {
             return;
         }
-      //  LogUtil.log.i("AAAAAAAAAAAAAAA进入位置设BBBBBBBBBBBBBB");
         switch_fragment_tvLocation.setText(result.getAddress().trim());
-        //LogUtil.log.i("AAAAAAAAAAAAAAA进入位置设CCCCCCCCCCC");
     }
 
     //显示常驻通知栏
     public void showNotification(String text){
-        NotificationManager notificationManager = (NotificationManager) m_context.getSystemService(m_context.
+        NotificationManager notificationManager = (NotificationManager) m_context.getSystemService(getActivity().
                 getApplicationContext()
                 .NOTIFICATION_SERVICE);
         Notification notification = new Notification(R.mipmap.ic_launcher,"安全宝",System.currentTimeMillis());
@@ -246,8 +246,8 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         notificationManager.notify(R.string.app_name, notification);
     }
     //取消显示常驻通知栏
-    void cancelNotification() {
-        NotificationManager notificationManager = (NotificationManager) m_context.getSystemService(m_context.
+    public void cancelNotification() {
+        NotificationManager notificationManager = (NotificationManager) m_context.getSystemService(getActivity().
                 getApplicationContext()
                 .NOTIFICATION_SERVICE);
         notificationManager.cancel(R.string.app_name);
@@ -267,4 +267,17 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         }
     }
 
+
+    @Override
+    public void onDestroy() {
+        m_context = null;
+        mSearch = null;
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((ViewGroup) rootView.getParent()).removeView(rootView);
+    }
 }
