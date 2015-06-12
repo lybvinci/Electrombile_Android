@@ -59,7 +59,7 @@ import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
-public class MaptabFragment extends Fragment {
+public class MaptabFragment extends BaseFragment {
 
     private static String TAG = "MaptabFragment:";
     private final String KET_LONG = "lon";
@@ -103,9 +103,6 @@ public class MaptabFragment extends Fragment {
     //正在播放轨迹标志
     public boolean isPlaying = false;
 
-    private CmdCenter mCenter;
-    SettingManager settingManager;
-
     TextView tvUpdateTime;
     TextView tvStatus;
     InfoWindow mInfoWindow;
@@ -116,6 +113,9 @@ public class MaptabFragment extends Fragment {
     Dialog didDialog;
     private ProgressDialog watiDialog;
 
+    //缓存布局
+    private View rootView;
+
     @Override
     public void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -125,10 +125,10 @@ public class MaptabFragment extends Fragment {
         //注意该方法要再setContentView方法之前实现
         SDKInitializer.initialize(this.m_context);
 
-        trackDataList = new ArrayList<TrackPoint>();
-        settingManager = new SettingManager(m_context);
+        trackDataList = new ArrayList<>();
+  //      settingManager = new SettingManager(m_context);
 
-        mCenter = CmdCenter.getInstance(m_context);
+ //       mCenter = CmdCenter.getInstance(m_context);
         currentTrack = new TrackPoint(new Date(), 0, 0);
 
         LayoutInflater inflater = (LayoutInflater)m_context
@@ -142,7 +142,7 @@ public class MaptabFragment extends Fragment {
                 .setPositiveButton(R.string.goBind, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent = null;
+                        Intent intent;
                         intent = new Intent(m_context, BindingActivity.class);
                         m_context.startActivity(intent);
                     }
@@ -162,10 +162,12 @@ public class MaptabFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
        // Log.i(TAG, "onCreateView called!");
-		View view = inflater.inflate(R.layout.map_fragment, container, false);
-
-        initView(view);
-        return view;
+        if(rootView == null) {
+            View view = inflater.inflate(R.layout.map_fragment, container, false);
+            initView(view);
+            rootView = view;
+        }
+        return rootView;
     }
 
     @Override
@@ -180,9 +182,9 @@ public class MaptabFragment extends Fragment {
 
         mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
             public boolean onMarkerClick(final Marker marker) {
-                if(marker == markerMobile){
-                //    mBaiduMap.hideInfoWindow();
-                }
+//                if(marker == markerMobile){
+//                //    mBaiduMap.hideInfoWindow();
+//                }
                 return true;
             }
         });
@@ -281,7 +283,7 @@ public class MaptabFragment extends Fragment {
     }
 
     private boolean checkBind() {
-        if(settingManager.getIMEI().isEmpty()){
+        if(setManager.getIMEI().isEmpty()){
             didDialog.show();
             return true;
         }
@@ -324,12 +326,12 @@ public class MaptabFragment extends Fragment {
          */
         //定义Maker坐标点
         //leacloud服务器清空，暂时自定义数据代替
-        LatLng point = null;
-        if(settingManager.getInitLocationLat()!=null||settingManager.getInitLocationLongitude()!=null){
-            LogUtil.log.i("lat:::"+Double.valueOf(settingManager.getInitLocationLat()));
-            LogUtil.log.i("longitude:::"+Double.valueOf(settingManager.getInitLocationLongitude()));
-            point = new LatLng(Double.valueOf(settingManager.getInitLocationLat()),
-                    Double.valueOf(settingManager.getInitLocationLongitude()));
+        LatLng point;
+        if(!setManager.getInitLocationLat().isEmpty()||!setManager.getInitLocationLongitude().isEmpty()){
+            LogUtil.log.i("lat:::"+Double.valueOf(setManager.getInitLocationLat()));
+            LogUtil.log.i("longitude:::"+Double.valueOf(setManager.getInitLocationLongitude()));
+            point = new LatLng(Double.valueOf(setManager.getInitLocationLat()),
+                    Double.valueOf(setManager.getInitLocationLongitude()));
             point = mCenter.convertPoint(point);
         }else {
             LogUtil.log.i("到了初始位置？");
@@ -371,6 +373,7 @@ public class MaptabFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ((ViewGroup) rootView.getParent()).removeView(rootView);
     //    Log.i(TAG, "onDestroyView called!");
     }
 
@@ -531,7 +534,7 @@ public class MaptabFragment extends Fragment {
     }
 
     private void drawLine(){
-        ArrayList<LatLng> points = new ArrayList<LatLng>();
+        ArrayList<LatLng> points = new ArrayList<>();
         for(TrackPoint tp:trackDataList){
             points.add(tp.point);
         }
@@ -594,7 +597,7 @@ public class MaptabFragment extends Fragment {
                     try{
                         locateMobile((TrackPoint) msg.obj);
                     }catch (Exception e){
-                        
+                        e.printStackTrace();
                     }
                     break;
                 case LOCATEMESSAGE:{
@@ -624,10 +627,10 @@ public class MaptabFragment extends Fragment {
     private void pausePlay(){
         if(m_playThread!= null)
             m_playThread.PAUSE = true;
-    };
+    }
 
     private void continuePlay(){
         if(m_playThread!= null)
             m_playThread.PAUSE = false;
-    };
+    }
 }

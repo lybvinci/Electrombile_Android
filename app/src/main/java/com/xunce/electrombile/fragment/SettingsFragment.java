@@ -53,21 +53,22 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
     private LinearLayout btnAddSOS;
     private Button btnLogout;
 
-    GeoCoder mSearch = null; // 搜索模块，也可去掉地图模块独立使用
+    //缓存view
+    private View rootView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-      //  Log.i(TAG, "onCreateView called!");
         initView();
-
-		return inflater.inflate(R.layout.settings_fragment, container, false);
+        if(rootView == null) {
+            rootView = inflater.inflate(R.layout.settings_fragment, container, false);
+        }
+		return rootView;
 	}
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-     //   view.findViewById(R.id.layout_phone_number).setOnClickListener(this);
         view.findViewById(R.id.layout_bind).setOnClickListener(this);
         view.findViewById(R.id.layout_about).setOnClickListener(this);
         view.findViewById(R.id.layout_help).setOnClickListener(this);
@@ -76,7 +77,6 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
         view.findViewById(R.id.layout_addSOS).setOnClickListener(this);
 
         releaseBind = (LinearLayout) view.findViewById(R.id.layout_release_bind);
-      //  view.findViewById(R.id.layout_login_again).setOnClickListener(this);
     }
 
     @Override
@@ -97,6 +97,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                         setManager.cleanDevice();
                         Intent intentStartBinding = new Intent(m_context, BindingActivity.class);
                         startActivity(intentStartBinding);
+                        getActivity().finish();
                     }else{
                         System.out.println(setManager.getIMEI() +"aaaaaaaaaaa");
                         ToastUtils.showShort(m_context,"设备已绑定");
@@ -176,6 +177,14 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 dialog2.show();
                 break;
             case R.id.layout_addSOS:
+                if(!NetworkUtils.isNetworkConnected(m_context)){
+                    ToastUtils.showShort(m_context,"网络连接错误！");
+                    return ;
+                }
+                if(setManager.getIMEI().isEmpty()) {
+                    ToastUtils.showShort(m_context,"请先绑定设备！");
+                    return;
+                }
                 Intent intent = new Intent(m_context,addSosActivity.class);
                 startActivity(intent);
                 break;
@@ -195,7 +204,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
             return;
         }
         //若不为空，则先查询所在绑定类，再删除，删除成功后取消订阅，并删除本地的IMEI，关闭FragmentActivity,进入绑定页面
-        AVQuery<AVObject> query = new AVQuery<AVObject>("Bindings");
+        AVQuery<AVObject> query = new AVQuery<>("Bindings");
         String IMEI = setManager.getIMEI();
         query.whereEqualTo("IMEI", IMEI);
         query.findInBackground(new FindCallback<AVObject>() {
@@ -219,7 +228,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                                         setManager.setIMEI("");
                                         setManager.setAlarmFlag(false);
                                         setManager.setSOS("");
-                                        ToastUtils.showShort(m_context, "解除绑定成功");
+                                        ToastUtils.showShort(m_context, "解除绑定成功!");
                                         Intent intent = new Intent(m_context, BindingActivity.class);
                                         startActivity(intent);
                                         getActivity().finish();
@@ -235,8 +244,9 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                         }
                     });
                 } else {
-                    Log.d("失败", "问题： " + e.getMessage());
-                    ToastUtils.showShort(m_context, "解除绑定失败");
+                    if(e != null)
+                        Log.d("失败", "问题： " + e.getMessage());
+                    ToastUtils.showShort(m_context, "解除绑定失败!");
                 }
             }
         });
@@ -245,18 +255,25 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
     }
 
     private void initView() {
-        //btnPhoneNumber = (LinearLayout)getActivity().findViewById(R.id.layout_phone_number);
         btnBind = (LinearLayout)getActivity().findViewById(R.id.layout_bind);
         btnAbout = (LinearLayout)getActivity().findViewById(R.id.layout_about);
         btnHelp = (LinearLayout)getActivity().findViewById(R.id.layout_help);
         btnLogout = (Button)getActivity().findViewById(R.id.btn_logout);
-  //      login_again = (LinearLayout) getActivity().findViewById(R.id.layout_login_again);
     }
 
     @Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		//((TextView)getView().findViewById(R.id.tvTop)).setText("设置");
 	}
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((ViewGroup) rootView.getParent()).removeView(rootView);
+    }
 }

@@ -124,16 +124,12 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                 startActivityForResult(intent1, 0x01);
                 break;
             case R.id.jump_bind:
-                //第一次登陆
-                if(!FragmentActivity.ISSTARTED) {
-                    Intent intent2 = new Intent(BindingActivity.this, FragmentActivity.class);
-                    startActivity(intent2);
-                }
+                Intent intent2 = new Intent(BindingActivity.this, FragmentActivity.class);
+                startActivity(intent2);
                 this.finish();
                 break;
             case R.id.bindSuccess:
                 if( et_did != null){
-                  //  passcode = et_passCode.getText().toString();
                     IMEI = et_did.getText().toString();
                     mHandler.sendEmptyMessage(handler_key.START_BIND.ordinal());
                 }
@@ -145,21 +141,21 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
     private void startBind(final String IMEI){
         final AVObject bindDevice = new AVObject("Bindings");
         AVUser currentUser = AVUser.getCurrentUser();
-        bindDevice.put("user",currentUser);
-        AVQuery<AVObject> query = new AVQuery<AVObject>("DID");
-        final AVQuery<AVObject> queryBinding = new AVQuery<AVObject>("Bindings");
+        bindDevice.put("user", currentUser);
+        AVQuery<AVObject> query = new AVQuery<>("DID");
+        final AVQuery<AVObject> queryBinding = new AVQuery<>("Bindings");
         query.whereEqualTo("IMEI", this.IMEI);
         query.findInBackground(new FindCallback<AVObject>() {
             @Override
             public void done(final List<AVObject> avObjects, AVException e) {
-                if(e == null && avObjects.size() > 0){
+                if (e == null && avObjects.size() > 0) {
                     Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
                     queryBinding.whereEqualTo("IMEI", IMEI);
                     queryBinding.findInBackground(new FindCallback<AVObject>() {
                         @Override
                         public void done(List<AVObject> list, AVException e) {
                             Log.d("成功", "IMEI查询到" + list.size() + " 条符合条件的数据");
-                            if(list.size()>0){
+                            if (list.size() > 0) {
                                 Message message = new Message();
                                 message.what = handler_key.FAILED.ordinal();
                                 message.obj = "设备已经被绑定！";
@@ -188,11 +184,15 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                     });
 
 
-                }else{
-                    Log.d("失败", "查询错误: " + e.getMessage());
+                } else {
                     Message message = new Message();
                     message.what = handler_key.FAILED.ordinal();
-                    message.obj = e.getMessage();
+                    if (e != null) {
+                        Log.d("失败", "查询错误: " + e.getMessage());
+                        message.obj = e.getMessage();
+                    } else {
+                        message.obj = "查询设备出错！";
+                    }
                     mHandler.sendMessage(message);
                 }
             }
@@ -224,19 +224,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
-//    @Override
-//    protected void didBindDevice(int error, String errorMessage, String IMEI) {
-////        Log.d("扫描结果", "error=" + error + ";errorMessage=" + errorMessage
-////                + ";IMEI=" + IMEI);
-//        if (error == 0) {
-//            mHandler.sendEmptyMessage(handler_key.SUCCESS.ordinal());
-//        } else {
-//            Message message = new Message();
-//            message.what = handler_key.FAILED.ordinal();
-//            message.obj = errorMessage;
-//            mHandler.sendMessage(message);
-//        }
-//    }
 
     @Override
     public void onBackPressed() {

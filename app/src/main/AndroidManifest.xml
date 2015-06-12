@@ -41,7 +41,6 @@
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <!-- 显示悬浮窗的权限 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.GET_TASKS" />
     <!-- 更新权限 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
@@ -57,16 +56,6 @@
         android:screenOrientation="portrait"
         android:theme="@style/AppTheme" >
         <service android:name=".Updata.UpdateAppService" />
-
-        <receiver
-            android:name=".receiver.BootReceiver"
-            android:priority="2147483647" >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.USER_PRESENT" />
-                <action android:name="android.media.RINGER_MODE_CHANGED" />
-            </intent-filter>
-        </receiver>
 
         <!-- 云巴相关 -->
         <meta-data
