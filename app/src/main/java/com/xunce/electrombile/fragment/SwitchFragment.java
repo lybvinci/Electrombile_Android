@@ -86,7 +86,6 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         //设置报警进度框初始化
         setAlarmDialog = new ProgressDialog(m_context);
         setAlarmDialog.setMessage("正在设置，请稍后......");
-        //  setAlarmDialog.setCancelable(false);
     }
 
     @Override
