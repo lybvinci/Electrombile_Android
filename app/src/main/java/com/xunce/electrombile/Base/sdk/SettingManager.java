@@ -17,8 +17,15 @@
  */
 package com.xunce.electrombile.Base.sdk;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 // TODO: Auto-generated Javadoc
 
@@ -74,6 +81,15 @@ public class SettingManager {
 
     public final  String  ALARMFLAG = "alarmFlag";
 
+	//添加SOS管理员
+	public final String SOS = "sos";
+
+    //用户的初始位置
+    private final String Lat = "lat";
+    private final String Longitude = "longitude";
+
+
+
 	/**
 	 * Instantiates a new setting manager.
 	 *
@@ -95,9 +111,13 @@ public class SettingManager {
 		setUserName("");
         setIMEI("");
         setAlarmFlag(false);
+		setSOS("");
+        setInitLocation("","");
 	}
     public void cleanDevice() {
         setIMEI("");
+        setSOS("");
+        setInitLocation("","");
     }
 
 	/**
@@ -109,6 +129,17 @@ public class SettingManager {
 		spf.edit().putString(USER_NAME, name).commit();
 
 	}
+    public void setInitLocation(String lat,String longitude){
+        spf.edit().putString(Lat, lat).commit();
+        spf.edit().putString(Longitude, longitude).commit();
+    }
+    public String getInitLocationLat(){
+        return spf.getString(Lat, "");
+    }
+    public String getInitLocationLongitude(){
+        return spf.getString(Longitude,"");
+    }
+
 
     public void setAlarmFlag(boolean alarmFlag) {
         spf.edit().putBoolean(ALARMFLAG, alarmFlag).commit();
@@ -117,6 +148,14 @@ public class SettingManager {
         return spf.getBoolean(ALARMFLAG, false);
     }
 
+
+	//添加sos管理员
+	public void setSOS(String list){
+		spf.edit().putString(SOS, list).commit();
+	}
+	public String getSOS(){
+		return spf.getString(SOS,"");
+	}
 	/**
 	 * Gets the user name.
 	 *

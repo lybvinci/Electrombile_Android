@@ -93,7 +93,6 @@ public class CmdCenter {
 
     private byte[] packetOrder(byte[] cmd,byte[] serial,String order,String remarks){
         order = order + remarks;
-		//char frameHead = 0x2A55;
 		byte[] frameHead = {-0x56,0x55};
         byte[] orderByte = order.getBytes();
         int length = 2 + orderByte.length;
@@ -102,30 +101,6 @@ public class CmdCenter {
 		orderData = ByteUtils.arrayCat(orderData,len);
 		orderData = ByteUtils.arrayCat(orderData,serial);
 		orderData = ByteUtils.arrayCat(orderData,orderByte);
-		//String len1 = len;
-		//byte[] len ={(byte)(length>>8&0xFF),(byte)(length & 0xFF)};
-
-//      //  String orderData1 = String.valueOf(frameHead);
-		//String orderData1 = ByteUtils.hexStringToString(frameHead,2);
-//		// String orderData2 = String.valueOf(cmd);
-//		String orderData2 = ByteUtils.Bytes2HexString(cmd);
-//       // String orderData3 = String.valueOf(len);
-//		String orderData3 = ByteUtils.Bytes2HexString(len);
-//		//String orderData4 = String.valueOf(serial);
-//		String orderData4 = ByteUtils.Bytes2HexString(serial);
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(frameHead);
-//		sb.append(cmd);
-//		sb.append(len);
-//		sb.append(serial);
-//		sb.append(order);
-//		sb.append(orderData1);
-//		sb.append(orderData2);
-//		sb.append(orderData3);
-//		sb.append(orderData4);
-//		sb.append(order);
-	//	String orderData = sb.toString();
-       // String orderData = orderData1 + orderData2 + orderData3 +orderData4 + order;
 		Log.i("OrderData:::",orderData.toString());
         return orderData;
     }
@@ -209,16 +184,23 @@ public class CmdCenter {
 		//xpgWifiDevice.write(data);
 	}
 
-	//6 、设置 SOS 管理员
-	public void cSOSManagerAdd(String phoneNumber){
+	//example
+//	public byte[] cFenceAdd(byte[] serial){
+//		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.FENCE_SET_1,"");
+//		return data;
+//	}
+	//6 、设置 SOS 管理员 m命令字是 5
+	public byte[] cSOSManagerAdd(byte[] serial,String phoneNumber){
 		phoneNumber = phoneNumber + "#";
-	//	String data = packetOrder(JsonKeys.SOS_ADD,phoneNumber);
-		//xpgWifiDevice.write(data);
+		byte[] data = packetOrder(new byte[]{ 0x00,0x05},serial,JsonKeys.SOS_ADD,phoneNumber);
+		return data;
 	}
 
 	//7 、删除 SOS  管理员
-	public void cSOSManagerDelete(String phoneNumber){
+	public byte[] cSOSManagerDelete(byte[] serial,String phoneNumber){
 		phoneNumber = phoneNumber + "#";
+		byte[] data = packetOrder(new byte[]{ 0x00,0x05},serial,JsonKeys.SOS_DELETE,phoneNumber);
+		return data;
 	//	String data = packetOrder(JsonKeys.SOS_DELETE,phoneNumber);
 		//xpgWifiDevice.write(data);
 	}
@@ -252,22 +234,33 @@ public class CmdCenter {
 	//	xpgWifiDevice.write(data);
 	}
 
-	//13 添加电子围栏
+	//13 添加电子围栏  命令字 1
 	public byte[] cFenceAdd(byte[] serial){
 		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.FENCE_SET_1,"");
 		return data;
 	}
 
-	//14删除电子围栏
+	//14删除电子围栏 命令字 1
 	public byte[] cFenceDelete(byte[] serial){
 		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.FENCE_DELETE,"");
 		return data;
 	}
-	//查询电子围栏
+	//查询电子围栏  命令字 3
 	public byte[] cFenceSearch(byte[] serial){
 		byte[] data = packetOrder(new byte[]{ 0x00,0x03},serial,"FENCE,1?","");
 		return data;
 	}
+	//25 查询经纬度  命令字 4
+	public byte[] cWhere(byte[] serial){
+		byte[] data = packetOrder(new byte[]{ 0x00,0x04},serial,JsonKeys.WHERE,"");
+		return data;
+	}
+
+    //查询管理员 命令字是6
+    public byte[] cSOSSearch(byte[] serial){
+        byte[] data = packetOrder(new byte[]{ 0x00,0x06},serial,"SOS?","");
+        return data;
+    }
 	//测试报警
 	public byte[] cTest(byte[] serial){
 		byte[] data = packetOrder(new byte[]{ 0x00,-1},serial,"AA","");
@@ -286,11 +279,7 @@ public class CmdCenter {
 		//xpgWifiDevice.write(data);
 	}
 
-	//25 查询经纬度
-	public void cWhere(){
-	//	String data = packetOrder(JsonKeys.WHERE,"");
-		//xpgWifiDevice.write(data);
-	}
+
 
 	public byte[] getSerial(byte firstByte,byte secondByte){
 		if(secondByte == 127){

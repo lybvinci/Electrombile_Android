@@ -104,7 +104,7 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 	/**
 	 * The iv back.
 	 */
-	private ImageView ivBack;
+	//private ImageView ivBack;
 
 	/**
 	 * The tb psw flag.
@@ -237,7 +237,7 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 		btnSure = (Button) findViewById(R.id.btnSure);
 		llInputCode = (LinearLayout) findViewById(R.id.llInputCode);
 		llInputPsw = (LinearLayout) findViewById(R.id.llInputPsw);
-		ivBack = (ImageView) findViewById(R.id.ivBack);
+		//ivBack = (ImageView) findViewById(R.id.ivBack);
 		tbPswFlag = (ToggleButton) findViewById(R.id.tbPswFlag);
 		toogleUI(ui_statu.DEFAULT);
 		dialog = new ProgressDialog(this);
@@ -252,7 +252,7 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 		btnGetCode.setOnClickListener(this);
 		btnReGetCode.setOnClickListener(this);
 		btnSure.setOnClickListener(this);
-		ivBack.setOnClickListener(this);
+//		ivBack.setOnClickListener(this);
 		tbPswFlag
 				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -292,9 +292,9 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 //		case R.id.tvPhoneSwitch:
 //			ToastUtils.showShort(this, "该功能暂未实现，敬请期待。^_^");
 //			break;
-		case R.id.ivBack:
-			onBackPressed();
-			break;
+//		case R.id.ivBack:
+//			onBackPressed();
+//			break;
 		}
 	}
 

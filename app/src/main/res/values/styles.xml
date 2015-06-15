@@ -91,11 +91,11 @@
 
     <style name="registerActivity">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/skyblue</item>
+        <item name="android:windowBackground">@drawable/bg_bind</item>
     </style>
     <style name="changePswActivity">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/skyblue</item>
+        <item name="android:windowBackground">@drawable/bg_bind</item>
     </style>
 
     <style name="settings_fragment_iv">
@@ -107,11 +107,13 @@
 
     <style name="main_tab_bottom">
         <item name="android:gravity">bottom|center_horizontal</item>
-        <item name="android:paddingTop">6dip</item>
+        <item name="android:paddingTop">1dip</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:button">@null</item>
         <item name="android:layout_weight">1.0</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/radiobuton</item>
     </style>
 
 

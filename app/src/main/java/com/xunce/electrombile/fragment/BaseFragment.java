@@ -1,10 +1,13 @@
 package com.xunce.electrombile.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
@@ -24,17 +27,20 @@ import com.xunce.electrombile.Base.utils.TracksManager;
  */
 public class BaseFragment extends Fragment{
 
-        private static String TAG = "BaseFragmet:";
-        protected CmdCenter mCenter;
-        protected SettingManager setManager;
-        protected GPSDataChangeListener mGpsChangedListener;
+    private static String TAG = "BaseFragmet";
+    protected CmdCenter mCenter;
+    protected SettingManager setManager;
+    protected GPSDataChangeListener mGpsChangedListener;
 
-        @Override
-        public void onCreate(Bundle saveInstanceState){
-            super.onCreate(saveInstanceState);
-            setManager = new SettingManager(getActivity().getApplicationContext());
-            mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
-        }
+
+    @Override
+    public void onCreate(Bundle saveInstanceState){
+        super.onCreate(saveInstanceState);
+        setManager = new SettingManager(getActivity().getApplicationContext());
+        mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
+
+    }
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -49,7 +55,7 @@ public class BaseFragment extends Fragment{
         }
 
     public interface GPSDataChangeListener{
-        public void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint);
+         void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint);
     }
     @Override
     public void onAttach(Activity activity) {

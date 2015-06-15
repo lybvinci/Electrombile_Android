@@ -5,105 +5,43 @@
     android:orientation="vertical"
     tools:context=".FragmentActivity">
 
-    <FrameLayout
-        android:id="@+id/fragmentRoot"
+    <com.xunce.electrombile.viewpager.CustomViewPager
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1.0" >
-    </FrameLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/viewpager"/>
 
     <RadioGroup
         android:id="@+id/main_radio"
         android:layout_width="fill_parent"
-        android:layout_height="54dp"
+        android:layout_height="56dp"
         android:layout_gravity="bottom"
         android:gravity="bottom"
-
-        android:layout_marginBottom="-6dp"
-        android:background="@color/tab_background"
-        android:orientation="horizontal" >
+        android:layout_marginBottom="0dp"
+        android:background="@drawable/home_btn_bg"
+        android:orientation="horizontal">
 
         <RadioButton
             android:id="@+id/rbSwitch"
             style="@style/main_tab_bottom"
             android:checked="true"
+            android:text="开关"
             android:drawableTop="@drawable/switch_icon" />
 
         <RadioButton
             android:id="@+id/rbMap"
             style="@style/main_tab_bottom"
             android:checked="false"
+            android:text="地图"
             android:drawableTop="@drawable/map_icon" />
 
         <RadioButton
             android:id="@+id/rbSettings"
             style="@style/main_tab_bottom"
             android:checked="false"
+            android:text="设置"
             android:drawableTop="@drawable/setting_icon" />
 
     </RadioGroup>
 
 </LinearLayout>
-<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--tools:context=".FragmentActivity" >-->
-
-    <!--<RelativeLayout-->
-        <!--android:id="@+id/aboveLayout"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="@color/gainsboro">-->
-        <!--<LinearLayout-->
-            <!--android:id="@+id/fragmentRoot"-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="fill_parent"-->
-            <!--android:orientation="vertical"/>-->
-        <!--<LinearLayout-->
-            <!--android:id="@+id/bottomList"-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:background="@color/transparent"-->
-            <!--android:orientation="horizontal">-->
-
-            <!--<LinearLayout-->
-                <!--android:id="@+id/bottomItemCurrentBg1"-->
-                <!--style="@style/main_bottom_item" >-->
-
-                <!--<RadioButton-->
-                    <!--android:id="@+id/rbSwitch"-->
-                    <!--style="@style/footbar"-->
-                    <!--android:drawableTop="@drawable/switch_icon"-->
-                    <!--android:checked="true"-->
-                    <!--android:paddingTop="10dp" />-->
-            <!--</LinearLayout>-->
-
-            <!--<LinearLayout-->
-                <!--android:id="@+id/bottomItemCurrentBg2"-->
-                <!--style="@style/main_bottom_item" >-->
-
-                <!--<RadioButton-->
-                    <!--android:id="@+id/rbMap"-->
-                    <!--style="@style/footbar"-->
-                    <!--android:drawableTop="@drawable/map_icon"-->
-                    <!--android:paddingTop="10dp"-->
-                    <!--android:checked="false"/>-->
-            <!--</LinearLayout>-->
-
-
-            <!--<LinearLayout-->
-                <!--android:id="@+id/bottomItemCurrentBg3"-->
-                <!--style="@style/main_bottom_item" >-->
-
-                <!--<RadioButton-->
-                    <!--android:id="@+id/rbSettings"-->
-                    <!--android:paddingTop="10dp"-->
-                    <!--android:drawableTop="@drawable/setting_icon"-->
-                    <!--style="@style/footbar"/>-->
-            <!--</LinearLayout>-->
-
-        <!--</LinearLayout>-->
-    <!--</RelativeLayout>-->
-<!--</RelativeLayout>-->
