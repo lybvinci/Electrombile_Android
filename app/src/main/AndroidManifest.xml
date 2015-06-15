@@ -62,13 +62,20 @@
             android:name="YUNBA_APPKEY"
             android:value="554ab0957e353f5814e12100" />
 
-        <service android:name="io.yunba.android.core.YunBaService" >
+        <service android:name="io.yunba.android.core.YunBaService"
+                 android:enabled="true"
+                android:exported="true">
         </service>
+        <receiver android:name="io.yunba.android.core.YunBaReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
         <receiver android:name=".receiver.YunBaReceiver" >
             <intent-filter>
                 <action android:name="io.yunba.android.MESSAGE_RECEIVED_ACTION" />
-
                 <category android:name="com.xunce.electrombile" />
             </intent-filter>
         </receiver>

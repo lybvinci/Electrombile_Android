@@ -14,9 +14,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.avos.avoscloud.LogUtil;
 import com.xunce.electrombile.Base.sdk.CmdCenter;
-import com.xunce.electrombile.Base.sdk.SettingManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
@@ -26,38 +24,41 @@ public class addSosActivity extends Activity {
 
     private EditText et_addSOS;
     private ListView lv_SOS;
-    private SettingManager settingManager;
-    private MyAdapter mAdapter;
-    private ArrayList<String> arrayList;
     private CmdCenter mCenter;
-    //
-    byte firstByteSOSAdd = 0x00;
-    byte secondByteSOSAdd = 0x00;
-    byte firstByteSOSDelete = 0x00;
-    byte secondByteSOSDelete = 0x00;
+
+    //因为需要在fragmentAct中调用，所以设置为静态。如果有更好的方法，后续添加修改。
+    private static MyAdapter mAdapter;
+    private static ArrayList<String> arrayListSOS;
+
+
+    //发送命令所需要的命令序
+    private byte firstByteSOSAdd = 0x00;
+    private byte secondByteSOSAdd = 0x00;
+    private byte firstByteSOSDelete = 0x00;
+    private byte secondByteSOSDelete = 0x00;
+    private byte firstByteSearch = 0x00;
+    private byte secondByteSearch = 0x00;
     public static ProgressDialog SOSWaitDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_sos);
-        settingManager = new SettingManager(this);
         mCenter = CmdCenter.getInstance(this);
         initView();
+        if(FragmentActivity.pushService != null){
+            byte[] serial = mCenter.getSerial(firstByteSearch, secondByteSearch);
+            FragmentActivity.pushService.sendMessage1(mCenter.cSOSSearch(serial));
+            SOSWaitDialog.show();
+        }
 
     }
 
     private void initView() {
         et_addSOS = (EditText) findViewById(R.id.et_SOS);
         lv_SOS = (ListView) findViewById(R.id.lv_SOS);
-        String mOriginData =  settingManager.getSOS();
-        arrayList = new ArrayList<String>();
-        if(!mOriginData.isEmpty()){
-            String[] data = mOriginData.split("-");
-            for(int i =0;i<data.length;i++) {
-                arrayList.add(data[i]);
-            }
-        }
+        arrayListSOS = new ArrayList<String>();
         mAdapter = new MyAdapter();
         lv_SOS.setAdapter(mAdapter);
         SOSWaitDialog = new ProgressDialog(this);
@@ -65,6 +66,7 @@ public class addSosActivity extends Activity {
     }
 
 
+    //添加管理员
     public void addSOS(View view){
         String phone = et_addSOS.getText().toString().trim();
         if(phone.isEmpty()){
@@ -80,16 +82,15 @@ public class addSosActivity extends Activity {
             return ;
         }
         et_addSOS.setText("");
-        arrayList.add(phone);
+        arrayListSOS.add(phone);
         StringBuilder sb = new StringBuilder();
-        for (int i =0;i<arrayList.size();i++){
-            sb.append(arrayList.get(i));
+        for (int i =0;i< arrayListSOS.size();i++){
+            sb.append(arrayListSOS.get(i));
             sb.append("-");
         }
-        settingManager.setSOS(sb.toString());
 
         byte[] serial = mCenter.getSerial(firstByteSOSAdd, secondByteSOSAdd);
-        for(int i=1;i<arrayList.size();i++){
+        for(int i=1;i< arrayListSOS.size();i++){
             phone = "," + phone;
         }
         FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerAdd(serial,phone));
@@ -97,6 +98,8 @@ public class addSosActivity extends Activity {
         mAdapter.notifyDataSetChanged();
     }
 
+
+    //删除管理员
     public void showInfo(final int position) {
         AlertDialog dialog2 = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.delete_contact_person))
@@ -110,17 +113,15 @@ public class addSosActivity extends Activity {
                         }).setNegativeButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String phone = arrayList.get(position);
-                        arrayList.remove(arrayList.get(position));
-                        if(arrayList.isEmpty()){
-                            settingManager.setSOS("");
+                        String phone = arrayListSOS.get(position);
+                        arrayListSOS.remove(arrayListSOS.get(position));
+                        if(arrayListSOS.isEmpty()){
                         }else {
                             StringBuilder sb = new StringBuilder();
-                            for (int i =0;i<arrayList.size();i++){
-                                sb.append(arrayList.get(i));
+                            for (int i =0;i< arrayListSOS.size();i++){
+                                sb.append(arrayListSOS.get(i));
                                 sb.append("-");
                             }
-                            settingManager.setSOS(sb.toString());
                         }
                         byte[] serial = mCenter.getSerial(firstByteSOSDelete, secondByteSOSDelete);
                         FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerDelete(serial,phone));
@@ -132,12 +133,13 @@ public class addSosActivity extends Activity {
     }
 
 
+    //列表适配器
     class MyAdapter extends BaseAdapter{
 
         @Override
         public int getCount() {
-            if(arrayList != null) {
-                return arrayList.size();
+            if(arrayListSOS != null) {
+                return arrayListSOS.size();
             }else{
                 return 0;
             }
@@ -155,7 +157,7 @@ public class addSosActivity extends Activity {
         }
         @Override
         public View getView(final int i, View view, ViewGroup viewGroup) {
-            if(arrayList == null)
+            if(arrayListSOS == null)
                 return null;
             View mView;
             if(view == null) {
@@ -165,7 +167,7 @@ public class addSosActivity extends Activity {
                 mView = view;
             }
             TextView tvPhone = (TextView) mView.findViewById(R.id.tv_sos);
-            tvPhone.setText(arrayList.get(i));
+            tvPhone.setText(arrayListSOS.get(i));
             Button delete = (Button) mView.findViewById(R.id.delete_button);
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -177,13 +179,32 @@ public class addSosActivity extends Activity {
         }
     }
 
-    public static void cancleDialog(){
+
+    //取消等待框，并且刷新界面
+    public static void cancelDialog(String data){
+        SOSWaitDialog.dismiss();
+        String[] s1 = data.split(":");
+        if(s1.length>1) {
+            String[] s2 = s1[1].split(",");
+            if(s2.length>0) {
+                for (String s : s2) {
+                    if(s.length()>=11)
+                        arrayListSOS.add(s);
+                }
+            }
+        }
+        mAdapter.notifyDataSetChanged();
+    }
+
+    //取消等待框
+    public static void cancelDialog(){
         SOSWaitDialog.dismiss();
     }
 
     @Override
     protected void onDestroy() {
         SOSWaitDialog = null;
+        mAdapter = null;
         super.onDestroy();
     }
 }

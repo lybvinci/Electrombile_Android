@@ -134,10 +134,10 @@ public class SettingManager {
         spf.edit().putString(Longitude, longitude).commit();
     }
     public String getInitLocationLat(){
-        return spf.getString(Lat, null);
+        return spf.getString(Lat, "");
     }
     public String getInitLocationLongitude(){
-        return spf.getString(Longitude,null);
+        return spf.getString(Longitude,"");
     }
 
 

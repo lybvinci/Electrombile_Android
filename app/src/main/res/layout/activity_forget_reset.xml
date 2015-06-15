@@ -18,6 +18,7 @@
         style="@style/EditTextTheme"
         android:layout_marginTop="30dp"
         android:gravity="center"
+        android:background="@color/white"
         android:textColorHint="@color/base_color_text_black"
         android:hint="@string/forget_password_hint1" />
 
