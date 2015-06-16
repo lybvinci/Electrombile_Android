@@ -252,9 +252,15 @@ public class CmdCenter {
 	}
 	//25 查询经纬度  命令字 4
 	public byte[] cWhere(byte[] serial){
-		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.WHERE,"");
+		byte[] data = packetOrder(new byte[]{ 0x00,0x04},serial,JsonKeys.WHERE,"");
 		return data;
 	}
+
+    //查询管理员 命令字是6
+    public byte[] cSOSSearch(byte[] serial){
+        byte[] data = packetOrder(new byte[]{ 0x00,0x06},serial,"SOS?","");
+        return data;
+    }
 	//测试报警
 	public byte[] cTest(byte[] serial){
 		byte[] data = packetOrder(new byte[]{ 0x00,-1},serial,"AA","");

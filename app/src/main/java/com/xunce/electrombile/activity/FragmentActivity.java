@@ -69,11 +69,8 @@ import io.yunba.android.manager.YunBaManager;
  * Created by heyukun on 2015/3/24.
  */
 
-public class FragmentActivity extends android.support.v4.app.FragmentActivity implements SwitchFragment.GPSDataChangeListener,LocationTVClickedListener {
+public class FragmentActivity extends android.support.v4.app.FragmentActivity implements SwitchFragment.GPSDataChangeListener, LocationTVClickedListener {
     private static String TAG = "FragmentActivity:";
-    //public static boolean IS_STARTED = false;
-
- //   private static FragmentManager m_FMer;
     private SwitchFragment switchFragment;
     private MaptabFragment maptabFragment;
     private SettingsFragment settingsFragment;
@@ -83,7 +80,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private RadioGroup main_radio;
     private int checkId = R.id.rbSwitch;
 
-    boolean isupde;int a=0;
+    boolean isupde;
+    int a = 0;
     //退出使用
     private boolean isExit = false;
 
@@ -93,12 +91,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private MyReceiver receiver;
     private SettingManager setManager;
     //推送通知用的
-    public static  PushService pushService;
+    public static PushService pushService;
 
     //查询电子围栏
     byte firstByteSearch = 0x00;
     byte secondByteSearch = 0x00;
-
 
 
     @Override
@@ -107,7 +104,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         setContentView(R.layout.activity_fragment);
         mCenter = CmdCenter.getInstance(this);
         setManager = new SettingManager(this);
-      //  m_FMer = getSupportFragmentManager();
 
         //检查版本
         checkVersion();
@@ -120,17 +116,19 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         //判断是否需要开启服务
         startServer();
         Historys.put(this);
+
+
     }
 
     private void startServer() {
-        if(setManager.getIMEI().isEmpty()){
+        if (setManager.getIMEI().isEmpty()) {
             AVQuery<AVObject> query = new AVQuery<>("Bindings");
             final AVUser currentUser = AVUser.getCurrentUser();
-            query.whereEqualTo("user",currentUser);
+            query.whereEqualTo("user", currentUser);
             query.findInBackground(new FindCallback<AVObject>() {
                 @Override
                 public void done(List<AVObject> avObjects, AVException e) {
-                    if(e == null && avObjects.size() > 0){
+                    if (e == null && avObjects.size() > 0) {
                         setManager.setIMEI((String) avObjects.get(0).get("IMEI"));
                         Log.i(TAG + "AAAAAA", setManager.getIMEI());
                         final String topic = "e2link_" + setManager.getIMEI();
@@ -159,23 +157,23 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
                         Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
                         ToastUtils.showShort(FragmentActivity.this, "设备查询成功");
-                    }else{
+                    } else {
                         Log.d("失败", "查询错误2: ");
                         ToastUtils.showShort(FragmentActivity.this, "请先绑定设备");
                     }
                 }
             });
 
-        }else{
+        } else {
             Log.i(TAG, setManager.getIMEI());
             final String topic = "e2link_" + setManager.getIMEI();
-            Log.i(TAG+"SSSSSSSSSS", topic);
+            Log.i(TAG + "SSSSSSSSSS", topic);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     Intent intent = new Intent("com.xunce.electrombile.service.PushService.MSG_ACTION");
                     bindService(intent, conn, Context.BIND_AUTO_CREATE);
-                    YunBaManager.subscribe(getApplicationContext(),topic, new IMqttActionListener() {
+                    YunBaManager.subscribe(getApplicationContext(), topic, new IMqttActionListener() {
 
                         @Override
                         public void onSuccess(IMqttToken arg0) {
@@ -184,9 +182,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
                         @Override
                         public void onFailure(IMqttToken arg0, Throwable arg1) {
-                            if(arg0 != null)
-                                Log.i(arg0.toString(),"XXXX");
-                            if(arg1 != null)
+                            if (arg0 != null)
+                                Log.i(arg0.toString(), "XXXX");
+                            if (arg1 != null)
                                 Log.i("AAAA", arg1.toString());
                             Log.d(TAG, "Subscribe topic failed");
                         }
@@ -194,7 +192,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 }
             }).start();
 
-            ToastUtils.showShort(this,"登陆成功");
+            ToastUtils.showShort(this, "登陆成功");
         }
     }
 
@@ -208,7 +206,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             //返回一个MsgService实例
-            pushService = ((PushService.MsgBinder)service).getService();
+            pushService = ((PushService.MsgBinder) service).getService();
 
         }
     };
@@ -216,8 +214,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     @Override
     protected void onStart() {
         super.onStart();
-        if(!NetworkUtils.isNetworkConnected(this)){
-            NetworkUtils.networkDialog(this,true);
+        if (!NetworkUtils.isNetworkConnected(this)) {
+            NetworkUtils.networkDialog(this, true);
         }
     }
 
@@ -228,26 +226,25 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         filter.addAction("com.xunce.electrombile.service");
         try {
             FragmentActivity.this.registerReceiver(receiver, filter);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    Handler MyHandler=new Handler()
-    {
-        public void handleMessage(Message msg)
-        {
+    Handler MyHandler = new Handler() {
+        public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Bundle bundle=msg.getData();
-            isupde=bundle.getBoolean("isupdate");
-            a=bundle.getInt("want");
+            Bundle bundle = msg.getData();
+            isupde = bundle.getBoolean("isupdate");
+            a = bundle.getInt("want");
             if (isupde) {
                 upData();
-                isupde=false;
+                isupde = false;
             }
         }
     };
+
     /**
      * 界面初始化
      */
@@ -264,7 +261,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         list.add(switchFragment);
         list.add(maptabFragment);
         list.add(settingsFragment);
-        HomePagerAdapter mAdapter = new HomePagerAdapter(getSupportFragmentManager(),list);
+        HomePagerAdapter mAdapter = new HomePagerAdapter(getSupportFragmentManager(), list);
         mViewPager.setAdapter(mAdapter);
         main_radio.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -289,10 +286,12 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         });
         main_radio.check(checkId);
     }
+
     class HomePagerAdapter extends FragmentPagerAdapter {
 
         private List<Fragment> list;
-        public HomePagerAdapter(FragmentManager fm,List<Fragment> list) {
+
+        public HomePagerAdapter(FragmentManager fm, List<Fragment> list) {
             super(fm);
             this.list = list;
         }
@@ -346,7 +345,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     protected void onResume() {
         //IS_STARTED = true;
         super.onResume();
-        if(pushService != null) {
+        if (pushService != null) {
             byte[] serial = mCenter.getSerial(firstByteSearch, secondByteSearch);
             pushService.sendMessage1(mCenter.cFenceSearch(serial));
         }
@@ -354,13 +353,13 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     @Override
     protected void onDestroy() {
-    //    IS_STARTED = false;
+        //    IS_STARTED = false;
         unregisterReceiver(receiver);
-        if(!setManager.getIMEI().isEmpty()) {
+        if (!setManager.getIMEI().isEmpty()) {
             pushService.actionStop(this);
             unbindService(conn);
         }
-        if(TracksManager.getTracks() !=null) TracksManager.clearTracks();
+        if (TracksManager.getTracks() != null) TracksManager.clearTracks();
         super.onDestroy();
     }
 
@@ -370,13 +369,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Message msg=new Message();
-                Bundle bundle=new Bundle();
+                Message msg = new Message();
+                Bundle bundle = new Bundle();
                 boolean isupdate;
                 String baseUrl = "http://fir.im/api/v2/app/version/%s?token=%s";
                 //下面是正式的 版本调整
                // String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 String checkUpdateUrl = String.format(baseUrl, "556c810d2bb8ac0e5d001a30", "b9d54ba0b12411e4bc2c492c76a46d264a53ba2f");
+
                 HttpClient httpClient = new DefaultHttpClient();
                 //请求超时
                 httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
@@ -404,7 +404,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 //                            Log.i("查看版本",firVersionCode+"");
                             if (firVersionCode > currentVersionCode) {
                                 //需要更新
-                                       Log.i("infox", "need update");
+                               Log.i("infox", "need update");
                                 bundle.putInt("want",1);
                                 bundle.putBoolean("isupdate",true);
                             } else if (firVersionCode == currentVersionCode) {
@@ -423,7 +423,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                             FragmentActivity.this.MyHandler.sendMessage(msg);
                         }
                     }
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -432,11 +432,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     }
 
     @Override
-    public void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint) {
+    public void gpsCallBack(LatLng desLat, TracksManager.TrackPoint trackPoint) {
         //传递数据给地图的Fragment
         //如果正在播放轨迹，则更新位置
         //    Log.i("gpsCallBack","called");
-        if(!maptabFragment.isPlaying)
+        if (!maptabFragment.isPlaying)
             maptabFragment.locateMobile(trackPoint);
         switchFragment.reverserGeoCedec(desLat);
     }
@@ -470,7 +470,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 }
                 LogUtil.log.i("保存数据1");
                 setManager.setInitLocation(Flat + "", Flong + "");
-                if(trackPoint != null) {
+                if (trackPoint != null) {
                     if (!maptabFragment.isPlaying) {
                         maptabFragment.locateMobile(trackPoint);
                     }
@@ -480,24 +480,27 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 Log.i(TAG, "弹不出来？？？");
                 byte[] cmd = bundle.getByteArray("CMD");
                 //test用
-               // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
+                // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
                 // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
                 //pushService.sendMessage1(mCenter.cTest(new byte[]{0x00,0x11}));
-              //  ToastUtils.showShort(FragmentActivity.this,"命令字是"+cmd[3]);
-                if(cmd[3] == 0x01) {
+                //  ToastUtils.showShort(FragmentActivity.this,"命令字是"+cmd[3]);
+                if (cmd[3] == 0x01) {
                     switchFragment.cancelDialog();
-                   // DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
-                    ToastUtils.showShort(FragmentActivity.this, "防盗设置成功");
-                }else if(cmd[3] == 0x03){
+                    // DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
+                    if (setManager.getAlarmFlag())
+                        ToastUtils.showShort(FragmentActivity.this, "防盗开启成功");
+                    else
+                        ToastUtils.showShort(FragmentActivity.this, "防盗关闭成功");
+                } else if (cmd[3] == 0x03) {
                     String cmdString = new String(cmd);
-                    Log.i(TAG,cmdString);
-                    if(cmdString.contains("NONE")){
+                    Log.i(TAG, cmdString);
+                    if (cmdString.contains("NONE")) {
                         setManager.setAlarmFlag(false);
-                    }else{
+                    } else {
                         setManager.setAlarmFlag(true);
                     }
                     ToastUtils.showShort(FragmentActivity.this, "同步设置成功");
-                }else if(cmd[3] == 0x04){
+                } else if (cmd[3] == 0x04) {
                     Log.i(TAG, "查询所得到的结果");
                     float Flat = bundle.getFloat("LAT");
                     float Flong = bundle.getFloat("LONG");
@@ -508,31 +511,37 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
                     TracksManager.TrackPoint trackPoint = null;
                     try {
+
                         Date mDate = sdf.parse(sdf.format(curDate));
-                        trackPoint = new TracksManager.TrackPoint(mDate,mCenter.convertPoint(new LatLng(Flat, Flong)));
+                        trackPoint = new TracksManager.TrackPoint(mDate, mCenter.convertPoint(new LatLng(Flat, Flong)));
                         LogUtil.log.i("保存数据2");
-                        setManager.setInitLocation(Flat+"",Flong+"");
-                       // trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
+                        setManager.setInitLocation(Flat + "", Flong + "");
+                        // trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
-                    if(trackPoint != null) {
+                    if (trackPoint != null) {
                         if (!maptabFragment.isPlaying) {
                             maptabFragment.locateMobile(trackPoint);
                         }
+                        maptabFragment.cancelWaitDialog();
                         switchFragment.reverserGeoCedec(trackPoint.point);
                         ToastUtils.showShort(FragmentActivity.this, "查询位置成功");
                     }
-                }else if(cmd[3] == 0x05){
-                    addSosActivity.cancleDialog();
+                } else if (cmd[3] == 0x05) {
+                    addSosActivity.cancelDialog();
                     ToastUtils.showShort(FragmentActivity.this, "设置管理员成功");
+                } else if (cmd[3] == 0x06) {
+                    String data = new String(cmd);
+                    LogUtil.log.i(data);
+                    addSosActivity.cancelDialog(data);
                 }
             }
         }
     }
 
-        /**
+    /**
      * 重复按下返回键退出app方法
      */
     public void exit() {
@@ -543,14 +552,13 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             exitHandler.sendEmptyMessageDelayed(0, 2000);
         } else {
             switchFragment.cancelNotification();
-//            IS_STARTED = false;
             unregisterReceiver(receiver);
             //此方法会不在onDestory中调用，所以放在结束任务之前使用
-            if(!setManager.getIMEI().isEmpty()) {
+            if (!setManager.getIMEI().isEmpty()) {
                 pushService.actionStop(this);
                 unbindService(conn);
             }
-            if(TracksManager.getTracks() !=null) TracksManager.clearTracks();
+            if (TracksManager.getTracks() != null) TracksManager.clearTracks();
 
             //返回桌面
             Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -561,7 +569,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }
     }
 
-    /** The handler. to process exit()*/
+    /**
+     * The handler. to process exit()
+     */
     private Handler exitHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             isExit = false;
