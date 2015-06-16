@@ -54,4 +54,10 @@ public class AlarmActivity extends Activity{
         VibratorUtil.VibrateCancle(AlarmActivity.this);
         AlarmActivity.this.finish();
     }
+
+    @Override
+    protected void onDestroy() {
+        instance = null;
+        super.onDestroy();
+    }
 }
