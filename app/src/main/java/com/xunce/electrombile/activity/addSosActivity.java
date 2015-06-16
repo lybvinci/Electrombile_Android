@@ -98,7 +98,6 @@ public class addSosActivity extends Activity {
         mAdapter.notifyDataSetChanged();
     }
 
-
     //删除管理员
     public void showInfo(final int position) {
         AlertDialog dialog2 = new AlertDialog.Builder(this)
@@ -131,7 +130,6 @@ public class addSosActivity extends Activity {
                 }).create();
         dialog2.show();
     }
-
 
     //列表适配器
     class MyAdapter extends BaseAdapter{
@@ -178,7 +176,6 @@ public class addSosActivity extends Activity {
             return mView;
         }
     }
-
 
     //取消等待框，并且刷新界面
     public static void cancelDialog(String data){
