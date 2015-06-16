@@ -6,6 +6,10 @@ def getDate() {
     return formattedDate
 }
 
+def releaseTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
+}
+
 android {
     compileSdkVersion 22
     buildToolsVersion '22.0.1'
@@ -33,7 +37,9 @@ android {
         versionProps['VERSION_PATCH'] = versionPatch.toString()
         versionProps['VERSION_CODE'] = version_Code.toString()
 
-        versionProps.store(versionPropsFile.newWriter(), null)
+        if (value == 1) {
+            versionProps.store(versionPropsFile.newWriter(), null)
+        }
 
         defaultConfig {
             versionCode version_Code
@@ -67,15 +73,52 @@ android {
 
     buildTypes {
         release {
+            buildConfigField "boolean", "LOG_DEBUG", "false"
+
             minifyEnabled false
+            shrinkResources false
+
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
             debuggable false
+
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                        def fileName = "SafeGuide_v${defaultConfig.versionName}_${releaseTime()}_${variant.productFlavors[0].name}.apk"
+                        output.outputFile = new File(outputFile.parent, fileName)
+                    }
+                }
+            }
         }
         debug {
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+
+            versionNameSuffix "-debug"
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
             signingConfig signingConfigs.debug
             debuggable true
         }
+    }
+
+    productFlavors {
+        wandoujia {}
+        _360 {}
+        baidu {}
+        xiaomi {}
+        tencent {}
+        taobao {}
+        FIR {
+            minSdkVersion 17
+            targetSdkVersion 17
+        }
+    }
+
+    productFlavors.all { flavor ->
+        flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
     }
 }
 
