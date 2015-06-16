@@ -227,7 +227,6 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                                         //删除本地的IMEI 和报警标志
                                         setManager.setIMEI("");
                                         setManager.setAlarmFlag(false);
-                                        setManager.setSOS("");
                                         ToastUtils.showShort(m_context, "解除绑定成功!");
                                         Intent intent = new Intent(m_context, BindingActivity.class);
                                         startActivity(intent);

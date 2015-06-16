@@ -23,13 +23,13 @@ import android.widget.ImageView;
 
 public class SplashActivity extends BaseActivity {
 
-    private ImageView iv;
+   // private ImageView iv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        iv = (ImageView) findViewById(R.id.iv);
-        set();
+      //  iv = (ImageView) findViewById(R.id.iv);
+       // set();
     }
 
     @Override
@@ -70,24 +70,24 @@ public class SplashActivity extends BaseActivity {
         }
     }
 
-    public void set(){
-        AnimationSet animationSet = new AnimationSet(false);
-        RotateAnimation rotateAnimation = new RotateAnimation(0.0f,360.0f,
-                Animation.RELATIVE_TO_SELF,0.5f,
-                Animation.RELATIVE_TO_SELF,0.5f);
-        rotateAnimation.setDuration(1500);
-        rotateAnimation.setRepeatCount(1);
-        rotateAnimation.setRepeatMode(Animation.RESTART);
-        ScaleAnimation scaleAnimation = new ScaleAnimation(0.1f,2.0f,0.1f,2.0f,
-                Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
-        scaleAnimation.setDuration(1500);
-        scaleAnimation.setRepeatCount(1);
-        scaleAnimation.setRepeatMode(Animation.RESTART);
-        animationSet.addAnimation(scaleAnimation);
-        animationSet.addAnimation(rotateAnimation);
-        iv.startAnimation(animationSet);
-
-    }
+//    public void set(){
+//        AnimationSet animationSet = new AnimationSet(false);
+//        RotateAnimation rotateAnimation = new RotateAnimation(0.0f,360.0f,
+//                Animation.RELATIVE_TO_SELF,0.5f,
+//                Animation.RELATIVE_TO_SELF,0.5f);
+//        rotateAnimation.setDuration(1500);
+//        rotateAnimation.setRepeatCount(1);
+//        rotateAnimation.setRepeatMode(Animation.RESTART);
+//        ScaleAnimation scaleAnimation = new ScaleAnimation(0.1f,2.0f,0.1f,2.0f,
+//                Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
+//        scaleAnimation.setDuration(1500);
+//        scaleAnimation.setRepeatCount(1);
+//        scaleAnimation.setRepeatMode(Animation.RESTART);
+//        animationSet.addAnimation(scaleAnimation);
+//        animationSet.addAnimation(rotateAnimation);
+//        iv.startAnimation(animationSet);
+//
+//    }
 
 
 }
