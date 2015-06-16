@@ -26,12 +26,9 @@ public class addSosActivity extends Activity {
     private ListView lv_SOS;
     private CmdCenter mCenter;
 
-    //ÒòÎªĞèÒªÔÚfragmentActÖĞµ÷ÓÃ£¬ËùÒÔÉèÖÃÎª¾²Ì¬¡£Èç¹ûÓĞ¸üºÃµÄ·½·¨£¬ºóĞøÌí¼ÓĞŞ¸Ä¡£
     private static MyAdapter mAdapter;
     private static ArrayList<String> arrayListSOS;
 
-
-    //·¢ËÍÃüÁîËùĞèÒªµÄÃüÁîĞò
     private byte firstByteSOSAdd = 0x00;
     private byte secondByteSOSAdd = 0x00;
     private byte firstByteSOSDelete = 0x00;
@@ -66,7 +63,7 @@ public class addSosActivity extends Activity {
     }
 
 
-    //Ìí¼Ó¹ÜÀíÔ±
+    //ï¿½ï¿½Ó¹ï¿½ï¿½ï¿½Ô±
     public void addSOS(View view){
         String phone = et_addSOS.getText().toString().trim();
         if(phone.isEmpty()){
@@ -98,8 +95,6 @@ public class addSosActivity extends Activity {
         mAdapter.notifyDataSetChanged();
     }
 
-
-    //É¾³ı¹ÜÀíÔ±
     public void showInfo(final int position) {
         AlertDialog dialog2 = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.delete_contact_person))
@@ -132,8 +127,6 @@ public class addSosActivity extends Activity {
         dialog2.show();
     }
 
-
-    //ÁĞ±íÊÊÅäÆ÷
     class MyAdapter extends BaseAdapter{
 
         @Override
@@ -179,8 +172,6 @@ public class addSosActivity extends Activity {
         }
     }
 
-
-    //È¡ÏûµÈ´ı¿ò£¬²¢ÇÒË¢ĞÂ½çÃæ
     public static void cancelDialog(String data){
         SOSWaitDialog.dismiss();
         String[] s1 = data.split(":");
@@ -196,7 +187,6 @@ public class addSosActivity extends Activity {
         mAdapter.notifyDataSetChanged();
     }
 
-    //È¡ÏûµÈ´ı¿ò
     public static void cancelDialog(){
         SOSWaitDialog.dismiss();
     }
