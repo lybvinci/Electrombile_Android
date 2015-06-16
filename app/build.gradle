@@ -92,5 +92,6 @@ dependencies {
     compile files('libs/android-async-http-1.4.6.jar')
     compile files('libs/avoscloud-statistics-v3.3.jar')
     compile files('libs/avoscloud-push-v3.3.jar')
+    compile 'im.fir:sdk:1.2.0+'
 }
 

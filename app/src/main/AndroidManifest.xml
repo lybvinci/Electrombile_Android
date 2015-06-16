@@ -47,6 +47,8 @@
     <!-- 云巴权限 -->
     <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- BugHD -->
+    <uses-permission android:name="android.permission.GET_TASKS"></uses-permission>
 
     <application
         android:name=".Base.App"
@@ -61,6 +63,9 @@
         <meta-data
             android:name="YUNBA_APPKEY"
             android:value="554ab0957e353f5814e12100" />
+
+        <!-- BugHD -->
+        <meta-data android:value="c3eabcfe28504e5428596427cfdd2311" android:name="BUG_HD_SDK_GENERAL_KEY" />
 
         <service android:name="io.yunba.android.core.YunBaService"
                  android:enabled="true"

@@ -11,6 +11,7 @@ import com.xunce.electrombile.Base.sdk.SettingManager;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 
+import im.fir.sdk.FIR;
 import io.yunba.android.manager.YunBaManager;
 
 
@@ -31,6 +32,9 @@ public class App extends Application {
                 "5wk8ccseci7lnss55xfxdgj9xn77hxg3rppsu16o83fydjjn",
                 "yovqy5zy16og43zwew8i6qmtkp2y6r9b18zerha0fqi5dqsw");
         YunBaManager.start(getApplicationContext());
+
+        //initial BugHD
+        FIR.init(this);
 
 //        YunBaManager.subscribe(getApplicationContext(), new String[]{"e2link/"+setManager.getIMEI()}, new IMqttActionListener() {
 //
