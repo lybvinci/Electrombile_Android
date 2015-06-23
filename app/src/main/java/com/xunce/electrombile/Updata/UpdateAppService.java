@@ -78,7 +78,7 @@ public class UpdateAppService extends Service{
             try {
               //test  DownLoadApp("http://fir.im/api/v2/app/install/554331e6bf7f222c2600493b?token=39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
              //正式链接
-                DownLoadApp("http://fir.im/api/v2/app/install/553ca95096a9fc5c14001802?token=39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
+                DownLoadApp("http://fir.im/api/v2/app/install/556c810d2bb8ac0e5d001a30?token=b9d54ba0b12411e4bc2c492c76a46d264a53ba2f");
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

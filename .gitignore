@@ -14,10 +14,7 @@ local.properties
 .signing/
 
 # User-specific configurations
-.idea/libraries/
-.idea/workspace.xml
-.idea/tasks.xml
-
+*.iml
 
 # OS-specific files
 .DS_Store
@@ -47,5 +44,9 @@ gdb.setup
 .project
 .classpath
 .settings
+
+#Android Studio
+.idea
+
 # Eclipse NDK
 .cproject

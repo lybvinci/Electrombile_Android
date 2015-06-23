@@ -1,15 +1,59 @@
 apply plugin: 'com.android.application'
 
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
+}
+
+def releaseTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
+}
+
 android {
     compileSdkVersion 22
-    buildToolsVersion '22.0.0'
-  //  android {CompileOptions.encoding = "GBK"}
+    buildToolsVersion '22.0.1'
+
+    def versionPropsFile = file('version.properties')
+
+    if (versionPropsFile.canRead()) {
+        def Properties versionProps = new Properties()
+
+        versionProps.load(new FileInputStream(versionPropsFile))
+        def value = 0
+        def runTasks = gradle.startParameter.taskNames
+        if ('assemble' in runTasks || 'assembleRelease' in runTasks || 'aR' in runTasks) {
+            value = 1;
+        }
+
+        def versionMajor = versionProps['VERSION_MAJOR'].toInteger()
+        def versionMinor = versionProps['VERSION_MINOR'].toInteger()
+        def versionPatch = versionProps['VERSION_PATCH'].toInteger() + value
+        def versionBuild = getDate()
+        def version_Code = versionProps['VERSION_CODE'].toInteger() + value
+
+        versionProps['VERSION_MAJOR'] = versionMajor.toString()
+        versionProps['VERSION_MINOR'] = versionMinor.toString()
+        versionProps['VERSION_PATCH'] = versionPatch.toString()
+        versionProps['VERSION_CODE'] = version_Code.toString()
+
+        if (value == 1) {
+            versionProps.store(versionPropsFile.newWriter(), null)
+        }
+
+        defaultConfig {
+            versionCode version_Code
+            //versionName "${versionMajor}.${versionMinor}.${versionPatch} (${versionBuild})"
+            versionName "${versionMajor}.${versionMinor}"
+        }
+    } else {
+        throw new GradleException("Could not read version.properties!")
+    }
+
     defaultConfig {
         applicationId "com.xunce.electrombile"
         minSdkVersion 9
        // targetSdkVersion 3
-        versionCode 16
-        versionName "2.2"
     }
 
     signingConfigs {
@@ -29,15 +73,52 @@ android {
 
     buildTypes {
         release {
+            buildConfigField "boolean", "LOG_DEBUG", "false"
+
             minifyEnabled false
+            shrinkResources false
+
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
             debuggable false
+
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                        def fileName = "SafeGuide_v${defaultConfig.versionName}_${releaseTime()}_${variant.productFlavors[0].name}.apk"
+                        output.outputFile = new File(outputFile.parent, fileName)
+                    }
+                }
+            }
         }
         debug {
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+
+            versionNameSuffix "-debug"
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
             signingConfig signingConfigs.debug
             debuggable true
         }
+    }
+
+    productFlavors {
+        wandoujia {}
+        _360 {}
+        baidu {}
+        xiaomi {}
+        tencent {}
+        taobao {}
+        FIR {
+            minSdkVersion 17
+            targetSdkVersion 17
+        }
+    }
+
+    productFlavors.all { flavor ->
+        flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
     }
 }
 
@@ -54,5 +135,6 @@ dependencies {
     compile files('libs/android-async-http-1.4.6.jar')
     compile files('libs/avoscloud-statistics-v3.3.jar')
     compile files('libs/avoscloud-push-v3.3.jar')
+    compile 'im.fir:sdk:1.2.0+'
 }
 

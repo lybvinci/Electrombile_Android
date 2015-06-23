@@ -26,9 +26,12 @@ public class addSosActivity extends Activity {
     private ListView lv_SOS;
     private CmdCenter mCenter;
 
+    //因为需要在fragmentAct中调用，所以设置为静态。如果有更好的方法，后续添加修改。
     private static MyAdapter mAdapter;
     private static ArrayList<String> arrayListSOS;
 
+
+    //发送命令所需要的命令序
     private byte firstByteSOSAdd = 0x00;
     private byte secondByteSOSAdd = 0x00;
     private byte firstByteSOSDelete = 0x00;
@@ -63,6 +66,7 @@ public class addSosActivity extends Activity {
     }
 
 
+    //添加管理员
     public void addSOS(View view){
         String phone = et_addSOS.getText().toString().trim();
         if(phone.isEmpty()){
@@ -94,6 +98,7 @@ public class addSosActivity extends Activity {
         mAdapter.notifyDataSetChanged();
     }
 
+    //删除管理员
     public void showInfo(final int position) {
         AlertDialog dialog2 = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.delete_contact_person))
@@ -126,6 +131,7 @@ public class addSosActivity extends Activity {
         dialog2.show();
     }
 
+    //列表适配器
     class MyAdapter extends BaseAdapter{
 
         @Override
@@ -171,6 +177,7 @@ public class addSosActivity extends Activity {
         }
     }
 
+    //取消等待框，并且刷新界面
     public static void cancelDialog(String data){
         SOSWaitDialog.dismiss();
         String[] s1 = data.split(":");
@@ -186,6 +193,7 @@ public class addSosActivity extends Activity {
         mAdapter.notifyDataSetChanged();
     }
 
+    //取消等待框
     public static void cancelDialog(){
         SOSWaitDialog.dismiss();
     }
