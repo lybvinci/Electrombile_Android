@@ -225,8 +225,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.activity_register);
         super.onCreate(savedInstanceState);
-//		initViews();
-//		initEvents();
 	}
 
     /**

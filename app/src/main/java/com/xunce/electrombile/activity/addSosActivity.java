@@ -63,7 +63,6 @@ public class addSosActivity extends Activity {
     }
 
 
-    //��ӹ���Ա
     public void addSOS(View view){
         String phone = et_addSOS.getText().toString().trim();
         if(phone.isEmpty()){
