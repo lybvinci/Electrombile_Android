@@ -91,7 +91,7 @@
         style="@style/clickableLayout">
         <ImageView
             style="@style/settings_fragment_iv"
-            android:src="@drawable/setting_tel"/>
+            android:src="@drawable/sf_unbind_iv"/>
         <TextView
             style="@style/clickableLayoutTextview"
             android:textColor="@color/black"
@@ -104,7 +104,7 @@
         style="@style/clickableLayout">
         <ImageView
             style="@style/settings_fragment_iv"
-            android:src="@drawable/setting_tel"/>
+            android:src="@drawable/sf_add_sos"/>
         <TextView
             style="@style/clickableLayoutTextview"
             android:textColor="@color/black"

@@ -1,71 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center_horizontal"
+              android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:src="@drawable/sp_iv_logo"/>
 
     <EditText
         android:id="@+id/etName"
-        style="@style/EditTextTheme"
-        android:layout_marginTop="200dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="60dp"
+        android:background="@color/white"
         android:gravity="center"
-        android:hint="@string/login_name_hint" />
+        android:hint="@string/login_name_hint"
+        android:textColor="@color/base_color_text_black"
+        android:textColorHint="@color/black"/>
 
     <EditText
         android:id="@+id/etPsw"
-        style="@style/EditTextTheme"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@color/white"
         android:gravity="center"
-        android:hint="@string/password" />
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:textColor="@color/base_color_text_black"
+        android:textColorHint="@color/black"/>
 
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:layout_marginTop="10dp">
-    <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="80dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="28dp"
-        android:text="新用户"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:background="@drawable/common_btn_white"/>
-
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="85dp"
-        android:layout_height="29dp"
-        android:text="登陆"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/common_btn" />
-    <Button
-        android:id="@+id/tvForgot"
-        android:layout_width="80dp"
-        android:layout_height="35dp"
-        android:layout_marginLeft="28dp"
-        android:text="忘记密码"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:background="@drawable/common_btn_white"/>
-</LinearLayout>
-    <ImageView
-        android:layout_width="120dp"
-        android:layout_height="171dp"
-        android:src="@drawable/bicycle"/>
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:text="@string/company_name"/>
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="80dp"
+            android:layout_height="35dp"
+            android:layout_marginRight="28dp"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/common_btn_white"
+            android:text="新用户"
+            android:textColor="@color/white"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="85dp"
+            android:layout_height="29dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/common_btn"
+            android:text="登陆"/>
+
+        <Button
+            android:id="@+id/tvForgot"
+            android:layout_width="80dp"
+            android:layout_height="35dp"
+            android:layout_marginLeft="28dp"
+            android:background="@drawable/common_btn_white"
+            android:text="忘记密码"
+            android:textColor="@color/white"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+
+
 </LinearLayout>

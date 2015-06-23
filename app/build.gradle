@@ -12,7 +12,7 @@ def releaseTime() {
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    buildToolsVersion '21.1.2'
 
     def versionPropsFile = file('version.properties')
 
@@ -111,10 +111,7 @@ android {
         xiaomi {}
         tencent {}
         taobao {}
-        FIR {
-            minSdkVersion 17
-            targetSdkVersion 17
-        }
+        FIR {}
     }
 
     productFlavors.all { flavor ->

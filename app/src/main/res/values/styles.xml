@@ -73,7 +73,6 @@
     <style name="splashActivity">
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@drawable/splash</item>
     </style>
     <style name="loginActivity">
         <item name="android:windowNoTitle">true</item>
@@ -91,11 +90,11 @@
 
     <style name="registerActivity">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@drawable/bg_bind</item>
+        <item name="android:windowBackground">@drawable/all_uiversal_bg</item>
     </style>
     <style name="changePswActivity">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@drawable/bg_bind</item>
+        <item name="android:windowBackground">@drawable/all_uiversal_bg</item>
     </style>
 
     <style name="settings_fragment_iv">
