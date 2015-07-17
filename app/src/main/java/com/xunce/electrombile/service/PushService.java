@@ -209,7 +209,7 @@ public class PushService extends Service {
         super.onStart(intent, startId);
         log("Service started with intent=" + intent);
         // Do an appropriate action based on the intent.
-        if (intent != null) return;
+        if (intent == null) return;
         if (intent.getAction().equals(ACTION_STOP)) {
             stop();
             stopSelf();
