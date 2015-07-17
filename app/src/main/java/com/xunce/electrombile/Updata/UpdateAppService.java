@@ -106,7 +106,6 @@ public class UpdateAppService extends Service{
                     downcount += 1;
                     notification.setLatestEventInfo(context, "正在下载传安全宝", "已下载了"+(int)downnum*100/length+"%", pendingIntent);
                     nManager.notify(100, notification);
-
                 }
                 if (downnum==length) {
                   //  notification.setLatestEventInfo(context, "已下载完成传安全宝", "点击安装", updatePendingIntent);
