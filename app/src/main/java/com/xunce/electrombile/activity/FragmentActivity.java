@@ -237,11 +237,11 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             super.handleMessage(msg);
             Bundle bundle = msg.getData();
             isupde = bundle.getBoolean("isupdate");
-            a = bundle.getInt("want");
             if (isupde) {
                 upData();
                 isupde = false;
             }
+
         }
     };
 
@@ -365,16 +365,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
 
     public void checkVersion() {
-            Log.i("updata version","aaaaaaaaaaaaa");
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Message msg = new Message();
                 Bundle bundle = new Bundle();
-                boolean isupdate;
                 String baseUrl = "http://fir.im/api/v2/app/version/%s?token=%s";
                 //下面是正式的 版本调整
-               // String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
+                // String checkUpdateUrl = String.format(baseUrl, "553ca95096a9fc5c14001802", "39d16f30ebf111e4a2da4efe6522248a4b9d9ed4");
                 String checkUpdateUrl = String.format(baseUrl, "556c810d2bb8ac0e5d001a30", "b9d54ba0b12411e4bc2c492c76a46d264a53ba2f");
 
                 HttpClient httpClient = new DefaultHttpClient();
@@ -404,20 +402,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 //                            Log.i("查看版本",firVersionCode+"");
                             if (firVersionCode > currentVersionCode) {
                                 //需要更新
-                               Log.i("infox", "need update");
-                                bundle.putInt("want",1);
-                                bundle.putBoolean("isupdate",true);
+                                bundle.putBoolean("isupdate", true);
                             } else if (firVersionCode == currentVersionCode) {
                                 //如果本地app的versionCode与FIR上的app的versionCode一致，则需要判断versionName.
                                 if (!currentVersionName.equals(firVersionName)) {
-                                          Log.i("infox", "need update");
-                                    bundle.putInt("want",1);
-                                    bundle.putBoolean("isupdate",true);
+                                    bundle.putBoolean("isupdate", true);
                                 }
                             } else {
                                 //不需要更新,当前版本高于FIR上的app版本.
-                                     Log.i("infox", " no need update");
-                                bundle.putBoolean("isupdate",false);
+                                bundle.putBoolean("isupdate", false);
                             }
                             msg.setData(bundle);
                             FragmentActivity.this.MyHandler.sendMessage(msg);

@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.http.AndroidHttpClient;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,6 +21,7 @@ import android.util.Log;
 
 import com.avos.avoscloud.LogUtil;
 import com.ibm.mqtt.IMqttClient;
+import com.ibm.mqtt.Mqtt;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttPersistence;
@@ -162,7 +164,7 @@ public class PushService extends Service {
         mNotifMan = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		/* If our process was reaped by the system for any reason we need
-		 * to restore our state with merely a call to onCreate.  We record
+         * to restore our state with merely a call to onCreate.  We record
 		 * the last "started" value and restore it here if necessary. */
         new Thread(new Runnable() {
             @Override
@@ -182,7 +184,6 @@ public class PushService extends Service {
         log("Handling crashed service...");
         // stop the keep alives
         stopKeepAlives();
-
         // Do a clean start
         start();
 //		}
@@ -191,12 +192,10 @@ public class PushService extends Service {
     @Override
     public void onDestroy() {
         log("Service destroyed (started=" + mStarted + ")");
-
         // Stop the services, if it has been started
         if (mStarted) {
             stop();
         }
-
         try {
             if (mLog != null)
                 mLog.close();
@@ -209,8 +208,8 @@ public class PushService extends Service {
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
         log("Service started with intent=" + intent);
-
         // Do an appropriate action based on the intent.
+        if (intent == null) return;
         if (intent.getAction().equals(ACTION_STOP)) {
             stop();
             stopSelf();
@@ -609,7 +608,7 @@ public class PushService extends Service {
                 case 0x01:
                     byte[] cmd = (byte[]) msg.obj;
                     String data = new String(cmd);
-                    if(cmd[3] == 0x06){
+                    if (cmd[3] == 0x06) {
                         handArrivedCmd(cmd);
                         break;
                     }
