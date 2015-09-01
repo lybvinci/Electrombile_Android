@@ -3,22 +3,14 @@ package com.xunce.electrombile.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 
-import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVUser;
-import com.avos.avoscloud.DeleteCallback;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.account.LoginActivity;
-import com.xunce.electrombile.activity.account.RegisterActivity;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import android.os.Handler;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
-import android.widget.ImageView;
+
+import im.fir.sdk.FIR;
 
 
 public class SplashActivity extends BaseActivity {
@@ -44,7 +36,7 @@ public class SplashActivity extends BaseActivity {
                 @Override
                 public void run() {
                     if (currentUser != null) {
-                        if(currentUser.isMobilePhoneVerified()) {
+                        /*if(currentUser.isMobilePhoneVerified()) {
                             Intent intent = new Intent(SplashActivity.this, FragmentActivity.class);
                             startActivity(intent);
                             SplashActivity.this.finish();
@@ -59,7 +51,11 @@ public class SplashActivity extends BaseActivity {
                                     }
                                 }
                             });
-                        }
+                        }*/
+                        FIR.addCustomizeValue("user", currentUser.getUsername());
+                        Intent intent = new Intent(SplashActivity.this, FragmentActivity.class);
+                        startActivity(intent);
+                        SplashActivity.this.finish();
                     } else {
                         Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
                         startActivity(intent);

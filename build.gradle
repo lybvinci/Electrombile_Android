@@ -16,8 +16,14 @@ allprojects {
     repositories {
         jcenter()
 
+        //FIR crash collect
         maven {
             url "http://dl.bintray.com/fir/maven"
+        }
+
+        //leancloud repository
+        maven {
+            url "http://mvn.leancloud.cn/nexus/content/repositories/releases"
         }
     }
 }
