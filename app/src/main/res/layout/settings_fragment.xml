@@ -111,7 +111,23 @@
             android:text="添加管理员"/>
     </LinearLayout>
 
-    <Button
+        <LinearLayout
+            android:id="@+id/layout_bind_list"
+            android:layout_below="@+id/layout_addSOS"
+            android:layout_marginTop="1dp"
+            style="@style/clickableLayout">
+
+            <ImageView
+                style="@style/settings_fragment_iv"
+                android:src="@drawable/setting_tel" />
+
+            <TextView
+                style="@style/clickableLayoutTextview"
+                android:textColor="@color/black"
+                android:text="设备列表" />
+        </LinearLayout>
+
+        <Button
         android:id="@+id/btn_logout"
         android:layout_width="300dp"
         android:layout_height="wrap_content"

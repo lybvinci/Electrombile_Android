@@ -23,6 +23,7 @@ import com.avos.avoscloud.DeleteCallback;
 import com.avos.avoscloud.FindCallback;
 import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.activity.BindListActivity;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.activity.AboutActivity;
 import com.xunce.electrombile.activity.HelpActivity;
@@ -75,6 +76,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
         view.findViewById(R.id.layout_release_bind).setOnClickListener(this);
         view.findViewById(R.id.btn_logout).setOnClickListener(this);
         view.findViewById(R.id.layout_addSOS).setOnClickListener(this);
+        view.findViewById(R.id.layout_bind_list).setOnClickListener(this);
 
         releaseBind = (LinearLayout) view.findViewById(R.id.layout_release_bind);
     }
@@ -187,6 +189,14 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 }
                 Intent intent = new Intent(m_context,addSosActivity.class);
                 startActivity(intent);
+                break;
+            case R.id.layout_bind_list:
+                if (!NetworkUtils.isNetworkConnected(m_context)) {
+                    ToastUtils.showShort(m_context, "网络连接错误！");
+                    return;
+                }
+                Intent intentBindList = new Intent(m_context, BindListActivity.class);
+                startActivity(intentBindList);
                 break;
             default:
                 break;

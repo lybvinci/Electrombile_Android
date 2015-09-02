@@ -105,5 +105,8 @@
     <string name="set_success">设置成功！</string>
     <string name="wait_for_i_miss">正在设置，请等待我消失……</string>
     <string name="init_failed">初始化失败，请关闭APP重试。</string>
+    <string name="title_activity_bind_list">BindListActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>

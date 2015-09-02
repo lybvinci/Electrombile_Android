@@ -97,6 +97,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     byte firstByteSearch = 0x00;
     byte secondByteSearch = 0x00;
 
+    //保存自己的实例
+    public static FragmentActivity fragmentActivity;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +120,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         startServer();
         Historys.put(this);
 
-
+        fragmentActivity = this;
     }
 
     private void startServer() {

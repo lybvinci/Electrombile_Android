@@ -299,7 +299,11 @@ public class PushService extends Service {
         setStarted(false);
 
         // Remove the connectivity receiver
-        unregisterReceiver(mConnectivityChanged);
+        try {
+            unregisterReceiver(mConnectivityChanged);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // Any existing reconnect timers should be removed, since we explicitly stopping the service.
         cancelReconnect();
 

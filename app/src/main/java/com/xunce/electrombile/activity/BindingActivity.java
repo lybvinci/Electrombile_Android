@@ -155,15 +155,23 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                         @Override
                         public void done(List<AVObject> list, AVException e) {
                             Log.d("成功", "IMEI查询到" + list.size() + " 条符合条件的数据");
-                            if (list.size() > 0) {
-                                Message message = new Message();
-                                message.what = handler_key.FAILED.ordinal();
-                                message.obj = "设备已经被绑定！";
-                                mHandler.sendMessage(message);
-                                return;
-                            }
+                            //一个设备可以绑定多个用户
+//                            if (list.size() > 0) {
+//                                Message message = new Message();
+//                                message.what = handler_key.FAILED.ordinal();
+//                                message.obj = "设备已经被绑定！";
+//                                mHandler.sendMessage(message);
+//                                return;
+//                            }
                             bindDevice.put("device", avObjects.get(0));
-                            bindDevice.put("isAdmin", true);
+                            if (list.size() > 0) {
+                                bindDevice.put("isAdmin", false);
+                                ToastUtils.showShort(BindingActivity.this, "您正在绑定附属车辆...");
+                            } else {
+                                bindDevice.put("isAdmin", true);
+                                ToastUtils.showShort(BindingActivity.this, "您正在绑定主车辆...");
+                            }
+                            // bindDevice.put("isAdmin", true);
                             bindDevice.put("IMEI", IMEI);
                             bindDevice.saveInBackground(new SaveCallback() {
                                 @Override
