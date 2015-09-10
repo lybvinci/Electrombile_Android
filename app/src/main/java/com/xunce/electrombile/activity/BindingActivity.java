@@ -140,7 +140,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
 
     private void startBind(final String IMEI){
         final AVObject bindDevice = new AVObject("Bindings");
-        AVUser currentUser = AVUser.getCurrentUser();
+        final AVUser currentUser = AVUser.getCurrentUser();
         bindDevice.put("user", currentUser);
         AVQuery<AVObject> query = new AVQuery<>("DID");
         final AVQuery<AVObject> queryBinding = new AVQuery<>("Bindings");
@@ -151,18 +151,19 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                 if (e == null && avObjects.size() > 0) {
                     Log.d("成功", "查询到" + avObjects.size() + " 条符合条件的数据");
                     queryBinding.whereEqualTo("IMEI", IMEI);
+                    queryBinding.whereEqualTo("user", currentUser);
                     queryBinding.findInBackground(new FindCallback<AVObject>() {
                         @Override
                         public void done(List<AVObject> list, AVException e) {
                             Log.d("成功", "IMEI查询到" + list.size() + " 条符合条件的数据");
-                            //一个设备可以绑定多个用户
-//                            if (list.size() > 0) {
-//                                Message message = new Message();
-//                                message.what = handler_key.FAILED.ordinal();
-//                                message.obj = "设备已经被绑定！";
-//                                mHandler.sendMessage(message);
-//                                return;
-//                            }
+                            //一个设备可以绑定多个用户,但是这个类是唯一的，确保不重复生成相同的对象。
+                            if (list.size() > 0) {
+                                Message message = new Message();
+                                message.what = handler_key.FAILED.ordinal();
+                                message.obj = "设备已经被绑定！";
+                                mHandler.sendMessage(message);
+                                return;
+                            }
                             bindDevice.put("device", avObjects.get(0));
                             if (list.size() > 0) {
                                 bindDevice.put("isAdmin", false);
@@ -171,7 +172,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
                                 bindDevice.put("isAdmin", true);
                                 ToastUtils.showShort(BindingActivity.this, "您正在绑定主车辆...");
                             }
-                            // bindDevice.put("isAdmin", true);
                             bindDevice.put("IMEI", IMEI);
                             bindDevice.saveInBackground(new SaveCallback() {
                                 @Override

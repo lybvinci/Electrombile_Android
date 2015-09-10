@@ -19,6 +19,7 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.AVUser;
+import com.avos.avoscloud.DeleteCallback;
 import com.avos.avoscloud.FindCallback;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.widget.RefreshableView;
@@ -33,7 +34,7 @@ public class BindListActivity extends BaseActivity {
     private ListView bind_list;
     private TextView tv_default;
     RefreshableView refreshableView;
-    private HashMap<Integer, HashMap<String, String>> bindList = null;
+    private HashMap<Integer, AVObject> bindList = null;
     private ProgressDialog progressDialog = null;
 
     @Override
@@ -89,7 +90,7 @@ public class BindListActivity extends BaseActivity {
             @Override
             public void onRefresh() {
                 refreshBindList(null);
-                mAdapter.notifyDataSetChanged();
+                //   mAdapter.notifyDataSetChanged();
             }
         }, 0);
     }
@@ -97,29 +98,22 @@ public class BindListActivity extends BaseActivity {
     //删除设备
     private void deleteEqu(final int location) {
         Log.e("location", location + "");
-        AVQuery<AVObject> query = new AVQuery<>("Bindings");
-        AVUser currentUser = AVUser.getCurrentUser();
-        query.whereEqualTo("user", currentUser);
-        Log.e("bindList", bindList.toString());
-        query.whereEqualTo("IMEI", bindList.get(location).get("IMEI"));
-        query.findInBackground(new FindCallback<AVObject>() {
+        AVObject tmp = bindList.get(location);
+        tmp.deleteInBackground(new DeleteCallback() {
             @Override
-            public void done(List<AVObject> list, AVException e) {
+            public void done(AVException e) {
                 if (e == null) {
-                    if (list.size() > 0) {
-                        list.get(0).deleteInBackground();
-                        ToastUtils.showShort(BindListActivity.this, "删除成功！");
-                        bindList.remove(location);
-                        //刷新listview
-                        mAdapter.notifyDataSetChanged();
-                    } else {
-                        ToastUtils.showShort(BindListActivity.this, "删除失败，请下拉刷新列表！");
-                    }
+                    ToastUtils.showShort(BindListActivity.this, "删除成功！");
+                    bindList.put(location, bindList.get(bindList.size() - 1));
+                    bindList.remove(bindList.size() - 1);
+                    //刷新listview
+                    mAdapter.notifyDataSetChanged();
                 } else {
                     ToastUtils.showShort(BindListActivity.this, "删除失败，请下拉刷新列表！");
                 }
             }
         });
+
     }
 
     //刷新车列表
@@ -136,22 +130,13 @@ public class BindListActivity extends BaseActivity {
                     if (list.size() > 0) {
                         bindList.clear();
                         for (int i = 0; i < list.size(); i++) {
-                            HashMap<String, String> tmpList = new HashMap();
-                            if (list.get(i).get("isAdmin") != null && (boolean) list.get(i).get("isAdmin")) {
-                                tmpList.put("isAdmin", "true");
-                                tmpList.put("IMEI", (String) list.get(i).get("IMEI"));
-                                Log.e("IMEI", (String) list.get(i).get("IMEI"));
-                            } else {
-                                tmpList.put("isAdmin", "false");
-                                tmpList.put("IMEI", (String) list.get(i).get("IMEI"));
-                                Log.e("IMEI", (String) list.get(i).get("IMEI"));
-                            }
-                            bindList.put(i, tmpList);
+                            bindList.put(i, list.get(i));
                             if (progressDialog == null) {
                                 refreshableView.finishRefreshing();
+                                mAdapter.notifyDataSetChanged();
                             }
+
                         }
-                        // Log.e("IMEI", bindList.toString());
                     } else {
                         ToastUtils.showShort(BindListActivity.this, "无可用设备");
                     }
@@ -216,6 +201,7 @@ public class BindListActivity extends BaseActivity {
                 mView = view;
             }
             TextView tvAdmin = (TextView) mView.findViewById(R.id.tv_admin);
+            Log.e("bindList" + i, bindList.toString());
             if (bindList.get(i).get("isAdmin").equals("true")) {
                 tvAdmin.setText("主车");
             } else {
@@ -234,7 +220,7 @@ public class BindListActivity extends BaseActivity {
                         ToastUtils.showShort(BindListActivity.this, "正在使用此设备，无须切换~");
                         return;
                     }
-                    setManager.setIMEI(bindList.get(i).get("IMEI"));
+                    setManager.setIMEI((String) bindList.get(i).get("IMEI"));
                     FragmentActivity.fragmentActivity.finish();
                     ToastUtils.showShort(BindListActivity.this, "切换中~");
                     Intent intent = new Intent(BindListActivity.this, FragmentActivity.class);
