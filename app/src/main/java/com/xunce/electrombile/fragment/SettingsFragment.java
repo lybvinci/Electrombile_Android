@@ -26,6 +26,7 @@ import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BindListActivity;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.activity.AboutActivity;
+import com.xunce.electrombile.activity.FindActivity;
 import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
 import com.xunce.electrombile.activity.addSosActivity;
@@ -77,6 +78,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
         view.findViewById(R.id.btn_logout).setOnClickListener(this);
         view.findViewById(R.id.layout_addSOS).setOnClickListener(this);
         view.findViewById(R.id.layout_bind_list).setOnClickListener(this);
+        view.findViewById(R.id.layout_find).setOnClickListener(this);
 
         releaseBind = (LinearLayout) view.findViewById(R.id.layout_release_bind);
     }
@@ -93,90 +95,21 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
         switch (id) {
             case R.id.layout_bind:
                 //systemBtnClicked();
-                if(NetworkUtils.isNetworkConnected(m_context)){
-                    if(setManager.getIMEI().isEmpty()) {
-                  //      Log.i(TAG, "clicked item layout_relieve_bind");
-                        setManager.cleanDevice();
-                        Intent intentStartBinding = new Intent(m_context, BindingActivity.class);
-                        startActivity(intentStartBinding);
-                        getActivity().finish();
-                    }else{
-                        System.out.println(setManager.getIMEI() +"aaaaaaaaaaa");
-                        ToastUtils.showShort(m_context,"设备已绑定");
-                    }
-                }else{
-                    ToastUtils.showShort(m_context,"网络连接错误");
-                    }
+                bind();
                 break;
             case R.id.layout_help:
                 Intent intentHelp = new Intent(m_context, HelpActivity.class);
                 startActivity(intentHelp);
-
                 break;
             case R.id.btn_logout:
-                AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                        .setTitle("退出登录")
-                        .setMessage("退出登录将清除所有已有账户及已经绑定的设备，确定退出么？")
-                        .setPositiveButton("否",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-
-                                    }
-                                }).setNegativeButton("是", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String topic = "e2link_" + setManager.getIMEI();
-                                YunBaManager.unsubscribe(m_context, topic, new IMqttActionListener() {
-
-                                    @Override
-                                    public void onSuccess(IMqttToken arg0) {
-                                        Log.d(TAG, "UnSubscribe topic succeed");
-                                        //删除本地的IMEI 和报警标志
-                                        setManager.setIMEI("");
-                                        setManager.setAlarmFlag(false);
-                                        ToastUtils.showShort(m_context, "退出登录成功");
-                                        setManager.cleanAll();
-                                    }
-
-                                    @Override
-                                    public void onFailure(IMqttToken arg0, Throwable arg1) {
-                                        Log.d(TAG, "UnSubscribe topic failed");
-                                        ToastUtils.showShort(m_context, "退订服务失败，请确保网络通畅！");
-                                    }
-                                });
-                                Intent intentStartLogin = new Intent(m_context, LoginActivity.class);
-                                startActivity(intentStartLogin);
-                                AVUser.logOut();
-                                getActivity().finish();
-                            }
-                        }).create();
-                dialog.show();
+                loginOut();
                 break;
             case R.id.layout_about:
                 Intent intentAbout = new Intent(m_context, AboutActivity.class);
                 startActivity(intentAbout);
                 break;
             case R.id.layout_release_bind:
-                AlertDialog dialog2 = new AlertDialog.Builder(getActivity())
-                        .setTitle("*****解除绑定*****")
-                        .setMessage("将要解除绑定的设备，确定解除么？")
-                        .setPositiveButton("否",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                }).setNegativeButton("是", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                releaseBind.setClickable(false);
-                                releaseBinding();
-                                releaseBind.setClickable(true);
-                            }
-                        }).create();
-                dialog2.show();
+                releaseBind_btn();
                 break;
             case R.id.layout_addSOS:
                 if(!NetworkUtils.isNetworkConnected(m_context)){
@@ -198,9 +131,97 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                 Intent intentBindList = new Intent(m_context, BindListActivity.class);
                 startActivity(intentBindList);
                 break;
+            case R.id.layout_find:
+                goToFindAct();
+                break;
             default:
                 break;
         }
+    }
+
+    private void goToFindAct() {
+        Intent intent = new Intent(m_context, FindActivity.class);
+        startActivity(intent);
+    }
+
+    private void releaseBind_btn() {
+        AlertDialog dialog2 = new AlertDialog.Builder(getActivity())
+                .setTitle("*****解除绑定*****")
+                .setMessage("将要解除绑定的设备，确定解除么？")
+                .setPositiveButton("否",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).setNegativeButton("是", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        releaseBind.setClickable(false);
+                        releaseBinding();
+                        releaseBind.setClickable(true);
+                    }
+                }).create();
+        dialog2.show();
+    }
+
+    private void bind() {
+        if (NetworkUtils.isNetworkConnected(m_context)) {
+            if (setManager.getIMEI().isEmpty()) {
+                //      Log.i(TAG, "clicked item layout_relieve_bind");
+                setManager.cleanDevice();
+                Intent intentStartBinding = new Intent(m_context, BindingActivity.class);
+                startActivity(intentStartBinding);
+                getActivity().finish();
+            } else {
+                System.out.println(setManager.getIMEI() + "aaaaaaaaaaa");
+                ToastUtils.showShort(m_context, "设备已绑定");
+            }
+        } else {
+            ToastUtils.showShort(m_context, "网络连接错误");
+        }
+    }
+
+    private void loginOut() {
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setTitle("退出登录")
+                .setMessage("退出登录将清除所有已有账户及已经绑定的设备，确定退出么？")
+                .setPositiveButton("否",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                            }
+                        }).setNegativeButton("是", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String topic = "e2link_" + setManager.getIMEI();
+                        YunBaManager.unsubscribe(m_context, topic, new IMqttActionListener() {
+
+                            @Override
+                            public void onSuccess(IMqttToken arg0) {
+                                Log.d(TAG, "UnSubscribe topic succeed");
+                                //删除本地的IMEI 和报警标志
+                                setManager.setIMEI("");
+                                setManager.setAlarmFlag(false);
+                                ToastUtils.showShort(m_context, "退出登录成功");
+                                setManager.cleanAll();
+                            }
+
+                            @Override
+                            public void onFailure(IMqttToken arg0, Throwable arg1) {
+                                Log.d(TAG, "UnSubscribe topic failed");
+                                ToastUtils.showShort(m_context, "退订服务失败，请确保网络通畅！");
+                            }
+                        });
+                        Intent intentStartLogin = new Intent(m_context, LoginActivity.class);
+                        startActivity(intentStartLogin);
+                        AVUser.logOut();
+                        getActivity().finish();
+                    }
+                }).create();
+        dialog.show();
     }
 
     private void releaseBinding() {

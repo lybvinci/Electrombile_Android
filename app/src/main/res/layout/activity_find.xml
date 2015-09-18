@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context="com.xunce.electrombile.activity.FindActivity">
+
+    <RelativeLayout
+        android:id="@+id/title"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:background="#bfbfbf"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="快速找车"
+            android:textColor="@color/black"
+            android:textSize="25sp" />
+    </RelativeLayout>
+
+    <com.xunce.electrombile.widget.RadarView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:id="@+id/radarView"
+        android:layout_below="@+id/title"
+        android:layout_centerHorizontal="true" />
+
+    <RatingBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/radarView"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:rating="1.5"
+        android:stepSize="0.15"
+        android:focusableInTouchMode="false"
+        android:numStars="10"
+        android:clickable="false"
+        android:id="@+id/ratingBar"
+        style="@style/roomRatingBar" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="startFind"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:text="开始找车"
+        android:id="@+id/button" />
+
+
+</RelativeLayout>

@@ -101,6 +101,7 @@
         android:id="@+id/layout_addSOS"
         android:layout_below="@+id/layout_release_bind"
         android:layout_marginTop="1dp"
+        android:visibility="gone"
         style="@style/clickableLayout">
         <ImageView
             style="@style/settings_fragment_iv"
@@ -125,6 +126,22 @@
                 style="@style/clickableLayoutTextview"
                 android:textColor="@color/black"
                 android:text="设备列表" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_find"
+            android:layout_below="@+id/layout_bind_list"
+            android:layout_marginTop="1dp"
+            style="@style/clickableLayout">
+
+            <ImageView
+                style="@style/settings_fragment_iv"
+                android:src="@drawable/setting_tel" />
+
+            <TextView
+                style="@style/clickableLayoutTextview"
+                android:textColor="@color/black"
+                android:text="快速找车" />
         </LinearLayout>
 
         <Button

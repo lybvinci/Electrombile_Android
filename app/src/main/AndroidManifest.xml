@@ -72,7 +72,7 @@
         <service
             android:name="io.yunba.android.core.YunBaService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <receiver android:name="io.yunba.android.core.YunBaReceiver">
             <intent-filter>
@@ -103,58 +103,58 @@
             android:name=".activity.account.LoginActivity"
             android:label="@string/title_activity_login"
             android:screenOrientation="portrait"
-            android:theme="@style/loginActivity"></activity>
+            android:theme="@style/loginActivity" />
         <activity
             android:name=".activity.account.RegisterActivity"
             android:label="RegisterActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/registerActivity"></activity>
+            android:theme="@style/registerActivity" />
         <activity
             android:name=".activity.BindingActivity"
             android:label="@string/title_activity_binding"
             android:screenOrientation="portrait"
-            android:theme="@style/App2Theme"></activity>
+            android:theme="@style/App2Theme" />
         <activity
             android:name=".activity.account.ForgetPswActivity"
             android:label="@string/title_activity_forget"
             android:screenOrientation="portrait"
-            android:theme="@style/registerActivity"></activity>
+            android:theme="@style/registerActivity" />
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:screenOrientation="portrait"
-            android:theme="@style/App2Theme"></activity>
+            android:theme="@style/App2Theme" />
         <activity
             android:name=".activity.FragmentActivity"
             android:label="@string/title_activity_fragment"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/App2Theme"></activity>
+            android:theme="@style/App2Theme" />
         <activity
             android:name=".activity.ScannerActivity"
             android:label="Scanner"
             android:screenOrientation="portrait"
-            android:theme="@style/App2Theme"></activity>
+            android:theme="@style/App2Theme" />
         <activity
             android:name=".activity.AlarmActivity"
             android:label="Alarm"
             android:screenOrientation="portrait"
-            android:theme="@style/App2Theme"></activity>
+            android:theme="@style/App2Theme" />
         <activity
             android:name=".activity.RecordActivity"
             android:label="Record"
             android:screenOrientation="portrait"
-            android:theme="@style/App2Theme"></activity>
+            android:theme="@style/App2Theme" />
         <activity
             android:name=".activity.AboutActivity"
             android:label="About"
             android:screenOrientation="portrait"
-            android:theme="@style/App2Theme"></activity>
+            android:theme="@style/App2Theme" />
         <activity
             android:name=".activity.HelpActivity"
             android:label="Help"
             android:screenOrientation="portrait"
-            android:theme="@style/App2Theme"></activity>
+            android:theme="@style/App2Theme" />
 
         <!--
         来电悬浮窗暂关闭
@@ -179,11 +179,20 @@
         <activity
             android:name=".activity.addSosActivity"
             android:label="@string/title_activity_add_sos"
-            android:theme="@style/App2Theme"></activity>
+            android:theme="@style/App2Theme" />
         <activity
             android:name=".activity.BindListActivity"
             android:label="@string/title_activity_bind_list"
+            android:theme="@style/App2Theme" />
+        <activity
+            android:name=".activity.FindActivity"
+            android:label="@string/title_activity_find"
             android:theme="@style/App2Theme"></activity>
+
+        <service
+            android:name=".service.LocationService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
