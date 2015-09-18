@@ -189,10 +189,6 @@
             android:label="@string/title_activity_find"
             android:theme="@style/App2Theme"></activity>
 
-        <service
-            android:name=".service.LocationService"
-            android:enabled="true"
-            android:exported="true"></service>
     </application>
 
 </manifest>

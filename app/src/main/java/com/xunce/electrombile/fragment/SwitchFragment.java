@@ -5,13 +5,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,13 +27,10 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
-import com.xunce.electrombile.Base.config.Common;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.UniversalTool.VibratorUtil;
 import com.xunce.electrombile.activity.FragmentActivity;
-import com.xunce.electrombile.service.LocationService;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.ui.utils.DialogUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultListener {
@@ -86,23 +80,12 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         // 初始化搜索模块，注册事件监听
         mSearch = GeoCoder.newInstance();
         mSearch.setOnGetGeoCodeResultListener(this);
-        startLocationService();
 
         //设置报警进度框初始化
         setAlarmDialog = new ProgressDialog(m_context);
         setAlarmDialog.setMessage("正在设置，请稍后......");
     }
 
-    private void startLocationService() {
-        // 注册广播
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Common.LOCATION_ACTION);
-        m_context.registerReceiver(new LocationBroadcastReceiver(), filter);
-        // 启动服务
-        Intent intent = new Intent();
-        intent.setClass(m_context, LocationService.class);
-        m_context.startService(intent);
-    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -273,19 +256,6 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             VibratorUtil.Vibrate(getActivity(), 500);
             iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
             setManager.setAlarmFlag(false);
-        }
-    }
-
-    private class LocationBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (!intent.getAction().equals(Common.LOCATION_ACTION)) return;
-            String locationInfo = intent.getStringExtra(Common.LOCATION);
-//            text.setText(locationInfo);
-//            dialog.dismiss();
-            Log.e(TAG, locationInfo);
-            m_context.unregisterReceiver(this);// 不需要时注销
         }
     }
 
