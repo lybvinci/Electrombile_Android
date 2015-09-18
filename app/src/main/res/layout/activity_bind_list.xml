@@ -20,12 +20,12 @@
             android:textSize="25sp" />
     </RelativeLayout>
 
-    <com.xunce.electrombile.widget.RefreshableView
+    <com.xunce.electrombile.view.RefreshableView
         android:id="@+id/refreshable_view"
-        android:orientation="vertical"
-        android:layout_below="@id/title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/title"
+        android:orientation="vertical">
 
         <ListView
             android:id="@+id/list_view_bind_list"
@@ -33,23 +33,23 @@
             android:layout_height="match_parent"
             android:layout_below="@id/title"></ListView>
 
-    </com.xunce.electrombile.widget.RefreshableView>
+    </com.xunce.electrombile.view.RefreshableView>
     <TextView
         android:id="@+id/tv_default"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_centerInParent="true"
+        android:layout_gravity="center"
         android:text="空空如也！"
         android:textSize="25dp" />
 
     <Button
-        android:layout_gravity="center"
         android:id="@+id/add_equip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
         android:layout_marginBottom="20dp"
         android:onClick="addEquip"
         android:text="添加设备" />

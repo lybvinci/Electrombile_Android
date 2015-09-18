@@ -18,9 +18,9 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
 import com.avos.avoscloud.SaveCallback;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.xpg.common.useful.JSONUtils;
-import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
+import com.xunce.electrombile.utils.useful.JSONUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
+import com.xunce.electrombile.utils.system.ToastUtils;
 
 import java.util.List;
 
@@ -42,12 +42,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
  //   private String passcode;
     /** The progress dialog. */
     private ProgressDialog progressDialog;
-
-    private enum handler_key{
-        START_BIND,
-        SUCCESS,
-        FAILED,
-    }
     //自动重登的次数
     private int times = 0;
 //绑定步骤：
@@ -89,7 +83,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
           }
       }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,6 +200,7 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         });
       //  mCenter.cBindDevice(setManager.getUid(),setManager.getToken(),IMEI,passcode,"");
     }
+
     /**
      * 扫描结果处理
      */
@@ -231,7 +225,6 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
             ToastUtils.showShort(BindingActivity.this, "扫描失败，请重新扫描！");
         }
     }
-
 
     @Override
     public void onBackPressed() {
@@ -265,5 +258,11 @@ public class BindingActivity extends BaseActivity implements View.OnClickListene
         }else{
             builder = null;
         }
+    }
+
+    private enum handler_key {
+        START_BIND,
+        SUCCESS,
+        FAILED,
     }
 }

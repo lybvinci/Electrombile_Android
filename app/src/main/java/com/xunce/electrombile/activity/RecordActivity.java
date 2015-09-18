@@ -20,13 +20,13 @@ import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
-import com.xunce.electrombile.Base.TracksData;
-import com.xunce.electrombile.Base.sdk.SettingManager;
-import com.xunce.electrombile.Base.utils.TracksManager;
-import com.xunce.electrombile.Base.utils.TracksManager.TrackPoint;
+import com.xunce.electrombile.data.TracksData;
+import com.xunce.electrombile.manager.SettingManager;
+import com.xunce.electrombile.manager.TracksManager;
+import com.xunce.electrombile.manager.TracksManager.TrackPoint;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.fragment.MaptabFragment;
-import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,31 +57,23 @@ public class RecordActivity extends Activity{
     //查询的开始和结束时间
     Date startT;
     Date endT;
-
-    //等待对话框
-    private ProgressDialog watiDialog;
-
     //生成动态数组，加入数据
     ArrayList<HashMap<String, Object>> listItem;
-
     //数据适配器
     SimpleAdapter listItemAdapter;
-
     //用来获取时间
     Calendar can;
-
     //查询失败对话框
     Dialog dialog;
-
     //管理应用数据的类
     SettingManager sm;
-
     SimpleDateFormat sdfWithSecond;
     SimpleDateFormat sdf;
-
     //需要跳过的个数
     int totalSkip;
     List<AVObject> totalAVObjects;
+    //等待对话框
+    private ProgressDialog watiDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

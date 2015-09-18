@@ -37,14 +37,14 @@ import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
-import com.xunce.electrombile.Base.utils.StringUtils;
-import com.xunce.electrombile.Data.WeatherData;
+import com.xunce.electrombile.utils.useful.StringUtils;
+import com.xunce.electrombile.data.WeatherData;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.UniversalTool.VibratorUtil;
+import com.xunce.electrombile.utils.device.VibratorUtil;
 import com.xunce.electrombile.activity.FragmentActivity;
-import com.xunce.electrombile.xpg.common.useful.JSONUtils;
-import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
+import com.xunce.electrombile.utils.useful.JSONUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
+import com.xunce.electrombile.utils.system.ToastUtils;
 
 public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultListener {
 

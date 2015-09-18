@@ -1,18 +1,15 @@
 package com.xunce.electrombile.fragment;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.baidu.mapapi.model.LatLng;
-import com.xunce.electrombile.Base.sdk.CmdCenter;
-import com.xunce.electrombile.Base.sdk.SettingManager;
-import com.xunce.electrombile.Base.utils.TracksManager;
+import com.xunce.electrombile.manager.CmdCenter;
+import com.xunce.electrombile.manager.SettingManager;
+import com.xunce.electrombile.manager.TracksManager;
 
 
 /**
@@ -28,10 +25,11 @@ import com.xunce.electrombile.Base.utils.TracksManager;
 public class BaseFragment extends Fragment{
 
     private static String TAG = "BaseFragmet";
+    //判断是否关闭页面
+    public boolean close = false;
     protected CmdCenter mCenter;
     protected SettingManager setManager;
     protected GPSDataChangeListener mGpsChangedListener;
-
 
     @Override
     public void onCreate(Bundle saveInstanceState){
@@ -41,22 +39,16 @@ public class BaseFragment extends Fragment{
 
     }
 
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    //判断是否关闭页面
-    public boolean close = false;
    @Override
         public void onResume() {
             super.onResume();
         }
 
-    public interface GPSDataChangeListener{
-         void gpsCallBack(LatLng desLat,TracksManager.TrackPoint trackPoint);
-    }
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -82,6 +74,10 @@ public class BaseFragment extends Fragment{
     public void onStop() {
         super.onStop();
         close = true;
+    }
+
+    public interface GPSDataChangeListener {
+        void gpsCallBack(LatLng desLat, TracksManager.TrackPoint trackPoint);
     }
 }
 

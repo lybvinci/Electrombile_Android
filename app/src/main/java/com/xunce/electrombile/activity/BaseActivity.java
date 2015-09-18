@@ -7,11 +7,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-import com.xunce.electrombile.Base.sdk.CmdCenter;
-import com.xunce.electrombile.Base.sdk.SettingManager;
-import com.xunce.electrombile.Base.utils.Historys;
-import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
+import com.xunce.electrombile.manager.CmdCenter;
+import com.xunce.electrombile.manager.SettingManager;
+import com.xunce.electrombile.applicatoin.Historys;
+import com.xunce.electrombile.utils.system.ToastUtils;
 
 /**
  * 所有activity的基类。
@@ -21,20 +20,16 @@ import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
  */
 public class BaseActivity extends Activity {
 
-	private boolean isExit = false;
     public AlertDialog.Builder builder;
-
 	/**
 	 * 指令管理器.
 	 */
 	protected CmdCenter mCenter;
-
 	/**
 	 * SharePreference处理类.
 	 */
 	protected SettingManager setManager;
-
-
+	private boolean isExit = false;
 	/** The handler. */
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {

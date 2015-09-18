@@ -28,20 +28,20 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
 import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
-import com.xunce.electrombile.Base.sdk.CmdCenter;
-import com.xunce.electrombile.Base.sdk.SettingManager;
-import com.xunce.electrombile.Base.utils.Historys;
-import com.xunce.electrombile.Base.utils.TracksManager;
+import com.xunce.electrombile.manager.CmdCenter;
+import com.xunce.electrombile.manager.SettingManager;
+import com.xunce.electrombile.applicatoin.Historys;
+import com.xunce.electrombile.manager.TracksManager;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.Updata.UpdateAppService;
+import com.xunce.electrombile.service.UpdateAppService;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 import com.xunce.electrombile.service.PushService;
-import com.xunce.electrombile.viewpager.CustomViewPager;
-import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
+import com.xunce.electrombile.view.viewpager.CustomViewPager;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
+import com.xunce.electrombile.utils.system.ToastUtils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -70,36 +70,63 @@ import io.yunba.android.manager.YunBaManager;
  */
 
 public class FragmentActivity extends android.support.v4.app.FragmentActivity implements SwitchFragment.GPSDataChangeListener, LocationTVClickedListener {
+    //推送通知用的
+    public static PushService pushService;
+    //保存自己的实例
+    public static FragmentActivity fragmentActivity;
     private static String TAG = "FragmentActivity:";
+    protected CmdCenter mCenter;
+    boolean isupde;
+    int a = 0;
+    //查询电子围栏
+    byte firstByteSearch = 0x00;
+    byte secondByteSearch = 0x00;
+    //my service
+    ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            //返回一个MsgService实例
+            pushService = ((PushService.MsgBinder) service).getService();
+
+        }
+    };
+    Handler MyHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle bundle = msg.getData();
+            isupde = bundle.getBoolean("isupdate");
+            if (isupde) {
+                upData();
+                isupde = false;
+            }
+
+        }
+    };
     private SwitchFragment switchFragment;
     private MaptabFragment maptabFragment;
     private SettingsFragment settingsFragment;
-
     //viewpager切换使用
     private CustomViewPager mViewPager;
     private RadioGroup main_radio;
     private int checkId = R.id.rbSwitch;
-
-    boolean isupde;
-    int a = 0;
     //退出使用
     private boolean isExit = false;
-
-    protected CmdCenter mCenter;
-
     //接收广播
     private MyReceiver receiver;
     private SettingManager setManager;
-    //推送通知用的
-    public static PushService pushService;
-
-    //查询电子围栏
-    byte firstByteSearch = 0x00;
-    byte secondByteSearch = 0x00;
-
-    //保存自己的实例
-    public static FragmentActivity fragmentActivity;
-
+    /**
+     * The handler. to process exit()
+     */
+    private Handler exitHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            isExit = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,21 +226,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }
     }
 
-    //my service
-    ServiceConnection conn = new ServiceConnection() {
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            //返回一个MsgService实例
-            pushService = ((PushService.MsgBinder) service).getService();
-
-        }
-    };
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -221,7 +233,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             NetworkUtils.networkDialog(this, true);
         }
     }
-
 
     private void registerBroadCast() {
         receiver = new MyReceiver();
@@ -233,20 +244,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             e.printStackTrace();
         }
     }
-
-
-    Handler MyHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Bundle bundle = msg.getData();
-            isupde = bundle.getBoolean("isupdate");
-            if (isupde) {
-                upData();
-                isupde = false;
-            }
-
-        }
-    };
 
     /**
      * 界面初始化
@@ -288,26 +285,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             }
         });
         main_radio.check(checkId);
-    }
-
-    class HomePagerAdapter extends FragmentPagerAdapter {
-
-        private List<Fragment> list;
-
-        public HomePagerAdapter(FragmentManager fm, List<Fragment> list) {
-            super(fm);
-            this.list = list;
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return list.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return list.size();
-        }
     }
 
     /**
@@ -444,6 +421,54 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         checkId = 1;
     }
 
+    /**
+     * 重复按下返回键退出app方法
+     */
+    public void exit() {
+        if (!isExit) {
+            isExit = true;
+            Toast.makeText(getApplicationContext(),
+                    "退出程序", Toast.LENGTH_SHORT).show();
+            exitHandler.sendEmptyMessageDelayed(0, 2000);
+        } else {
+            switchFragment.cancelNotification();
+            unregisterReceiver(receiver);
+            //此方法会不在onDestory中调用，所以放在结束任务之前使用
+            if (!setManager.getIMEI().isEmpty()) {
+                pushService.actionStop(this);
+                unbindService(conn);
+            }
+            if (TracksManager.getTracks() != null) TracksManager.clearTracks();
+
+            //返回桌面
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(intent);
+            Historys.exit();
+        }
+    }
+
+    class HomePagerAdapter extends FragmentPagerAdapter {
+
+        private List<Fragment> list;
+
+        public HomePagerAdapter(FragmentManager fm, List<Fragment> list) {
+            super(fm);
+            this.list = list;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return list.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+    }
+
     public class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -536,42 +561,5 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             }
         }
     }
-
-    /**
-     * 重复按下返回键退出app方法
-     */
-    public void exit() {
-        if (!isExit) {
-            isExit = true;
-            Toast.makeText(getApplicationContext(),
-                    "退出程序", Toast.LENGTH_SHORT).show();
-            exitHandler.sendEmptyMessageDelayed(0, 2000);
-        } else {
-            switchFragment.cancelNotification();
-            unregisterReceiver(receiver);
-            //此方法会不在onDestory中调用，所以放在结束任务之前使用
-            if (!setManager.getIMEI().isEmpty()) {
-                pushService.actionStop(this);
-                unbindService(conn);
-            }
-            if (TracksManager.getTracks() != null) TracksManager.clearTracks();
-
-            //返回桌面
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            this.startActivity(intent);
-            Historys.exit();
-        }
-    }
-
-    /**
-     * The handler. to process exit()
-     */
-    private Handler exitHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            isExit = false;
-        }
-    };
 
 }

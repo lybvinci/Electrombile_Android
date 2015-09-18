@@ -31,12 +31,12 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
 import com.avos.avoscloud.LogUtil;
-import com.xunce.electrombile.Base.utils.StringUtils;
+import com.xunce.electrombile.utils.useful.StringUtils;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
-import com.xunce.electrombile.xpg.common.system.IntentUtils;
-import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
+import com.xunce.electrombile.utils.system.IntentUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
 
 
 /**

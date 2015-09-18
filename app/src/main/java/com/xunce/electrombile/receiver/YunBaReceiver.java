@@ -6,7 +6,7 @@ import android.content.Intent;
 
 import com.avos.avoscloud.LogUtil;
 import com.xunce.electrombile.activity.AlarmActivity;
-import com.xunce.electrombile.xpg.common.device.DeviceUtils;
+import com.xunce.electrombile.utils.device.DeviceUtils;
 
 import io.yunba.android.manager.YunBaManager;
 

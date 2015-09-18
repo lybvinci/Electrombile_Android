@@ -14,23 +14,21 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.xunce.electrombile.Base.sdk.CmdCenter;
+import com.xunce.electrombile.manager.CmdCenter;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
+import com.xunce.electrombile.utils.system.ToastUtils;
 
 import java.util.ArrayList;
 
 public class addSosActivity extends Activity {
 
-    private EditText et_addSOS;
-    private ListView lv_SOS;
-    private CmdCenter mCenter;
-
+    public static ProgressDialog SOSWaitDialog;
     //因为需要在fragmentAct中调用，所以设置为静态。如果有更好的方法，后续添加修改。
     private static MyAdapter mAdapter;
     private static ArrayList<String> arrayListSOS;
-
-
+    private EditText et_addSOS;
+    private ListView lv_SOS;
+    private CmdCenter mCenter;
     //发送命令所需要的命令序
     private byte firstByteSOSAdd = 0x00;
     private byte secondByteSOSAdd = 0x00;
@@ -38,8 +36,27 @@ public class addSosActivity extends Activity {
     private byte secondByteSOSDelete = 0x00;
     private byte firstByteSearch = 0x00;
     private byte secondByteSearch = 0x00;
-    public static ProgressDialog SOSWaitDialog;
 
+    //取消等待框，并且刷新界面
+    public static void cancelDialog(String data) {
+        SOSWaitDialog.dismiss();
+        String[] s1 = data.split(":");
+        if (s1.length > 1) {
+            String[] s2 = s1[1].split(",");
+            if (s2.length > 0) {
+                for (String s : s2) {
+                    if (s.length() >= 11)
+                        arrayListSOS.add(s);
+                }
+            }
+        }
+        mAdapter.notifyDataSetChanged();
+    }
+
+    //取消等待框
+    public static void cancelDialog() {
+        SOSWaitDialog.dismiss();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +81,6 @@ public class addSosActivity extends Activity {
         SOSWaitDialog = new ProgressDialog(this);
         SOSWaitDialog.setMessage(getString(R.string.wait_for_i_miss));
     }
-
 
     //添加管理员
     public void addSOS(View view){
@@ -93,7 +109,7 @@ public class addSosActivity extends Activity {
         for(int i=1;i< arrayListSOS.size();i++){
             phone = "," + phone;
         }
-        FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerAdd(serial,phone));
+        FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerAdd(serial, phone));
         SOSWaitDialog.show();
         mAdapter.notifyDataSetChanged();
     }
@@ -129,6 +145,13 @@ public class addSosActivity extends Activity {
                     }
                 }).create();
         dialog2.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        SOSWaitDialog = null;
+        mAdapter = null;
+        super.onDestroy();
     }
 
     //列表适配器
@@ -175,33 +198,5 @@ public class addSosActivity extends Activity {
             });
             return mView;
         }
-    }
-
-    //取消等待框，并且刷新界面
-    public static void cancelDialog(String data){
-        SOSWaitDialog.dismiss();
-        String[] s1 = data.split(":");
-        if(s1.length>1) {
-            String[] s2 = s1[1].split(",");
-            if(s2.length>0) {
-                for (String s : s2) {
-                    if(s.length()>=11)
-                        arrayListSOS.add(s);
-                }
-            }
-        }
-        mAdapter.notifyDataSetChanged();
-    }
-
-    //取消等待框
-    public static void cancelDialog(){
-        SOSWaitDialog.dismiss();
-    }
-
-    @Override
-    protected void onDestroy() {
-        SOSWaitDialog = null;
-        mAdapter = null;
-        super.onDestroy();
     }
 }

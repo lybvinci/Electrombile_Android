@@ -8,7 +8,7 @@ import android.os.Handler;
 import com.avos.avoscloud.AVUser;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.account.LoginActivity;
-import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
 
 import im.fir.sdk.FIR;
 

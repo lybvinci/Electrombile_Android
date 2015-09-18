@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
@@ -21,7 +20,6 @@ import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.DeleteCallback;
 import com.avos.avoscloud.FindCallback;
-import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BindListActivity;
 import com.xunce.electrombile.activity.BindingActivity;
@@ -30,10 +28,8 @@ import com.xunce.electrombile.activity.FindActivity;
 import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
 import com.xunce.electrombile.activity.addSosActivity;
-import com.xunce.electrombile.xpg.common.device.DeviceUtils;
-import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.ui.utils.DialogUtils;
-import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
+import com.xunce.electrombile.utils.system.ToastUtils;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;

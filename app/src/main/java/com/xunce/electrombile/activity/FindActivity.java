@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.RatingBar;
 
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.widget.RadarView;
+import com.xunce.electrombile.view.RadarView;
 
 import java.util.Random;
 
@@ -19,6 +19,33 @@ public class FindActivity extends Activity {
     private RadarView radarView;
     private boolean isFinding = false;
     private RatingBar ratingBar;
+    Handler refreshRatingBar = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            float next = (float) msg.obj;
+            Log.e("", "next:" + next);
+            ratingBar.setRating(next);
+        }
+    };
+    Thread myThread = new Thread() {
+        Random rand = new Random();
+
+        @Override
+        public void run() {
+            while (true) {
+                float f = rand.nextFloat() * 10;
+                Log.e("", "next:" + f);
+                Message msg = Message.obtain();
+                msg.obj = f;
+                refreshRatingBar.sendMessage(msg);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +54,6 @@ public class FindActivity extends Activity {
         initView();
         initEvent();
     }
-
 
     private void initView() {
         radarView = (RadarView) findViewById(R.id.radarView);
@@ -55,33 +81,4 @@ public class FindActivity extends Activity {
         super.onDestroy();
         radarView.destoryThread();
     }
-
-    Thread myThread = new Thread() {
-        Random rand = new Random();
-
-        @Override
-        public void run() {
-            while (true) {
-                float f = rand.nextFloat() * 10;
-                Log.e("", "next:" + f);
-                Message msg = Message.obtain();
-                msg.obj = f;
-                refreshRatingBar.sendMessage(msg);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
-
-    Handler refreshRatingBar = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            float next = (float) msg.obj;
-            Log.e("", "next:" + next);
-            ratingBar.setRating(next);
-        }
-    };
 }

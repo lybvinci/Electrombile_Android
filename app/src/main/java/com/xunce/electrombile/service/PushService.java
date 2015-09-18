@@ -12,7 +12,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.http.AndroidHttpClient;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,23 +20,20 @@ import android.util.Log;
 
 import com.avos.avoscloud.LogUtil;
 import com.ibm.mqtt.IMqttClient;
-import com.ibm.mqtt.Mqtt;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttPersistence;
 import com.ibm.mqtt.MqttPersistenceException;
 import com.ibm.mqtt.MqttSimpleCallback;
-import com.xunce.electrombile.Base.sdk.CmdCenter;
-import com.xunce.electrombile.Base.sdk.SettingManager;
+import com.xunce.electrombile.manager.CmdCenter;
+import com.xunce.electrombile.manager.SettingManager;
+import com.xunce.electrombile.data.ConnectionLog;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.FragmentActivity;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Random;
 import java.util.TimeZone;
 
 /* 
@@ -48,9 +44,33 @@ import java.util.TimeZone;
 public class PushService extends Service {
     // this is the log tag
     public static final String TAG = "PushService";
-
+    // We store in the preferences, whether or not the service has been started
+    public static final String PREF_STARTED = "isStarted";
+    // We also store the deviceID (target)
+    public static final String PREF_DEVICE_ID = "deviceID";
+    // We store the last retry interval
+    public static final String PREF_RETRY = "retryInterval";
     // the IP address, where your MQTT broker is running.
     private static final String MQTT_HOST = "server.xiaoan110.com";
+    // This the application level keep-alive interval, that is used by the AlarmManager
+    // to keep the connection active, even when the device goes to sleep.
+    private static final long KEEP_ALIVE_INTERVAL = 1000 * 60 * 28;
+    // Retry intervals, when the connection is lost.
+    private static final long INITIAL_RETRY_INTERVAL = 1000 * 10;
+    private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60 * 30;
+    // Notification id
+    private static final int NOTIF_CONNECTED = 0;
+    // MQTT client ID, which is given the broker. In this example, I also use this for the topic header.
+    // You can use this to run push notifications for multiple apps with one MQTT broker.
+    public static String MQTT_CLIENT_ID = "";
+
+    // These are the actions for the service (name are descriptive enough)
+    private static final String ACTION_START = MQTT_CLIENT_ID + ".START";
+    private static final String ACTION_STOP = MQTT_CLIENT_ID + ".STOP";
+    private static final String ACTION_KEEPALIVE = MQTT_CLIENT_ID + ".KEEP_ALIVE";
+    private static final String ACTION_RECONNECT = MQTT_CLIENT_ID + ".RECONNECT";
+    // Notification title
+    public static String NOTIF_TITLE = "安全宝";
     // the port at which the broker is running.
     private static int MQTT_BROKER_PORT_NUM = 1883;
     // Let's not use the MQTT persistence.
@@ -65,59 +85,81 @@ public class PushService extends Service {
     private static int MQTT_QUALITY_OF_SERVICE = 0;
     // The broker should not retain any messages.
     private static boolean MQTT_RETAINED_PUBLISH = false;
-
-    // MQTT client ID, which is given the broker. In this example, I also use this for the topic header.
-    // You can use this to run push notifications for multiple apps with one MQTT broker.
-    public static String MQTT_CLIENT_ID = "";
-
-    // These are the actions for the service (name are descriptive enough)
-    private static final String ACTION_START = MQTT_CLIENT_ID + ".START";
-    private static final String ACTION_STOP = MQTT_CLIENT_ID + ".STOP";
-    private static final String ACTION_KEEPALIVE = MQTT_CLIENT_ID + ".KEEP_ALIVE";
-    private static final String ACTION_RECONNECT = MQTT_CLIENT_ID + ".RECONNECT";
-
+    private static IMqttClient mqttClient = null;
     // Connection log for the push service. Good for debugging.
     private ConnectionLog mLog;
-
     // Connectivity manager to determining, when the phone loses connection
     private ConnectivityManager mConnMan;
     // Notification manager to displaying arrived push notifications
     private NotificationManager mNotifMan;
-
     // Whether or not the service has been started.
     private boolean mStarted;
-
-    // This the application level keep-alive interval, that is used by the AlarmManager
-    // to keep the connection active, even when the device goes to sleep.
-    private static final long KEEP_ALIVE_INTERVAL = 1000 * 60 * 28;
-
-    // Retry intervals, when the connection is lost.
-    private static final long INITIAL_RETRY_INTERVAL = 1000 * 10;
-    private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60 * 30;
-
     // Preferences instance
     private SharedPreferences mPrefs;
-    // We store in the preferences, whether or not the service has been started
-    public static final String PREF_STARTED = "isStarted";
-    // We also store the deviceID (target)
-    public static final String PREF_DEVICE_ID = "deviceID";
-    // We store the last retry interval
-    public static final String PREF_RETRY = "retryInterval";
-
-    // Notification title
-    public static String NOTIF_TITLE = "安全宝";
-    // Notification id
-    private static final int NOTIF_CONNECTED = 0;
-
     // This is the instance of an MQTT connection.
     // lybcinci static
     private MQTTConnection mConnection;
     private long mStartTime;
-
-    private static IMqttClient mqttClient = null;
     private SettingManager settingManager;
     private CmdCenter mCenter;
+    // This receiver listeners for network changes and updates the MQTT connection
+    // accordingly
+    private BroadcastReceiver mConnectivityChanged = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get network info
+            NetworkInfo info = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
 
+            // Is there connectivity?
+            boolean hasConnectivity = (info != null && info.isConnected());
+
+            log("Connectivity changed: connected=" + hasConnectivity);
+            if (mqttClient != null && hasConnectivity)
+                sendMessage1(mCenter.cFenceSearch(new byte[]{0x00, 0x01}));
+            if (hasConnectivity) {
+                reconnectIfNecessary();
+            } else if (mConnection != null) {
+                // if there no connectivity, make sure MQTT connection is destroyed
+                mConnection.disconnect();
+                cancelReconnect();
+                mConnection = null;
+            }
+        }
+    };
+    //当数据到达时进行处理
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0x01:
+                    byte[] cmd = (byte[]) msg.obj;
+                    String data = new String(cmd);
+                    if (cmd[3] == 0x06) {
+                        handArrivedCmd(cmd);
+                        break;
+                    }
+                    if (cmd[3] == 0x03) {
+                        handArrivedCmd(cmd);
+                    } else if (data.contains("Lat:")) {
+                        cmd[3] = 0x04;
+                        handArrivedGPSString(cmd);
+                    } else if (data.contains("FENCE")) {
+                        cmd[3] = 0x01;
+                        handArrivedCmd(cmd);
+                    } else if (data.contains("SOS")) {
+                        cmd[3] = 0x05;
+                        handArrivedCmd(cmd);
+                    }
+                    break;
+                case 0x02:
+                    byte[] payload = (byte[]) msg.obj;
+                    handArrivedGPS(payload);
+                    break;
+
+            }
+        }
+    };
 
     // Static method to start the service
     public static void actionStart(Context ctx) {
@@ -139,7 +181,6 @@ public class PushService extends Service {
         i.setAction(ACTION_KEEPALIVE);
         ctx.startService(i);
     }
-
 
     @Override
     public void onCreate() {
@@ -229,15 +270,6 @@ public class PushService extends Service {
         //return null;
         return new MsgBinder();
     }
-
-    //lybvinci
-    public class MsgBinder extends Binder {
-
-        public PushService getService() {
-            return PushService.this;
-        }
-    }
-
 
     // log helper function
     private void log(String message) {
@@ -423,31 +455,6 @@ public class PushService extends Service {
         }
     }
 
-    // This receiver listeners for network changes and updates the MQTT connection
-    // accordingly
-    private BroadcastReceiver mConnectivityChanged = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Get network info
-            NetworkInfo info = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-
-            // Is there connectivity?
-            boolean hasConnectivity = (info != null && info.isConnected());
-
-            log("Connectivity changed: connected=" + hasConnectivity);
-            if (mqttClient != null && hasConnectivity)
-                sendMessage1(mCenter.cFenceSearch(new byte[]{0x00, 0x01}));
-            if (hasConnectivity) {
-                reconnectIfNecessary();
-            } else if (mConnection != null) {
-                // if there no connectivity, make sure MQTT connection is destroyed
-                mConnection.disconnect();
-                cancelReconnect();
-                mConnection = null;
-            }
-        }
-    };
-
     // Display the topbar notification
     private void showNotification(String text) {
         Notification n = new Notification();
@@ -478,6 +485,108 @@ public class PushService extends Service {
 //		}
         return info != null && info.isConnected();
     }
+
+    private void handArrivedGPSString(byte[] cmd) {
+        byte[] newData = Arrays.copyOfRange(cmd, 8, cmd.length - 1);
+        String data = new String(newData);
+        LogUtil.log.i("收到的包：" + data);
+        if (data.contains("Lat") && data.contains("Lon")
+                && data.contains("Course") && data.contains("Speed")
+                && data.contains("DateTime")) {
+            String[] strArray = data.split(",");
+            float lat = Float.parseFloat(strArray[0].substring(5));
+            float longitude = Float.parseFloat(strArray[1].substring(5));
+            String dateTime = strArray[4].substring(9);
+            Intent intent = new Intent();
+            intent.putExtra("CMD", cmd);
+            intent.putExtra("CMDORGPS", true);
+            intent.putExtra("LAT", lat);
+            intent.putExtra("LONG", longitude);
+            intent.putExtra("DATE", dateTime);
+            LogUtil.log.i("解析到的数据：LAT=" + lat + "  Long=" + longitude + "  date=" + dateTime);
+            intent.setAction("com.xunce.electrombile.service");
+            sendBroadcast(intent);
+        } else {
+            LogUtil.log.i("收到错误的包");
+            //return ;
+        }
+    }
+
+    private void handArrivedCmd(byte[] b) {
+        Intent intent = new Intent();
+        intent.putExtra("CMDORGPS", true);
+        intent.putExtra("CMD", b);
+        intent.setAction("com.xunce.electrombile.service");
+        sendBroadcast(intent);
+//		}
+    }
+
+    private void handArrivedGPS(byte[] payload) {
+        float lat = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLat(payload)) / (float) 30000.0;
+        float longitude = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLong(payload)) / (float) 30000.0;
+        Log.i(TAG, "lat=" + lat);
+        Log.i(TAG, "longitude=" + longitude);
+        String direction = mCenter.parsePushServiceDirection(payload);
+        int speed = mCenter.parsePushServiceSpeed(payload);
+        boolean isGPS = mCenter.parsePushServiceIsGPS(payload);
+        long time = mCenter.parsePushServiceTime(payload);
+        Log.i(TAG, "time=" + time);
+        SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+        String date = sdfWithSecond.format(time * 1000);
+        Intent intent = new Intent();
+        intent.putExtra("CMDORGPS", false);
+        intent.putExtra("LAT", lat);
+        intent.putExtra("LONG", longitude);
+        intent.putExtra("DATE", date);
+        intent.setAction("com.xunce.electrombile.service");
+        sendBroadcast(intent);
+    }
+
+    //lybvinci
+    public void sendMessage1(byte[] message) {
+        try {
+            if (mqttClient == null || !mqttClient.isConnected()) {
+                connect();
+            }
+
+            Log.d(TAG, "send message to  message is " + message.toString());
+            // mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
+            // message.getBytes(), 0, false);
+            mqttClient.publish("app2dev/" + settingManager.getIMEI() + "/e2link/cmd",
+                    message, 0, false);
+        } catch (MqttException e) {
+            Log.d(TAG, e.getCause() + "");
+            e.printStackTrace();
+        }
+    }
+
+    //lybvinci
+    public class MsgBinder extends Binder {
+
+        public PushService getService() {
+            return PushService.this;
+        }
+    }
+
+//	class AdvancedCallbackHandler {
+//		public void sendMessage(String clientId, String message) {
+//			try {
+//				if (mqttClient == null || !mqttClient.isConnected()) {
+//					connect();
+//				}
+//
+//				Log.d(TAG, "send message to " + clientId + ", message is " + message);
+//				// mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
+//				// message.getBytes(), 0, false);
+//				mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
+//						message.getBytes(), 0, false);
+//			} catch (MqttException e) {
+//				Log.d(TAG, e.getCause() + "");
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 
     // This inner class is a wrapper on top of MQTT client.
     private class MQTTConnection implements MqttSimpleCallback {
@@ -601,135 +710,6 @@ public class PushService extends Service {
         }
 
 
-    }
-
-    //当数据到达时进行处理
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 0x01:
-                    byte[] cmd = (byte[]) msg.obj;
-                    String data = new String(cmd);
-                    if (cmd[3] == 0x06) {
-                        handArrivedCmd(cmd);
-                        break;
-                    }
-                    if (cmd[3] == 0x03) {
-                        handArrivedCmd(cmd);
-                    } else if (data.contains("Lat:")) {
-                        cmd[3] = 0x04;
-                        handArrivedGPSString(cmd);
-                    } else if (data.contains("FENCE")) {
-                        cmd[3] = 0x01;
-                        handArrivedCmd(cmd);
-                    } else if (data.contains("SOS")) {
-                        cmd[3] = 0x05;
-                        handArrivedCmd(cmd);
-                    }
-                    break;
-                case 0x02:
-                    byte[] payload = (byte[]) msg.obj;
-                    handArrivedGPS(payload);
-                    break;
-
-            }
-        }
-    };
-
-    private void handArrivedGPSString(byte[] cmd) {
-        byte[] newData = Arrays.copyOfRange(cmd, 8, cmd.length - 1);
-        String data = new String(newData);
-        LogUtil.log.i("收到的包：" + data);
-        if (data.contains("Lat") && data.contains("Lon")
-                && data.contains("Course") && data.contains("Speed")
-                && data.contains("DateTime")) {
-            String[] strArray = data.split(",");
-            float lat = Float.parseFloat(strArray[0].substring(5));
-            float longitude = Float.parseFloat(strArray[1].substring(5));
-            String dateTime = strArray[4].substring(9);
-            Intent intent = new Intent();
-            intent.putExtra("CMD", cmd);
-            intent.putExtra("CMDORGPS", true);
-            intent.putExtra("LAT", lat);
-            intent.putExtra("LONG", longitude);
-            intent.putExtra("DATE", dateTime);
-            LogUtil.log.i("解析到的数据：LAT=" + lat + "  Long=" + longitude + "  date=" + dateTime);
-            intent.setAction("com.xunce.electrombile.service");
-            sendBroadcast(intent);
-        } else {
-            LogUtil.log.i("收到错误的包");
-            //return ;
-        }
-    }
-
-    private void handArrivedCmd(byte[] b) {
-        Intent intent = new Intent();
-        intent.putExtra("CMDORGPS", true);
-        intent.putExtra("CMD", b);
-        intent.setAction("com.xunce.electrombile.service");
-        sendBroadcast(intent);
-//		}
-    }
-
-    private void handArrivedGPS(byte[] payload) {
-        float lat = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLat(payload)) / (float) 30000.0;
-        float longitude = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLong(payload)) / (float) 30000.0;
-        Log.i(TAG, "lat=" + lat);
-        Log.i(TAG, "longitude=" + longitude);
-        String direction = mCenter.parsePushServiceDirection(payload);
-        int speed = mCenter.parsePushServiceSpeed(payload);
-        boolean isGPS = mCenter.parsePushServiceIsGPS(payload);
-        long time = mCenter.parsePushServiceTime(payload);
-        Log.i(TAG, "time=" + time);
-        SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-        String date = sdfWithSecond.format(time * 1000);
-        Intent intent = new Intent();
-        intent.putExtra("CMDORGPS", false);
-        intent.putExtra("LAT", lat);
-        intent.putExtra("LONG", longitude);
-        intent.putExtra("DATE", date);
-        intent.setAction("com.xunce.electrombile.service");
-        sendBroadcast(intent);
-    }
-
-//	class AdvancedCallbackHandler {
-//		public void sendMessage(String clientId, String message) {
-//			try {
-//				if (mqttClient == null || !mqttClient.isConnected()) {
-//					connect();
-//				}
-//
-//				Log.d(TAG, "send message to " + clientId + ", message is " + message);
-//				// mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
-//				// message.getBytes(), 0, false);
-//				mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
-//						message.getBytes(), 0, false);
-//			} catch (MqttException e) {
-//				Log.d(TAG, e.getCause() + "");
-//				e.printStackTrace();
-//			}
-//		}
-//	}
-
-    //lybvinci
-    public void sendMessage1(byte[] message) {
-        try {
-            if (mqttClient == null || !mqttClient.isConnected()) {
-                connect();
-            }
-
-            Log.d(TAG, "send message to  message is " + message.toString());
-            // mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
-            // message.getBytes(), 0, false);
-            mqttClient.publish("app2dev/" + settingManager.getIMEI() + "/e2link/cmd",
-                    message, 0, false);
-        } catch (MqttException e) {
-            Log.d(TAG, e.getCause() + "");
-            e.printStackTrace();
-        }
     }
 
 }

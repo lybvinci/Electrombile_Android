@@ -8,17 +8,18 @@ import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.UniversalTool.VibratorUtil;
+import com.xunce.electrombile.utils.device.VibratorUtil;
 
 
 /**
  * Created by heyukun on 2015/4/3.
  */
 public class AlarmActivity extends Activity{
+    public static AlarmActivity instance = null;
     ToggleButton btnWarmComfirm = null;
     AudioManager aManager = null;
     MediaPlayer mPlayer;
-    public static AlarmActivity instance = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

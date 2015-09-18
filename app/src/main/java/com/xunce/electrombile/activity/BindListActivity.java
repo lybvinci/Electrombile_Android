@@ -22,18 +22,18 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.DeleteCallback;
 import com.avos.avoscloud.FindCallback;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.widget.RefreshableView;
-import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
+import com.xunce.electrombile.view.RefreshableView;
+import com.xunce.electrombile.utils.system.ToastUtils;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class BindListActivity extends BaseActivity {
 
+    RefreshableView refreshableView;
     private MyAdapter mAdapter;
     private ListView bind_list;
     private TextView tv_default;
-    RefreshableView refreshableView;
     private HashMap<Integer, AVObject> bindList = null;
     private ProgressDialog progressDialog = null;
 
