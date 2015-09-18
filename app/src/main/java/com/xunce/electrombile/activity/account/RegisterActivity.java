@@ -39,12 +39,12 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogUtil;
 import com.avos.avoscloud.RequestMobileCodeCallback;
 import com.avos.avoscloud.SignUpCallback;
+import com.xunce.electrombile.Base.utils.StringUtils;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.common.useful.StringUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.Timer;
@@ -61,129 +61,43 @@ import java.util.TimerTask;
 public class RegisterActivity extends BaseActivity implements OnClickListener {
 
 	/**
-	 * The tv phone switch.
+     * 验证码重发倒计时
+     */
+    int secondleft = 60;
+    /**
+     * The timer.
+     */
+    Timer timer;
+    /**
+     * The dialog.
+     */
+    ProgressDialog dialog;
+    /**
+     * The tv phone switch.
 	 */
 	private TextView tvPhoneSwitch;
-
 	/** The tv tips. */
 	private TextView tvTips;
-
 	/**
 	 * The et name.
 	 */
 	private EditText etName;
-
 	/**
 	 * The et input code.
 	 */
 	private EditText etInputCode;
-
 	/**
 	 * The et input psw.
 	 */
 	private EditText etInputPsw;
-
 	/**
 	 * The btn get code.
 	 */
 	private Button btnGetCode;
-
 	/**
 	 * The btn re get code.
 	 */
 	private Button btnReGetCode;
-
-	/**
-	 * The btn sure.
-	 */
-	private Button btnSure;
-
-	/**
-	 * The ll input code.
-	 */
-	private LinearLayout llInputCode;
-
-	/**
-	 * The ll input psw.
-	 */
-	private LinearLayout llInputPsw;
-
-	/**
-	 * The tb psw flag.
-	 */
-	private ToggleButton tbPswFlag;
-
-	/**
-	 * 是否邮箱注册标识位
-	 */
-	private boolean isEmail = false;
-
-	/**
-	 * 验证码重发倒计时
-	 */
-	int secondleft = 60;
-
-	/**
-	 * The timer.
-	 */
-	Timer timer;
-
-	/**
-	 * The dialog.
-	 */
-	ProgressDialog dialog;
-
-	/**
-	 * ClassName: Enum handler_key. <br/>
-	 * <br/>
-	 * date: 2014-11-26 17:51:10 <br/>
-	 * 
-	 * @author Lien
-	 */
-	private enum handler_key {
-
-		/**
-		 * 倒计时通知
-		 */
-		TICK_TIME,
-
-		/**
-		 * 注册成功
-		 */
-		REG_SUCCESS,
-
-		/**
-		 * Toast弹出通知
-		 */
-		TOAST,
-
-	}
-
-	/**
-	 * ClassName: Enum ui_statu. <br/>
-	 * <br/>
-	 * date: 2014-12-3 10:52:52 <br/>
-	 * 
-	 * @author Lien
-	 */
-	private enum ui_statue {
-
-		/**
-		 * 默认状态
-		 */
-		DEFAULT,
-
-		/**
-		 * 手机注册
-		 */
-		PHONE,
-
-		/**
-		 * email注册
-		 */
-		EMAIL,
-	}
-
 	/**
 	 * The handler.
 	 */
@@ -218,9 +132,30 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
                 ToastUtils.showShort(RegisterActivity.this, (String) msg.obj);
 				dialog.cancel();
 				break;
-			}
-		}
-	};
+            }
+        }
+    };
+    /**
+     * The btn sure.
+     */
+    private Button btnSure;
+    /**
+     * The ll input code.
+     */
+    private LinearLayout llInputCode;
+    /**
+     * The ll input psw.
+     */
+    private LinearLayout llInputPsw;
+    /**
+     * The tb psw flag.
+     */
+    private ToggleButton tbPswFlag;
+    /**
+     * 是否邮箱注册标识位
+     */
+    private boolean isEmail = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.activity_register);
@@ -253,20 +188,20 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		btnSure.setOnClickListener(this);
 		tbPswFlag.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if (isChecked) {
-					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
-							| InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-				} else {
-					etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
-							| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-				}
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                if (isChecked) {
+                    etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
+                            | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                } else {
+                    etInputPsw.setInputType(InputType.TYPE_CLASS_TEXT
+                            | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                }
 
-			}
+            }
 
-		});
+        });
 	}
 
 	@Override
@@ -287,7 +222,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 		}
 
 	}
-
 
     //验证短信验证码
     private void verifySmsCode() {
@@ -361,7 +295,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
             }
         }, 1000, 1000);
         //此方法会再次发送验证短信
-        AVUser.requestMobilePhoneVerifyInBackground(phone,new RequestMobileCodeCallback() {
+        AVUser.requestMobilePhoneVerifyInBackground(phone, new RequestMobileCodeCallback() {
             @Override
             public void done(AVException e) {
                 if (e == null) {
@@ -378,8 +312,6 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
             }
         });
     }
-
-
 
     /**
 	 * 处理发送验证码动作
@@ -426,6 +358,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
             }
         });
     }
+
     /**
      * 改变布局
      *
@@ -460,18 +393,70 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
             tvTips.setVisibility(View.VISIBLE);
         }
     }
+
     @Override
     protected void onStart() {
         super.onStart();
         if(!NetworkUtils.isNetworkConnected(this)){
-            if(builder == null) {
+            if (builder == null) {
                 builder = NetworkUtils.networkDialogNoCancel(this);
-            }else{
+            } else {
                 builder.show();
             }
-        }else{
+        } else {
             builder = null;
         }
     }
+
+    /**
+     * ClassName: Enum handler_key. <br/>
+     * <br/>
+     * date: 2014-11-26 17:51:10 <br/>
+     *
+     * @author Lien
+     */
+    private enum handler_key {
+
+        /**
+         * 倒计时通知
+         */
+        TICK_TIME,
+
+        /**
+         * 注册成功
+         */
+        REG_SUCCESS,
+
+        /**
+         * Toast弹出通知
+         */
+        TOAST,
+
+    }
+
+    /**
+     * ClassName: Enum ui_statu. <br/>
+     * <br/>
+     * date: 2014-12-3 10:52:52 <br/>
+     *
+     * @author Lien
+     */
+    private enum ui_statue {
+
+        /**
+         * 默认状态
+         */
+        DEFAULT,
+
+        /**
+         * 手机注册
+         */
+        PHONE,
+
+		/**
+         * email注册
+		 */
+		EMAIL,
+	}
 
 }

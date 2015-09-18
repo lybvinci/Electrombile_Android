@@ -18,7 +18,6 @@
 package com.xunce.electrombile.activity.account;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -28,7 +27,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -39,10 +37,10 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogUtil;
 import com.avos.avoscloud.RequestMobileCodeCallback;
 import com.avos.avoscloud.UpdatePasswordCallback;
+import com.xunce.electrombile.Base.utils.StringUtils;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.common.useful.StringUtils;
 import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 import java.util.Timer;
@@ -62,121 +60,42 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 	// private TextView tvPhoneSwitch;
 
 	/**
+	 * The secondleft.
+	 */
+	int secondleft = 60;
+	/**
+	 * The timer.
+	 */
+	Timer timer;
+	/**
+	 * The dialog.
+	 */
+	ProgressDialog dialog;
+	/**
 	 * The et name.
 	 */
 	private EditText etName;
-
 	/**
 	 * The et input code.
 	 */
 	private EditText etInputCode;
-
 	/**
 	 * The et input psw.
 	 */
 	private EditText etInputPsw;
-
 	/**
 	 * The btn get code.
 	 */
 	private Button btnGetCode;
-
 	/**
 	 * The btn re get code.
 	 */
 	private Button btnReGetCode;
 
 	/**
-	 * The btn sure.
-	 */
-	private Button btnSure;
-
-	/**
-	 * The ll input code.
-	 */
-	private LinearLayout llInputCode;
-
-	/**
-	 * The ll input psw.
-	 */
-	private LinearLayout llInputPsw;
-
-	/**
 	 * The iv back.
 	 */
 	//private ImageView ivBack;
-
-	/**
-	 * The tb psw flag.
-	 */
-	private ToggleButton tbPswFlag;
-
-	/**
-	 * The secondleft.
-	 */
-	int secondleft = 60;
-
-	/**
-	 * The timer.
-	 */
-	Timer timer;
-
-	/**
-	 * The dialog.
-	 */
-	ProgressDialog dialog;
-
-	/**
-	 * ClassName: Enum handler_key. <br/>
-	 * <br/>
-	 * date: 2014-11-26 17:51:10 <br/>
-	 * 
-	 * @author Lien
-	 */
-	private enum handler_key {
-
-		/**
-		 * 倒计时通知
-		 */
-		TICK_TIME,
-
-		/**
-		 * 修改成功
-		 */
-		CHANGE_SUCCESS,
-
-		/**
-		 * Toast弹出通知
-		 */
-		TOAST,
-
-	}
-
-	/**
-	 * ClassName: Enum ui_statu. <br/>
-	 * UI状态枚举类<br/>
-	 * date: 2014-12-3 10:52:52 <br/>
-	 * 
-	 * @author Lien
-	 */
-	private enum ui_statu {
-
-		/**
-		 * 默认状态
-		 */
-		DEFAULT,
-
-		/**
-		 * 手机注册的用户
-		 */
-		PHONE,
-
-		/**
-		 * email注册的用户
-		 */
-		EMAIL,
-	}
-
 	/**
 	 * The handler.
 	 */
@@ -211,10 +130,26 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 			}
 		}
 	};
+	/**
+	 * The btn sure.
+	 */
+	private Button btnSure;
+	/**
+	 * The ll input code.
+	 */
+	private LinearLayout llInputCode;
+	/**
+	 * The ll input psw.
+	 */
+	private LinearLayout llInputPsw;
+	/**
+	 * The tb psw flag.
+	 */
+	private ToggleButton tbPswFlag;
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * com.gizwits.framework.activity.BaseActivity#onCreate(android.os.Bundle)
 	 */
@@ -258,7 +193,7 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView,
-							boolean isChecked) {
+												 boolean isChecked) {
 						if (isChecked) {
 							etInputPsw
 									.setInputType(InputType.TYPE_CLASS_TEXT
@@ -274,7 +209,7 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see android.view.View.OnClickListener#onClick(android.view.View)
 	 */
 	@Override
@@ -357,7 +292,7 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 
 	/**
 	 * 发送验证码
-	 * 
+	 *
 	 * @param phone
 	 *            the phone
 	 */
@@ -377,22 +312,22 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 		}, 1000, 1000);
 		//发送请求验证码指令
         AVUser.requestPasswordResetBySmsCodeInBackground(phone, new RequestMobileCodeCallback() {
-            @Override
-            public void done(AVException e) {
-                if (e == null) {
-                    Message msg = new Message();
-			        msg.what = handler_key.TOAST.ordinal();
-			        msg.obj = "发送成功";
-			        handler.sendMessage(msg);
-                } else {
-                    LogUtil.log.i(e.toString());
-                    Message msg = new Message();
-                    msg.what = handler_key.TOAST.ordinal();
-                    msg.obj = "发送失败";
-                    handler.sendMessage(msg);
-                }
-            }
-        });
+			@Override
+			public void done(AVException e) {
+				if (e == null) {
+					Message msg = new Message();
+					msg.what = handler_key.TOAST.ordinal();
+					msg.obj = "发送成功";
+					handler.sendMessage(msg);
+				} else {
+					LogUtil.log.i(e.toString());
+					Message msg = new Message();
+					msg.what = handler_key.TOAST.ordinal();
+					msg.obj = "发送失败";
+					handler.sendMessage(msg);
+				}
+			}
+		});
 	}
 
     /**
@@ -427,8 +362,59 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
                 builder.show();
             }
         }else{
-            builder = null;
-        }
-    }
+			builder = null;
+		}
+	}
+
+	/**
+	 * ClassName: Enum handler_key. <br/>
+	 * <br/>
+	 * date: 2014-11-26 17:51:10 <br/>
+	 *
+	 * @author Lien
+	 */
+	private enum handler_key {
+
+		/**
+		 * 倒计时通知
+		 */
+		TICK_TIME,
+
+		/**
+		 * 修改成功
+		 */
+		CHANGE_SUCCESS,
+
+		/**
+		 * Toast弹出通知
+		 */
+		TOAST,
+
+	}
+
+	/**
+	 * ClassName: Enum ui_statu. <br/>
+	 * UI状态枚举类<br/>
+	 * date: 2014-12-3 10:52:52 <br/>
+	 *
+	 * @author Lien
+	 */
+	private enum ui_statu {
+
+		/**
+		 * 默认状态
+		 */
+		DEFAULT,
+
+		/**
+		 * 手机注册的用户
+		 */
+		PHONE,
+
+		/**
+		 * email注册的用户
+		 */
+		EMAIL,
+	}
 
 }

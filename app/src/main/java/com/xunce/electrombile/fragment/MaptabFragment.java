@@ -61,62 +61,78 @@ import com.xunce.electrombile.xpg.ui.utils.ToastUtils;
 
 public class MaptabFragment extends BaseFragment {
 
+    public static MapView mMapView;
+    //maptabFragment 维护一组历史轨迹坐标列表
+    public static List<TrackPoint> trackDataList;
     private static String TAG = "MaptabFragment:";
     private final String KET_LONG = "lon";
     private final String KET_LAT = "lat";
-
+    //获取位置信息的http接口
+    private final String httpBase = "http://api.gizwits.com/app/devdata/";
+    public TrackPoint currentTrack;
+    //正在播放轨迹标志
+    public boolean isPlaying = false;
     //命令字计数器
     byte firstByteWhere = 0x00;
     byte secondByteWhere = 0x00;
-
-
-
-    //播放线程消息类型
-    enum handleKey {
-        CHANGEPOINT,
-        LOCATEMESSAGE,
-        HIDEINFOWINDOW,
-    }
-
-    private Context m_context;
-    //获取位置信息的http接口
-    private final String httpBase = "http://api.gizwits.com/app/devdata/";
-    public static MapView mMapView;
-    private BaiduMap mBaiduMap;
     Button btnLocation;
     Button btnRecord;
     Button btnPlay;
     Button btnPause;
     Button btnClearTrack;
-
-    //maptabFragment 维护一组历史轨迹坐标列表
-    public static List<TrackPoint> trackDataList;
-
     PlayRecordThread m_playThread;
-
     //电动车标志
     Marker markerMobile;
     MarkerOptions option2;
-    public TrackPoint currentTrack;
-
     //轨迹图层
     Overlay tracksOverlay;
-
-    //正在播放轨迹标志
-    public boolean isPlaying = false;
-
     TextView tvUpdateTime;
     TextView tvStatus;
     InfoWindow mInfoWindow;
     View markerView;
-
     //dialogs
     Dialog networkDialog;
     Dialog didDialog;
+    private Context m_context;
+    private BaiduMap mBaiduMap;
     private ProgressDialog watiDialog;
-
     //缓存布局
     private View rootView;
+    private Handler playHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            handleKey key = handleKey.values()[msg.what];
+            switch (key) {
+                case CHANGEPOINT:
+                    try {
+                        locateMobile((TrackPoint) msg.obj);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case LOCATEMESSAGE: {
+
+                    watiDialog.dismiss();
+
+                    if (msg.obj != null) {
+                        locateMobile((TrackPoint) msg.obj);
+                        break;
+                    } else {
+                        Toast.makeText(m_context,
+                                "定位数据获取失败，请重试或检查网络", Toast.LENGTH_LONG).show();
+                        break;
+                    }
+
+                }
+                case HIDEINFOWINDOW: {
+                    // mBaiduMap.hideInfoWindow();
+                    break;
+                }
+
+            }
+
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -525,6 +541,27 @@ public class MaptabFragment extends BaseFragment {
         tracksOverlay = mBaiduMap.addOverlay(polylineOption);
     }
 
+    private void pausePlay() {
+        if (m_playThread != null)
+            m_playThread.PAUSE = true;
+    }
+
+    private void continuePlay() {
+        if (m_playThread != null)
+            m_playThread.PAUSE = false;
+    }
+
+    public void cancelWaitDialog() {
+        watiDialog.dismiss();
+    }
+
+    //播放线程消息类型
+    enum handleKey {
+        CHANGEPOINT,
+        LOCATEMESSAGE,
+        HIDEINFOWINDOW,
+    }
+
     private class PlayRecordThread extends Thread {
         public boolean PAUSE = true;
         int periodMilli = 1000;
@@ -564,55 +601,5 @@ public class MaptabFragment extends BaseFragment {
                 PAUSE = true;
             }
         }
-    }
-
-    private Handler playHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            handleKey key = handleKey.values()[msg.what];
-            switch (key) {
-                case CHANGEPOINT:
-                    try {
-                        locateMobile((TrackPoint) msg.obj);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case LOCATEMESSAGE: {
-
-                    watiDialog.dismiss();
-
-                    if (msg.obj != null) {
-                        locateMobile((TrackPoint) msg.obj);
-                        break;
-                    } else {
-                        Toast.makeText(m_context,
-                                "定位数据获取失败，请重试或检查网络", Toast.LENGTH_LONG).show();
-                        break;
-                    }
-
-                }
-                case HIDEINFOWINDOW: {
-                    // mBaiduMap.hideInfoWindow();
-                    break;
-                }
-
-            }
-
-        }
-    };
-
-    private void pausePlay() {
-        if (m_playThread != null)
-            m_playThread.PAUSE = true;
-    }
-
-    private void continuePlay() {
-        if (m_playThread != null)
-            m_playThread.PAUSE = false;
-    }
-
-    public void cancelWaitDialog() {
-        watiDialog.dismiss();
     }
 }

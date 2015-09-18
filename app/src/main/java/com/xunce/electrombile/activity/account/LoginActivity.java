@@ -18,7 +18,6 @@
 package com.xunce.electrombile.activity.account;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,12 +31,12 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
 import com.avos.avoscloud.LogUtil;
+import com.xunce.electrombile.Base.utils.StringUtils;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.xpg.common.system.IntentUtils;
 import com.xunce.electrombile.xpg.common.useful.NetworkUtils;
-import com.xunce.electrombile.xpg.common.useful.StringUtils;
 
 
 /**
@@ -77,27 +76,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 	 * The dialog.
 	 */
 	private ProgressDialog dialog;
-
-	/**
-	 * ClassName: Enum handler_key. <br/>
-	 * <br/>
-	 * date: 2014-11-26 17:51:10 <br/>
-	 * 
-	 * @author Lien
-	 */
-	private enum handler_key {
-
-		/** 登陆成功. */
-		LOGIN_SUCCESS,
-
-		/** 登陆失败. */
-		LOGIN_FAIL,
-
-		/** 登录超时. */
-		LOGIN_TIMEOUT,
-
-	}
-
 	/**
 	 * The handler.
 	 */
@@ -140,8 +118,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
         super.onCreate(savedInstanceState);
 	}
 
-
-
     /**
 	 * 初始化交互监听器.
 	 */
@@ -164,7 +140,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 		tvForgot = (Button) findViewById(R.id.tvForgot);
 		btnLogin = (Button) findViewById(R.id.btnLogin);
 		btnRegister = (Button) findViewById(R.id.btnRegister);
-		
+
 		dialog = new ProgressDialog(this);
 		dialog.setMessage("登录中，请稍候...");
 		if (setManager.getUserName() != null) {
@@ -236,7 +212,8 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
 	public void onBackPressed() {
 		exit();
 	}
-    @Override
+
+	@Override
     protected void onStart() {
         super.onStart();
         if(!NetworkUtils.isNetworkConnected(this)){
@@ -249,5 +226,31 @@ public class LoginActivity extends BaseActivity implements OnClickListener {
             builder = null;
         }
     }
+
+	/**
+	 * ClassName: Enum handler_key. <br/>
+	 * <br/>
+	 * date: 2014-11-26 17:51:10 <br/>
+	 *
+	 * @author Lien
+	 */
+	private enum handler_key {
+
+		/**
+		 * 登陆成功.
+		 */
+		LOGIN_SUCCESS,
+
+		/**
+		 * 登陆失败.
+		 */
+		LOGIN_FAIL,
+
+		/**
+		 * 登录超时.
+		 */
+		LOGIN_TIMEOUT,
+
+	}
 
 }
