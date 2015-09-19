@@ -268,6 +268,12 @@ public class CmdCenter {
         return data;
     }
 
+    //开始找车 命令字是7
+    public byte[] cFindEle(byte[] serial) {
+        byte[] data = packetOrder(new byte[]{0x00, 0x07}, serial, "FIND?", "");
+        return data;
+    }
+
     //测试报警
     public byte[] cTest(byte[] serial) {
         byte[] data = packetOrder(new byte[]{0x00, -1}, serial, "AA", "");

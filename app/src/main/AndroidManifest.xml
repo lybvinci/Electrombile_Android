@@ -177,7 +177,7 @@
         </service>
 
         <activity
-            android:name=".activity.addSosActivity"
+            android:name=".activity.AddSosActivity"
             android:label="@string/title_activity_add_sos"
             android:theme="@style/App2Theme" />
         <activity

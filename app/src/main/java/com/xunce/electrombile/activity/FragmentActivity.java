@@ -551,12 +551,20 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         ToastUtils.showShort(FragmentActivity.this, "查询位置成功");
                     }
                 } else if (cmd[3] == 0x05) {
-                    addSosActivity.cancelDialog();
+                    AddSosActivity.cancelDialog();
                     ToastUtils.showShort(FragmentActivity.this, "设置管理员成功");
                 } else if (cmd[3] == 0x06) {
                     String data = new String(cmd);
                     LogUtil.log.i(data);
-                    addSosActivity.cancelDialog(data);
+                    AddSosActivity.cancelDialog(data);
+                    //找车
+                } else if (cmd[3] == 0x07) {
+                    String data = new String(cmd);
+                    LogUtil.log.i(data);
+                    Intent intent7 = new Intent();
+                    intent7.putExtra("data", data);
+                    intent7.setAction("com.xunce.electrombile.find");
+                    sendBroadcast(intent7);
                 }
             }
         }

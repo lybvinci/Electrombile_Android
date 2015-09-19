@@ -27,7 +27,7 @@ import com.xunce.electrombile.activity.AboutActivity;
 import com.xunce.electrombile.activity.FindActivity;
 import com.xunce.electrombile.activity.HelpActivity;
 import com.xunce.electrombile.activity.account.LoginActivity;
-import com.xunce.electrombile.activity.addSosActivity;
+import com.xunce.electrombile.activity.AddSosActivity;
 import com.xunce.electrombile.utils.useful.NetworkUtils;
 import com.xunce.electrombile.utils.system.ToastUtils;
 
@@ -116,7 +116,7 @@ public class SettingsFragment extends BaseFragment implements View.OnClickListen
                     ToastUtils.showShort(m_context,"请先绑定设备！");
                     return;
                 }
-                Intent intent = new Intent(m_context,addSosActivity.class);
+                Intent intent = new Intent(m_context, AddSosActivity.class);
                 startActivity(intent);
                 break;
             case R.id.layout_bind_list:

@@ -141,14 +141,21 @@ public class PushService extends Service {
                     }
                     if (cmd[3] == 0x03) {
                         handArrivedCmd(cmd);
+                        //GPS数据到达
                     } else if (data.contains("Lat:")) {
                         cmd[3] = 0x04;
                         handArrivedGPSString(cmd);
+                        //围栏信息到达
                     } else if (data.contains("FENCE")) {
                         cmd[3] = 0x01;
                         handArrivedCmd(cmd);
+                        //管理员信息到达
                     } else if (data.contains("SOS")) {
                         cmd[3] = 0x05;
+                        handArrivedCmd(cmd);
+                        //找车信息到达
+                    } else if (data.contains("")) {
+                        cmd[3] = 0x07;
                         handArrivedCmd(cmd);
                     }
                     break;

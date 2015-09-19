@@ -4,7 +4,7 @@
     >
 
 
-    <application android:name=".Base.App">
+    <application android:name=".applicatoin.App">
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="b69ZgluO9BdP1IuRyOAnCT4y" />
