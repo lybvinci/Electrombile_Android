@@ -1,0 +1,13 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.xunce.electrombile.activity.account.PersonalCenterActivity">
+
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:id="@+id/head_portrait"
+        android:onClick="changeHeadPortrait"
+        android:src="@android:drawable/sym_contact_card"/>
+</RelativeLayout>

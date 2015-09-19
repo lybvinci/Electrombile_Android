@@ -5,6 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -94,5 +98,40 @@ public class BitmapUtils {
 			inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
 		}
 		return inSampleSize;
+	}
+
+	/**
+	 * Save Bitmap to a file.保存图片到SD卡。
+	 *
+	 * @param bitmap
+	 * @return error message if the saving is failed. null if the saving is
+	 *         successful.
+	 * @throws IOException
+	 */
+	public static void saveBitmapToFile(Bitmap bitmap, String _file)
+			throws IOException {
+		BufferedOutputStream os = null;
+		try {
+			File file = new File(_file);
+			// String _filePath_file.replace(File.separatorChar +
+			// file.getName(), "");
+			int end = _file.lastIndexOf(File.separator);
+			String _filePath = _file.substring(0, end);
+			File filePath = new File(_filePath);
+			if (!filePath.exists()) {
+				filePath.mkdirs();
+			}
+			file.createNewFile();
+			os = new BufferedOutputStream(new FileOutputStream(file));
+			bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+		} finally {
+			if (os != null) {
+				try {
+					os.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

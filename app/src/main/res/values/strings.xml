@@ -114,5 +114,6 @@
     <string name="time_error">时间有问题</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_find">FindActivity</string>
+    <string name="title_activity_personal_center">PersonalCenterActivity</string>
 
 </resources>
