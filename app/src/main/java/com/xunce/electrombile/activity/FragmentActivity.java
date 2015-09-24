@@ -28,20 +28,22 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
 import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
-import com.xunce.electrombile.manager.CmdCenter;
-import com.xunce.electrombile.manager.SettingManager;
-import com.xunce.electrombile.applicatoin.Historys;
-import com.xunce.electrombile.manager.TracksManager;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.service.UpdateAppService;
+import com.xunce.electrombile.applicatoin.Historys;
+import com.xunce.electrombile.data.CmdModeSelect;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
 import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
+import com.xunce.electrombile.manager.CmdCenter;
+import com.xunce.electrombile.manager.SettingManager;
+import com.xunce.electrombile.manager.TracksManager;
 import com.xunce.electrombile.service.PushService;
-import com.xunce.electrombile.view.viewpager.CustomViewPager;
-import com.xunce.electrombile.utils.useful.NetworkUtils;
+import com.xunce.electrombile.service.UpdateAppService;
 import com.xunce.electrombile.utils.system.ToastUtils;
+import com.xunce.electrombile.utils.useful.ByteUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
+import com.xunce.electrombile.view.viewpager.CustomViewPager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -161,7 +163,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                     if (e == null && avObjects.size() > 0) {
                         setManager.setIMEI((String) avObjects.get(0).get("IMEI"));
                         Log.i(TAG + "AAAAAA", setManager.getIMEI());
-                        final String topic = "e2link_" + setManager.getIMEI();
+                        final String topic = "simcom_" + setManager.getIMEI();
                         Log.i(TAG + "SSSSSSSSSS", topic);
                         //启动服务
                         new Thread(new Runnable() {
@@ -196,7 +198,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
         } else {
             Log.i(TAG, setManager.getIMEI());
-            final String topic = "e2link_" + setManager.getIMEI();
+            final String topic = "simcom_" + setManager.getIMEI();
             Log.i(TAG + "SSSSSSSSSS", topic);
             new Thread(new Runnable() {
                 @Override
@@ -473,10 +475,13 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "接收调用");
-
             Bundle bundle = intent.getExtras();
-            boolean cmdOrGPS = bundle.getBoolean("CMDORGPS");
-            if (!cmdOrGPS) {
+            String MODE = bundle.getString(CmdModeSelect.SELECT_MODE);
+            Log.i(TAG, "MODE:" + MODE);
+            Log.i(TAG, CmdModeSelect.SELECT_MODE_GPS);
+            Log.i(TAG, (CmdModeSelect.SELECT_MODE_GPS == MODE) + "");
+
+            if (CmdModeSelect.SELECT_MODE_GPS.equals(MODE)) {
                 Log.i(TAG, "GPS？");
                 float Flat = bundle.getFloat("LAT");
                 float Flong = bundle.getFloat("LONG");
@@ -497,7 +502,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                     }
                     switchFragment.reverserGeoCedec(trackPoint.point);
                 }
-            } else {
+            } else if (CmdModeSelect.SELECT_MODE_CMD.equals(MODE)) {
                 Log.i(TAG, "弹不出来？？？");
                 byte[] cmd = bundle.getByteArray("CMD");
                 //test用
@@ -505,6 +510,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
                 //pushService.sendMessage1(mCenter.cTest(new byte[]{0x00,0x11}));
                 //  ToastUtils.showShort(FragmentActivity.this,"命令字是"+cmd[3]);
+                //开启围栏
                 if (cmd[3] == 0x01) {
                     switchFragment.cancelDialog();
                     // DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
@@ -512,6 +518,15 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         ToastUtils.showShort(FragmentActivity.this, "防盗开启成功");
                     else
                         ToastUtils.showShort(FragmentActivity.this, "防盗关闭成功");
+                    //关闭围栏
+                } else if (cmd[3] == 0x02) {
+                    switchFragment.cancelDialog();
+                    // DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
+                    if (setManager.getAlarmFlag())
+                        ToastUtils.showShort(FragmentActivity.this, "防盗开启成功");
+                    else
+                        ToastUtils.showShort(FragmentActivity.this, "防盗关闭成功");
+                    //查询围栏
                 } else if (cmd[3] == 0x03) {
                     String cmdString = new String(cmd);
                     Log.i(TAG, cmdString);
@@ -521,7 +536,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         setManager.setAlarmFlag(true);
                     }
                     ToastUtils.showShort(FragmentActivity.this, "同步设置成功");
-                } else if (cmd[3] == 0x04) {
+                } else if (cmd[3] == 0x06) {
                     Log.i(TAG, "查询所得到的结果");
                     float Flat = bundle.getFloat("LAT");
                     float Flong = bundle.getFloat("LONG");
@@ -550,23 +565,32 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                         switchFragment.reverserGeoCedec(trackPoint.point);
                         ToastUtils.showShort(FragmentActivity.this, "查询位置成功");
                     }
-                } else if (cmd[3] == 0x05) {
-                    AddSosActivity.cancelDialog();
-                    ToastUtils.showShort(FragmentActivity.this, "设置管理员成功");
-                } else if (cmd[3] == 0x06) {
-                    String data = new String(cmd);
-                    LogUtil.log.i(data);
-                    AddSosActivity.cancelDialog(data);
-                    //找车
-                } else if (cmd[3] == 0x07) {
-                    String data = new String(cmd);
-                    LogUtil.log.i(data);
-                    Intent intent7 = new Intent();
-                    intent7.putExtra("data", data);
-                    intent7.setAction("com.xunce.electrombile.find");
-                    sendBroadcast(intent7);
+                    //取消设置管理员功能
+//                } else if (cmd[3] == 0x05) {
+//                    AddSosActivity.cancelDialog();
+//                    ToastUtils.showShort(FragmentActivity.this, "设置管理员成功");
+//                } else if (cmd[3] == 0x06) {
+//                    String data = new String(cmd);
+//                    LogUtil.log.i(data);
+//                    AddSosActivity.cancelDialog(data);
+//
+//                }
+
                 }
+            } else if (CmdModeSelect.SELECT_MODE_433.equals(MODE)) {
+                // 找车
+                byte[] findInfo = bundle.getByteArray("findInfo");
+                //开始找车
+                Intent intent7 = new Intent();
+                intent7.putExtra("data", mCenter.parseFindInt(findInfo));
+                ByteUtils.printHexString("findinfo:", findInfo);
+                LogUtil.log.i(mCenter.parseFindInt(findInfo) + "");
+                intent7.setAction("com.xunce.electrombile.find");
+                sendBroadcast(intent7);
+                //停止找车
+
             }
+
         }
     }
 

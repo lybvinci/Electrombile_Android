@@ -26,11 +26,6 @@ public class FindActivity extends Activity {
     private RadarView radarView;
     private boolean isFinding = false;
     private RatingBar ratingBar;
-    private ProgressDialog progressDialog;
-    private CmdCenter mCenter;
-    private MyReceiver receiver;
-    private byte firstByteSearch = 0x00;
-    private byte secondByteSearch = 0x00;
     Handler refreshRatingBar = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -39,25 +34,32 @@ public class FindActivity extends Activity {
             ratingBar.setRating(next);
         }
     };
-    Thread myThread = new Thread() {
-        Random rand = new Random();
-
-        @Override
-        public void run() {
-            while (true) {
-                float f = rand.nextFloat() * 10;
-                Log.e("", "next:" + f);
-                Message msg = Message.obtain();
-                msg.obj = f;
-                refreshRatingBar.sendMessage(msg);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
+    private ProgressDialog progressDialog;
+    private CmdCenter mCenter;
+    private MyReceiver receiver;
+    private byte firstByteSearch = 0x00;
+    private byte secondByteSearch = 0x00;
+    private byte firstByteStop = 0x00;
+    private byte secondByteStop = 0x00;
+//    Thread myThread = new Thread() {
+//        Random rand = new Random();
+//
+//        @Override
+//        public void run() {
+//            while (true) {
+//                float f = rand.nextFloat() * 10;
+//                Log.e("", "next:" + f);
+//                Message msg = Message.obtain();
+//                msg.obj = f;
+//                refreshRatingBar.sendMessage(msg);
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +77,7 @@ public class FindActivity extends Activity {
     }
 
     private void initEvent() {
-        myThread.start();
+//        myThread.start();
         progressDialog.setMessage("正在配置...");
         registerBroadCast();
     }
@@ -102,6 +104,11 @@ public class FindActivity extends Activity {
             radarView.start();
             button.setText("停止找车");
         } else {
+            if (FragmentActivity.pushService != null) {
+                byte[] serial = mCenter.getSerial(firstByteStop, secondByteStop);
+                FragmentActivity.pushService.sendMessage1(mCenter.cStopFindEle(serial));
+                progressDialog.show();
+            }
             radarView.stop();
             button.setText("开始找车");
         }
@@ -116,10 +123,10 @@ public class FindActivity extends Activity {
     }
 
     //取消等待框，并且刷新界面
-    private void cancelDialog(String data) {
+    private void cancelDialog(int data) {
         progressDialog.dismiss();
-        String[] s1 = data.split(":");
-
+        float rating = (float) (data / 2000.0);
+        ratingBar.setRating(rating);
     }
 
     private class MyReceiver extends BroadcastReceiver {
@@ -127,8 +134,8 @@ public class FindActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "find接收调用");
             Bundle bundle = intent.getExtras();
-            String data = bundle.getString("data");
-            Log.i(TAG, data);
+            int data = bundle.getInt("data");
+            Log.i(TAG, data + "");
             cancelDialog(data);
         }
     }

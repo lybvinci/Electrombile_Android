@@ -25,6 +25,10 @@ import com.baidu.mapapi.utils.CoordinateConverter;
 import com.xunce.electrombile.data.JsonKeys;
 import com.xunce.electrombile.utils.useful.ByteUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 
 /**
  * ClassName: Class CmdCenter.
@@ -103,10 +107,32 @@ public class CmdCenter {
     //解析gps数据
     //返回经度
     public float parsePushServiceLat(byte[] mData) {
-        return (mData[9] & 0xFF |
-                (mData[8] & 0xFF) << 8 |
-                (mData[7] & 0xFF) << 16 |
-                (mData[6] & 0xFF) << 24);
+        return (mData[6] & 0xFF |
+                (mData[7] & 0xFF) << 8 |
+                (mData[8] & 0xFF) << 16 |
+                (mData[9] & 0xFF) << 24);
+    }
+
+    public float parsePushServiceLat3(byte[] mData) {
+        byte b[] = {mData[9], mData[8], mData[7], mData[6]};
+        //方法1 流输入，适用于ME/SE环境
+        //默认大端数，如果小端数，可以先翻转数组
+        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(b));
+        float f = 0;
+        try {
+            f = dis.readFloat();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (dis != null) {
+                try {
+                    dis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return f;
     }
 
     public int parsePushServiceLongInt(byte[] mData) {
@@ -118,10 +144,30 @@ public class CmdCenter {
 
     //返回纬度
     public float parsePushServiceLong(byte[] mData) {
-        return (mData[13] & 0xFF |
-                (mData[12] & 0xFF) << 8 |
-                (mData[11] & 0xFF) << 16 |
-                (mData[10] & 0xFF) << 24);
+        return (mData[10] & 0xFF |
+                (mData[11] & 0xFF) << 8 |
+                (mData[12] & 0xFF) << 16 |
+                (mData[13] & 0xFF) << 24);
+    }
+
+    public float parsePushServiceLong3(byte[] mData) {
+        byte b[] = {mData[13], mData[12], mData[11], mData[10]};
+        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(b));
+        float f = 0;
+        try {
+            f = dis.readFloat();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (dis != null) {
+                try {
+                    dis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return f;
     }
 
     public int parsePushServiceLat2(byte[] mData) {
@@ -154,6 +200,12 @@ public class CmdCenter {
                 (mData[2] & 0xFF) << 24);
     }
 
+    public int parseFindInt(byte[] mData) {
+        return (mData[3] & 0xFF |
+                (mData[2] & 0xFF) << 8 |
+                (mData[4] & 0xFF) << 16 |
+                (mData[5] & 0xFF) << 24);
+    }
 
     public float parseGPSData(float gps) {
         int x = (int) gps / 60;
@@ -238,15 +290,15 @@ public class CmdCenter {
         //	xpgWifiDevice.write(data);
     }
 
-    //13 添加电子围栏  命令字 1
+    //添加电子围栏  命令字 1
     public byte[] cFenceAdd(byte[] serial) {
         byte[] data = packetOrder(new byte[]{0x00, 0x01}, serial, JsonKeys.FENCE_SET_1, "");
         return data;
     }
 
-    //14删除电子围栏 命令字 1
+    //删除电子围栏 命令字 2
     public byte[] cFenceDelete(byte[] serial) {
-        byte[] data = packetOrder(new byte[]{0x00, 0x01}, serial, JsonKeys.FENCE_DELETE, "");
+        byte[] data = packetOrder(new byte[]{0x00, 0x02}, serial, JsonKeys.FENCE_DELETE, "");
         return data;
     }
 
@@ -256,23 +308,36 @@ public class CmdCenter {
         return data;
     }
 
-    //25 查询经纬度  命令字 4
-    public byte[] cWhere(byte[] serial) {
-        byte[] data = packetOrder(new byte[]{0x00, 0x04}, serial, JsonKeys.WHERE, "");
+    //开始找车 命令字是4
+    public byte[] cFindEle(byte[] serial) {
+        byte[] data = packetOrder(new byte[]{0x00, 0x04}, serial, "START_FIND?", "");
         return data;
     }
 
-    //查询管理员 命令字是6
+    //停止找车 命令字是5
+    public byte[] cStopFindEle(byte[] serial) {
+        byte[] data = packetOrder(new byte[]{0x00, 0x05}, serial, "STOP_FIND?", "");
+        return data;
+    }
+
+    //25 查询经纬度  命令字 6
+    public byte[] cWhere(byte[] serial) {
+        byte[] data = packetOrder(new byte[]{0x00, 0x06}, serial, JsonKeys.WHERE, "");
+        return data;
+    }
+
+/***************************************以下功能还未开通************************************************************/
+    /**
+     * @param serial
+     * @return
+     */
+    //查询管理员 命令字是7
     public byte[] cSOSSearch(byte[] serial) {
         byte[] data = packetOrder(new byte[]{0x00, 0x06}, serial, "SOS?", "");
         return data;
     }
 
-    //开始找车 命令字是7
-    public byte[] cFindEle(byte[] serial) {
-        byte[] data = packetOrder(new byte[]{0x00, 0x07}, serial, "FIND?", "");
-        return data;
-    }
+
 
     //测试报警
     public byte[] cTest(byte[] serial) {

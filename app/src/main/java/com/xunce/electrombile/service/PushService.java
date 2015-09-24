@@ -25,11 +25,13 @@ import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttPersistence;
 import com.ibm.mqtt.MqttPersistenceException;
 import com.ibm.mqtt.MqttSimpleCallback;
+import com.xunce.electrombile.data.CmdModeSelect;
 import com.xunce.electrombile.manager.CmdCenter;
 import com.xunce.electrombile.manager.SettingManager;
 import com.xunce.electrombile.data.ConnectionLog;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.FragmentActivity;
+import com.xunce.electrombile.utils.useful.ByteUtils;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -51,7 +53,7 @@ public class PushService extends Service {
     // We store the last retry interval
     public static final String PREF_RETRY = "retryInterval";
     // the IP address, where your MQTT broker is running.
-    private static final String MQTT_HOST = "server.xiaoan110.com";
+    private static final String MQTT_HOST = "120.25.157.233";
     // This the application level keep-alive interval, that is used by the AlarmManager
     // to keep the connection active, even when the device goes to sleep.
     private static final long KEEP_ALIVE_INTERVAL = 1000 * 60 * 28;
@@ -133,6 +135,7 @@ public class PushService extends Service {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 0x01:
+                    LogUtil.log.d("收到CMD");
                     byte[] cmd = (byte[]) msg.obj;
                     String data = new String(cmd);
                     if (cmd[3] == 0x06) {
@@ -154,19 +157,26 @@ public class PushService extends Service {
                         cmd[3] = 0x05;
                         handArrivedCmd(cmd);
                         //找车信息到达
-                    } else if (data.contains("")) {
-                        cmd[3] = 0x07;
-                        handArrivedCmd(cmd);
                     }
                     break;
                 case 0x02:
+                    LogUtil.log.d("收到GPS");
                     byte[] payload = (byte[]) msg.obj;
+                    ByteUtils.printHexString("GPS", payload);
                     handArrivedGPS(payload);
+                    break;
+                case 0x03:
+                    LogUtil.log.d("收到找车信息");
+                    byte[] findInfo = (byte[]) msg.obj;
+                    handArrivedFindInfo(findInfo);
                     break;
 
             }
         }
+
+
     };
+
 
     // Static method to start the service
     public static void actionStart(Context ctx) {
@@ -506,7 +516,7 @@ public class PushService extends Service {
             String dateTime = strArray[4].substring(9);
             Intent intent = new Intent();
             intent.putExtra("CMD", cmd);
-            intent.putExtra("CMDORGPS", true);
+            intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_CMD);
             intent.putExtra("LAT", lat);
             intent.putExtra("LONG", longitude);
             intent.putExtra("DATE", dateTime);
@@ -521,16 +531,26 @@ public class PushService extends Service {
 
     private void handArrivedCmd(byte[] b) {
         Intent intent = new Intent();
-        intent.putExtra("CMDORGPS", true);
+        intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_CMD);
         intent.putExtra("CMD", b);
         intent.setAction("com.xunce.electrombile.service");
         sendBroadcast(intent);
 //		}
     }
 
+    private void handArrivedFindInfo(byte[] findInfo) {
+        Intent intent = new Intent();
+        intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_433);
+        intent.putExtra("findInfo", findInfo);
+        intent.setAction("com.xunce.electrombile.service");
+        sendBroadcast(intent);
+    }
     private void handArrivedGPS(byte[] payload) {
-        float lat = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLat(payload)) / (float) 30000.0;
-        float longitude = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLong(payload)) / (float) 30000.0;
+
+//        float lat = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLat(payload)) / (float) 30000.0;
+//        float longitude = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLong(payload)) / (float) 30000.0;
+        float lat = mCenter.parsePushServiceLat3(payload);
+        float longitude = mCenter.parsePushServiceLong3(payload);
         Log.i(TAG, "lat=" + lat);
         Log.i(TAG, "longitude=" + longitude);
         String direction = mCenter.parsePushServiceDirection(payload);
@@ -542,7 +562,7 @@ public class PushService extends Service {
         sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
         String date = sdfWithSecond.format(time * 1000);
         Intent intent = new Intent();
-        intent.putExtra("CMDORGPS", false);
+        intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_GPS);
         intent.putExtra("LAT", lat);
         intent.putExtra("LONG", longitude);
         intent.putExtra("DATE", date);
@@ -560,7 +580,8 @@ public class PushService extends Service {
             Log.d(TAG, "send message to  message is " + message.toString());
             // mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
             // message.getBytes(), 0, false);
-            mqttClient.publish("app2dev/" + settingManager.getIMEI() + "/e2link/cmd",
+            Log.d(TAG, " settingManager.getIMEI():" + settingManager.getIMEI());
+            mqttClient.publish("app2dev/" + settingManager.getIMEI() + "/simcom/cmd",
                     message, 0, false);
         } catch (MqttException e) {
             Log.d(TAG, e.getCause() + "");
@@ -616,13 +637,18 @@ public class PushService extends Service {
             mqttClient.registerSimpleHandler(this);
 
             // Subscribe to an initial topic, which is combination of client ID and device ID.
-            String initTopic1 = "dev2app/" + initTopic + "/e2link/cmd";
+            //订阅命令字
+            String initTopic1 = "dev2app/" + initTopic + "/simcom/cmd";
             subscribeToTopic(initTopic1);
             log("Connection established to " + brokerHostName + " on topic " + initTopic1);
-            //再订阅一个
-            String initTopic2 = "dev2app/" + initTopic + "/e2link/gps";
+            //订阅GPS数据
+            String initTopic2 = "dev2app/" + initTopic + "/simcom/gps";
             subscribeToTopic(initTopic2);
             log("Connection established to " + brokerHostName + " on topic " + initTopic2);
+            //订阅上报的信号强度
+            String initTopic3 = "dev2app/" + initTopic + "/simcom/433";
+            subscribeToTopic(initTopic3);
+            log("Connection established to " + brokerHostName + " on topic " + initTopic3);
             // Save start time
             mStartTime = System.currentTimeMillis();
             // Star the keep-alives
@@ -703,6 +729,11 @@ public class PushService extends Service {
                 } else if (topicName.contains("gps")) {
                     Message msg = new Message();
                     msg.what = 0x02;
+                    msg.obj = payload;
+                    mHandler.sendMessage(msg);
+                } else if (topicName.contains("433")) {
+                    Message msg = new Message();
+                    msg.what = 0x03;
                     msg.obj = payload;
                     mHandler.sendMessage(msg);
                 }
