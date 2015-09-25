@@ -80,7 +80,7 @@ public class LazyViewPager extends ViewGroup {
     private static final String TAG = "LazyViewPager";
     private static final boolean DEBUG = false;
     private static final boolean USE_CACHE = false;
-    private static final int DEFAULT_OFFSCREEN_PAGES = 2;//默认的加载页面,ViewPager是1个,所以会加载两个Fragment
+    private static final int DEFAULT_OFFSCREEN_PAGES = 1;//默认的加载页面,ViewPager是1个,所以会加载两个Fragment
     private static final int MAX_SETTLE_DURATION = 600; // ms
     private static final Comparator<ItemInfo> COMPARATOR = new Comparator<ItemInfo>(){
         @Override
