@@ -31,7 +31,7 @@ public class DeviceActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_equipment);
+        setContentView(R.layout.activity_device);
         super.onCreate(savedInstanceState);
     }
 
