@@ -39,13 +39,13 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogUtil;
 import com.avos.avoscloud.RequestMobileCodeCallback;
 import com.avos.avoscloud.SignUpCallback;
-import com.xunce.electrombile.utils.useful.StringUtils;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
 import com.xunce.electrombile.activity.BindingActivity;
 import com.xunce.electrombile.utils.system.IntentUtils;
-import com.xunce.electrombile.utils.useful.NetworkUtils;
 import com.xunce.electrombile.utils.system.ToastUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
+import com.xunce.electrombile.utils.useful.StringUtils;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -112,11 +112,11 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 				if (secondleft <= 0) {
 					timer.cancel();
 					btnReGetCode.setEnabled(true);
-					btnReGetCode.setText("重新获取验证码");
-					btnReGetCode
-							.setBackgroundResource(R.drawable.button_blue_short);
-				} else {
-					btnReGetCode.setText(secondleft + "秒后\n重新获取");
+                    btnReGetCode.setText("重新获取");
+                    btnReGetCode
+                            .setBackgroundResource(R.drawable.btn_getverifycode_1_act);
+                } else {
+                    btnReGetCode.setText(secondleft + "秒后重新获取");
 
 				}
 				break;
@@ -285,7 +285,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
         toogleUI(ui_statue.PHONE);
         dialog.show();
         btnReGetCode.setEnabled(false);
-        btnReGetCode.setBackgroundResource(R.drawable.button_gray_short);
+        btnReGetCode.setBackgroundResource(R.drawable.btn_getverifycode_2_act);
         secondleft = 60;
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -322,7 +322,7 @@ public class RegisterActivity extends BaseActivity implements OnClickListener {
 	private void registerAndSendVerifyCode(final String phone, final String password) {
         dialog.show();
         btnReGetCode.setEnabled(false);
-        btnReGetCode.setBackgroundResource(R.drawable.button_gray_short);
+        btnReGetCode.setBackgroundResource(R.drawable.btn_getverifycode_2_act);
         secondleft = 60;
         timer = new Timer();
         timer.schedule(new TimerTask() {

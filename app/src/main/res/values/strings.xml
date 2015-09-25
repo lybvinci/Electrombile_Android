@@ -72,7 +72,7 @@
     <string name="forget_password_hint1">tel/mail</string>
     <string name="forget_password_get_verifycode">get verifycode</string>
     <string name="forget_password_verifycode">verifycode</string>
-    <string name="forget_password_get_verifycode_again">reget your \n verifycode</string>
+    <string name="forget_password_get_verifycode_again">reget your verifycode</string>
     <string name="help">help</string>
     <string name="help_for_device">help</string>
     <string name="help_for_app">APP help</string>
@@ -115,5 +115,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_find">FindActivity</string>
     <string name="title_activity_personal_center">PersonalCenterActivity</string>
+    <string name="title_activity_equipment">EquipmentActivity</string>
 
 </resources>

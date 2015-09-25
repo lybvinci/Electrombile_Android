@@ -71,7 +71,7 @@
     <string name="forget_password_hint1">手机号</string>
     <string name="forget_password_get_verifycode">获取验证码</string>
     <string name="forget_password_verifycode">验证码</string>
-    <string name="forget_password_get_verifycode_again">重新获取\n验证码</string>
+    <string name="forget_password_get_verifycode_again">重新获取验证码</string>
     <string name="help">帮助</string>
     <string name="help_for_device">设备使用帮助</string>
     <string name="help_for_app">APP使用帮助</string>

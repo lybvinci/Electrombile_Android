@@ -25,7 +25,7 @@
             style="@style/loginEditTextTheme"
             android:layout_width="274dip"
             android:layout_height="55dip"
-            android:layout_marginLeft="3dp"
+            android:layout_marginLeft="5dp"
             android:background="@color/transation"
             android:drawableLeft="@drawable/et_left_name"
             android:hint="@string/login_name_hint" />
@@ -40,7 +40,7 @@
             style="@style/loginEditTextTheme"
             android:layout_width="274dip"
             android:layout_height="55dip"
-            android:layout_marginLeft="3dp"
+            android:layout_marginLeft="5dp"
             android:background="@color/transation"
             android:drawableLeft="@drawable/et_left_psw"
             android:hint="@string/password"

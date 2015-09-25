@@ -14,23 +14,25 @@
     <RadioGroup
         android:id="@+id/main_radio"
         android:layout_width="fill_parent"
-        android:layout_height="56dp"
+        android:layout_height="72dp"
         android:layout_gravity="bottom"
         android:layout_marginBottom="0dp"
-        android:background="@drawable/home_btn_bg"
-        android:gravity="bottom"
-        android:orientation="horizontal">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:weightSum="3">
 
         <RadioButton
             android:id="@+id/rbSwitch"
             style="@style/main_tab_bottom"
+            android:background="@drawable/rb_fragment_act"
             android:checked="true"
             android:drawableTop="@drawable/switch_icon"
-            android:text="开关" />
+            android:text="主页" />
 
         <RadioButton
             android:id="@+id/rbMap"
             style="@style/main_tab_bottom"
+            android:background="@drawable/rb_fragment_act"
             android:checked="false"
             android:drawableTop="@drawable/map_icon"
             android:text="地图" />
@@ -38,10 +40,10 @@
         <RadioButton
             android:id="@+id/rbSettings"
             style="@style/main_tab_bottom"
+            android:background="@drawable/rb_fragment_act"
             android:checked="false"
             android:drawableTop="@drawable/setting_icon"
             android:text="设置" />
-
     </RadioGroup>
 
 </LinearLayout>

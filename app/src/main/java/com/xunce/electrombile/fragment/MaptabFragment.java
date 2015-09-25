@@ -34,11 +34,15 @@ import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.xunce.electrombile.manager.TracksManager;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BindingActivity;
+import com.xunce.electrombile.activity.FindActivity;
 import com.xunce.electrombile.activity.FragmentActivity;
 import com.xunce.electrombile.activity.RecordActivity;
+import com.xunce.electrombile.manager.TracksManager;
+import com.xunce.electrombile.manager.TracksManager.TrackPoint;
+import com.xunce.electrombile.utils.system.ToastUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,10 +50,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import com.xunce.electrombile.manager.TracksManager.TrackPoint;
-import com.xunce.electrombile.utils.useful.NetworkUtils;
-import com.xunce.electrombile.utils.system.ToastUtils;
 
 public class MaptabFragment extends BaseFragment {
 
@@ -67,8 +67,9 @@ public class MaptabFragment extends BaseFragment {
     //命令字计数器
     byte firstByteWhere = 0x00;
     byte secondByteWhere = 0x00;
-    Button btnLocation;
-    Button btnRecord;
+    TextView btnLocation;
+    TextView btnRecord;
+    TextView tvFindEle;
     Button btnPlay;
     Button btnPause;
     Button btnClearTrack;
@@ -229,8 +230,19 @@ public class MaptabFragment extends BaseFragment {
         });
 
         //定位电动车按钮
-        btnLocation = (Button) v.findViewById(R.id.btn_location);
-
+        btnLocation = (TextView) v.findViewById(R.id.btn_location);
+        tvFindEle = (TextView) v.findViewById(R.id.tv_find_ele);
+        tvFindEle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //检查网络
+                if (checkNetwork()) return;
+                //检查是否绑定
+                if (checkBind()) return;
+                Intent intent = new Intent(m_context, FindActivity.class);
+                startActivity(intent);
+            }
+        });
         btnLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -248,7 +260,7 @@ public class MaptabFragment extends BaseFragment {
         });
 
         //历史记录按钮
-        btnRecord = (Button) v.findViewById(R.id.btn_record);
+        btnRecord = (TextView) v.findViewById(R.id.btn_record);
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

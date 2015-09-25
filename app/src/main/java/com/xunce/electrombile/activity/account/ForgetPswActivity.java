@@ -31,17 +31,16 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogUtil;
 import com.avos.avoscloud.RequestMobileCodeCallback;
 import com.avos.avoscloud.UpdatePasswordCallback;
-import com.xunce.electrombile.utils.useful.StringUtils;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.BaseActivity;
-import com.xunce.electrombile.utils.useful.NetworkUtils;
 import com.xunce.electrombile.utils.system.ToastUtils;
+import com.xunce.electrombile.utils.useful.NetworkUtils;
+import com.xunce.electrombile.utils.useful.StringUtils;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -110,11 +109,11 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 				if (secondleft <= 0) {
 					timer.cancel();
 					btnReGetCode.setEnabled(true);
-					btnReGetCode.setText("重新获取验证码");
+					btnReGetCode.setText("重新获取");
 					btnReGetCode
-							.setBackgroundResource(R.drawable.button_blue_short);
+							.setBackgroundResource(R.drawable.btn_getverifycode_1_act);
 				} else {
-					btnReGetCode.setText(secondleft + "秒后\n重新获取");
+					btnReGetCode.setText(secondleft + "秒后重新获取");
 
 				}
 				break;
@@ -299,7 +298,7 @@ public class ForgetPswActivity extends BaseActivity implements OnClickListener {
 	private void sendVerifyCode(final String phone) {
 		dialog.show();
 		btnReGetCode.setEnabled(false);
-		btnReGetCode.setBackgroundResource(R.drawable.button_gray_short);
+		btnReGetCode.setBackgroundResource(R.drawable.btn_getverifycode_2_act);
 		secondleft = 60;
 		timer = new Timer();
 		timer.schedule(new TimerTask() {

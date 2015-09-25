@@ -24,16 +24,15 @@ import java.io.IOException;
 
 public class PersonalCenterActivity extends BaseActivity {
 
-    private String[] items = new String[]{"选择本地图片", "拍照"};
     /*头像名称*/
     private static final String IMAGE_FILE_NAME = "faceImage.png";
-    private String imgFilePath = Environment.getExternalStorageDirectory().toString()
-            + "/safeGuard/faceImage.png";
-
     /* 请求码*/
     private static final int IMAGE_REQUEST_CODE = 0;
     private static final int CAMERA_REQUEST_CODE = 1;
     private static final int RESULT_REQUEST_CODE = 2;
+    private String[] items = new String[]{"选择本地图片", "拍照"};
+    private String imgFilePath = Environment.getExternalStorageDirectory().toString()
+            + "/safeGuard/faceImage.png";
     private ImageView faceImage;
 
     @Override
@@ -87,7 +86,6 @@ public class PersonalCenterActivity extends BaseActivity {
                                         IMAGE_REQUEST_CODE);
                                 break;
                             case 1:
-
                                 Intent intentFromCapture = new Intent(
                                         MediaStore.ACTION_IMAGE_CAPTURE);
                                 // 判断存储卡是否可以用，可用进行存储
@@ -156,8 +154,8 @@ public class PersonalCenterActivity extends BaseActivity {
         intent.putExtra("aspectX", 1);
         intent.putExtra("aspectY", 1);
         // outputX outputY 是裁剪图片宽高
-        intent.putExtra("outputX", 200);
-        intent.putExtra("outputY", 200);
+        intent.putExtra("outputX", 338);
+        intent.putExtra("outputY", 338);
         intent.putExtra("return-data", true);
         startActivityForResult(intent, 2);
     }

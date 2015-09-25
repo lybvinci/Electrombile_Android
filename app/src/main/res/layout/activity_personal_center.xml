@@ -1,13 +1,49 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#eeeeee"
     tools:context="com.xunce.electrombile.activity.account.PersonalCenterActivity">
 
-    <ImageView
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:id="@+id/head_portrait"
-        android:onClick="changeHeadPortrait"
-        android:src="@android:drawable/sym_contact_card"/>
-</RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_1"
+        android:layout_width="match_parent"
+        android:layout_height="184dp"
+        android:background="@color/white">
+
+        <ImageView
+            android:id="@+id/head_portrait"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="24dp"
+            android:onClick="changeHeadPortrait"
+            android:src="@drawable/iv_login_act" />
+
+        <TextView
+            android:id="@+id/tv_equip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="60dp"
+            android:layout_toRightOf="@+id/head_portrait"
+            android:text="个人中心"
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/tv_imei"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/tv_equip"
+            android:layout_below="@+id/tv_equip"
+            android:layout_marginTop="10dp"
+            android:singleLine="true"
+            android:text="设备卡号：" />
+    </RelativeLayout>
+    <!--<ImageView-->
+    <!--android:layout_width="200dp"-->
+    <!--android:layout_height="200dp"-->
+    <!--android:id="@+id/head_portrait"-->
+    <!--android:onClick="changeHeadPortrait"-->
+    <!--android:src="@android:drawable/sym_contact_card"/>-->
+</LinearLayout>

@@ -11,19 +11,20 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.manager.CmdCenter;
-import com.xunce.electrombile.view.RadarView;
 
-import java.util.Random;
 
 public class FindActivity extends Activity {
 
     private static final String TAG = "FindActivity";
-    private RadarView radarView;
     private boolean isFinding = false;
     private RatingBar ratingBar;
     Handler refreshRatingBar = new Handler() {
@@ -34,6 +35,7 @@ public class FindActivity extends Activity {
             ratingBar.setRating(next);
         }
     };
+    private ImageView scanner;
     private ProgressDialog progressDialog;
     private CmdCenter mCenter;
     private MyReceiver receiver;
@@ -41,27 +43,8 @@ public class FindActivity extends Activity {
     private byte secondByteSearch = 0x00;
     private byte firstByteStop = 0x00;
     private byte secondByteStop = 0x00;
+    private Animation operatingAnim;
 
-    //test
-//    Thread myThread = new Thread() {
-//        Random rand = new Random();
-//
-//        @Override
-//        public void run() {
-//            while (true) {
-//                float f = rand.nextFloat() * 10;
-//                Log.e("", "next:" + f);
-//                Message msg = Message.obtain();
-//                msg.obj = f;
-//                refreshRatingBar.sendMessage(msg);
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +55,16 @@ public class FindActivity extends Activity {
     }
 
     private void initView() {
-        radarView = (RadarView) findViewById(R.id.radarView);
+        scanner = (ImageView) findViewById(R.id.iv_scanner);
         ratingBar = (RatingBar) findViewById(R.id.ratingBar);
         progressDialog = new ProgressDialog(this);
         mCenter = CmdCenter.getInstance(this);
     }
 
     private void initEvent() {
-//        myThread.start();
+        operatingAnim = AnimationUtils.loadAnimation(this, R.anim.rotate);
+        LinearInterpolator lin = new LinearInterpolator();
+        operatingAnim.setInterpolator(lin);
         progressDialog.setMessage("正在配置...");
         registerBroadCast();
     }
@@ -103,7 +88,9 @@ public class FindActivity extends Activity {
                 FragmentActivity.pushService.sendMessage1(mCenter.cFindEle(serial));
                 progressDialog.show();
             }
-            radarView.start();
+            if (operatingAnim != null) {
+                scanner.startAnimation(operatingAnim);
+            }
             button.setText("停止找车");
         } else {
             if (FragmentActivity.pushService != null) {
@@ -111,7 +98,8 @@ public class FindActivity extends Activity {
                 FragmentActivity.pushService.sendMessage1(mCenter.cStopFindEle(serial));
                 progressDialog.show();
             }
-            radarView.stop();
+            //radarView.stop();
+            scanner.clearAnimation();
             button.setText("开始找车");
         }
         isFinding = !isFinding;
@@ -120,7 +108,6 @@ public class FindActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        radarView.destoryThread();
         unregisterReceiver(receiver);
     }
 
