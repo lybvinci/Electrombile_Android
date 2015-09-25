@@ -60,6 +60,12 @@
         <item name="android:layout_height">42dp</item>
         <item name="android:background">@drawable/inputbox_background</item>
     </style>
+
+    <style name="loginEditTextTheme">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
     <style name="noBackgroundDialog" parent="android:style/Theme.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>
@@ -85,7 +91,6 @@
     </style>
     <style name="loginActivity">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@drawable/login_bd</item>
     </style>
 
     <style name="recordActivity">

@@ -2,70 +2,95 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#16c772"
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/etName"
-        style="@style/EditTextTheme"
-        android:layout_marginTop="200dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:gravity="center"
-        android:hint="@string/login_name_hint" />
+    <ImageView
+        android:layout_width="135dip"
+        android:layout_height="135dip"
+        android:layout_marginTop="17dip"
+        android:src="@drawable/iv_login_act" />
 
-    <EditText
-        android:id="@+id/etPsw"
-        style="@style/EditTextTheme"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:inputType="textPassword"
-        android:gravity="center"
-        android:hint="@string/password" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:background="@drawable/etname_login_act"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:layout_marginTop="10dp">
+        <EditText
+            android:id="@+id/etName"
+            style="@style/loginEditTextTheme"
+            android:layout_width="274dip"
+            android:layout_height="55dip"
+            android:layout_marginLeft="3dp"
+            android:background="@color/transation"
+            android:drawableLeft="@drawable/et_left_name"
+            android:hint="@string/login_name_hint" />
+
+        <View
+            android:layout_width="240dp"
+            android:layout_height="1dp"
+            android:background="@color/white" />
+
+        <EditText
+            android:id="@+id/etPsw"
+            style="@style/loginEditTextTheme"
+            android:layout_width="274dip"
+            android:layout_height="55dip"
+            android:layout_marginLeft="3dp"
+            android:background="@color/transation"
+            android:drawableLeft="@drawable/et_left_psw"
+            android:hint="@string/password"
+            android:inputType="textPassword" />
+    </LinearLayout>
+
+
     <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="80dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="28dp"
-        android:text="新用户"
+        android:id="@+id/tvForgot"
+        android:layout_width="72dp"
+        android:layout_height="20dp"
+        android:layout_gravity="right"
+        android:layout_marginRight="84dp"
+        android:layout_marginTop="20dip"
+        android:background="@drawable/common_btn_white"
+        android:text="忘记密码"
         android:textColor="@color/white"
-        android:textSize="18sp"
-        android:background="@drawable/common_btn_white"/>
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/btnLogin"
-        android:layout_width="85dp"
-        android:layout_height="29dp"
-        android:text="登陆"
+        android:layout_width="211dp"
+        android:layout_height="45dp"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/common_btn" />
-    <Button
-        android:id="@+id/tvForgot"
-        android:layout_width="80dp"
-        android:layout_height="35dp"
-        android:layout_marginLeft="28dp"
-        android:text="忘记密码"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:background="@drawable/common_btn_white"/>
-</LinearLayout>
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn_login"
+        android:text="登陆" />
+
     <ImageView
-        android:layout_width="120dp"
-        android:layout_height="171dp"
-        android:src="@drawable/bicycle"/>
+        android:layout_width="29dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="36dp"
+        android:src="@drawable/iv_arrow_login_act" />
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="211dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/btn_register"
+        android:text="注册"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
-        android:layout_marginTop="20dp"
+        android:text="@string/company_name"
         android:textColor="@color/white"
-        android:textSize="20sp"
-        android:text="@string/company_name"/>
+        android:textSize="20sp" />
 </LinearLayout>

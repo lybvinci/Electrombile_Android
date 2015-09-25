@@ -41,6 +41,8 @@ public class FindActivity extends Activity {
     private byte secondByteSearch = 0x00;
     private byte firstByteStop = 0x00;
     private byte secondByteStop = 0x00;
+
+    //test
 //    Thread myThread = new Thread() {
 //        Random rand = new Random();
 //
@@ -125,7 +127,7 @@ public class FindActivity extends Activity {
     //取消等待框，并且刷新界面
     private void cancelDialog(int data) {
         progressDialog.dismiss();
-        float rating = (float) (data / 2000.0);
+        float rating = (float) (data / 200.0);
         ratingBar.setRating(rating);
     }
 
