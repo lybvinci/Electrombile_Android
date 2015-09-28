@@ -2,7 +2,7 @@
  * $Id$
  */
 
-package com.xunce.electrombile.data;
+package com.xunce.electrombile.bean;
 
 import android.os.Environment;
 

@@ -30,7 +30,7 @@ import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.applicatoin.Historys;
-import com.xunce.electrombile.data.CmdModeSelect;
+import com.xunce.electrombile.bean.CmdModeSelect;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
@@ -80,9 +80,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     protected CmdCenter mCenter;
     boolean isupde;
     int a = 0;
-    //查询电子围栏
-    byte firstByteSearch = 0x00;
-    byte secondByteSearch = 0x00;
+    //    //查询电子围栏
+//    byte firstByteSearch = 0x00;
+//    byte secondByteSearch = 0x00;
     //my service
     ServiceConnection conn = new ServiceConnection() {
         @Override
@@ -328,8 +328,10 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         //IS_STARTED = true;
         super.onResume();
         if (pushService != null) {
-            byte[] serial = mCenter.getSerial(firstByteSearch, secondByteSearch);
-            pushService.sendMessage1(mCenter.cFenceSearch(serial));
+//            byte[] serial = mCenter.getSerial(firstByteSearch, secondByteSearch);
+//            pushService.sendMessage1(mCenter.cFenceSearch(serial));
+
+            pushService.sendMessage1(mCenter.cmdFenceGet());
         }
     }
 

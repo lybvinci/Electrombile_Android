@@ -1,0 +1,35 @@
+package com.xunce.electrombile.protocol;
+
+import com.xunce.electrombile.bean.JsonKeys;
+
+/**
+ * Created by lybvinci on 2015/9/28.
+ */
+public class CmdProtocol extends Protocol {
+    protected String cmd;
+    protected String result;
+    protected String state;
+
+    public CmdProtocol(String tmp) {
+        super(tmp);
+    }
+
+    @Override
+    public String getCmd() {
+        cmd = keyForValue(JsonKeys.CMD);
+        return cmd;
+    }
+
+    @Override
+    public String getResult() {
+        result = keyForValue(JsonKeys.RESULT);
+        return result;
+    }
+
+    @Override
+    public String getState() {
+        state = keyForValue(JsonKeys.STATE);
+        return state;
+    }
+
+}

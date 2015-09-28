@@ -1,24 +1,26 @@
-package com.xunce.electrombile.data;
+package com.xunce.electrombile.bean;
 
 import com.xunce.electrombile.manager.TracksManager.TrackPoint;
+
 import java.util.ArrayList;
 
 /**
  * Created by heyukun on 2015/4/27.
  */
- public  class TracksData {
-    public static TracksData _tracksData;
+public class TracksBean {
+    public static TracksBean _tracksBean;
     public ArrayList<ArrayList<TrackPoint>> tracksData;
-    private TracksData(){
+
+    private TracksBean() {
         tracksData = new ArrayList<ArrayList<TrackPoint>>();
     }
 
-    public static TracksData getInstance(){
-        if(_tracksData != null){
-            return _tracksData;
+    public static TracksBean getInstance() {
+        if (_tracksBean != null) {
+            return _tracksBean;
         }else{
-            _tracksData = new TracksData();
-            return _tracksData;
+            _tracksBean = new TracksBean();
+            return _tracksBean;
         }
     }
     public  ArrayList<ArrayList<TrackPoint>> getTracksData(){

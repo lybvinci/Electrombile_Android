@@ -25,12 +25,12 @@ import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttPersistence;
 import com.ibm.mqtt.MqttPersistenceException;
 import com.ibm.mqtt.MqttSimpleCallback;
-import com.xunce.electrombile.data.CmdModeSelect;
-import com.xunce.electrombile.manager.CmdCenter;
-import com.xunce.electrombile.manager.SettingManager;
-import com.xunce.electrombile.data.ConnectionLog;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.FragmentActivity;
+import com.xunce.electrombile.bean.CmdModeSelect;
+import com.xunce.electrombile.bean.ConnectionLog;
+import com.xunce.electrombile.manager.CmdCenter;
+import com.xunce.electrombile.manager.SettingManager;
 import com.xunce.electrombile.utils.useful.ByteUtils;
 
 import java.io.IOException;
@@ -138,6 +138,7 @@ public class PushService extends Service {
                     LogUtil.log.d("收到CMD");
                     byte[] cmd = (byte[]) msg.obj;
                     String data = new String(cmd);
+
                     if (cmd[3] == 0x06) {
                         handArrivedCmd(cmd);
                         break;

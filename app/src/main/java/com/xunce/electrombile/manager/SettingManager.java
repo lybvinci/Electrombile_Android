@@ -64,7 +64,7 @@ public class SettingManager {
     // 用户名
     //did
     private final String IMEI = "imie";
-    //TracksData
+    //TracksBean
     private final String TRACKSDATA = "tracksData";
     //用户的初始位置
     private final String Lat = "lat";

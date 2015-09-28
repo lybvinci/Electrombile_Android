@@ -1,4 +1,4 @@
-package com.xunce.electrombile.data;
+package com.xunce.electrombile.bean;
 
 /**
  * Created by lybvinci on 2015/9/24.

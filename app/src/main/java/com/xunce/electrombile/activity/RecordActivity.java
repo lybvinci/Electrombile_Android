@@ -8,11 +8,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
@@ -20,12 +20,12 @@ import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
-import com.xunce.electrombile.data.TracksData;
+import com.xunce.electrombile.R;
+import com.xunce.electrombile.bean.TracksBean;
+import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.manager.SettingManager;
 import com.xunce.electrombile.manager.TracksManager;
 import com.xunce.electrombile.manager.TracksManager.TrackPoint;
-import com.xunce.electrombile.R;
-import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.utils.useful.NetworkUtils;
 
 import java.text.SimpleDateFormat;
@@ -97,11 +97,11 @@ public class RecordActivity extends Activity{
         setCustonViewVisibility(false);
         m_listview.setVisibility(View.INVISIBLE);
 
-        if(TracksData.getInstance().getTracksData().size() != 0){
-           // Log.i(TAG, "TracksData.getInstance().getTracksData().size()" + TracksData.getInstance().getTracksData().size());
+        if (TracksBean.getInstance().getTracksData().size() != 0) {
+            // Log.i(TAG, "TracksBean.getInstance().getTracksData().size()" + TracksBean.getInstance().getTracksData().size());
             m_listview.setVisibility(View.VISIBLE);
             tracksManager.clearTracks();
-            tracksManager.setTracksData(TracksData.getInstance().getTracksData());
+            tracksManager.setTracksData(TracksBean.getInstance().getTracksData());
             //Log.i(TAG, "TrackManager size:" + tracksManager.getTracks().size());
             updateListView();
         }
@@ -251,7 +251,7 @@ public class RecordActivity extends Activity{
                 }).create();
 
 
-//        tracksManager.setTracksData(TracksData.getInstance().getTracksData());
+//        tracksManager.setTracksData(TracksBean.getInstance().getTracksData());
 //        updateListView();
     }
 
@@ -296,11 +296,11 @@ public class RecordActivity extends Activity{
                        tracksManager.clearTracks();
 
 //                        //清楚本地数据
-                       TracksData.getInstance().getTracksData().clear();
+                       TracksBean.getInstance().getTracksData().clear();
                        tracksManager.setTranks(totalAVObjects);
 
 //                        //更新本地数据
-                       TracksData.getInstance().setTracksData(tracksManager.getTracks());
+                       TracksBean.getInstance().setTracksData(tracksManager.getTracks());
 
                        updateListView();
                        watiDialog.dismiss();

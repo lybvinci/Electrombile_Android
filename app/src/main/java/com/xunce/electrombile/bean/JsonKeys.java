@@ -15,7 +15,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.xunce.electrombile.data;
+package com.xunce.electrombile.bean;
 
 /**
  * ClassName: Class JsonKeys. <br/>
@@ -85,8 +85,7 @@ public class JsonKeys {
     // location area code 位置区码
     public final static String LAC = "lac";
 
-    // Latitude:纬度，单位为分，把GPS的经纬度值转换为分为单位的小数
-    public final static String LAT = "lat";
+
 
     //mcc Mobile Country Code，移动国家码，MCC的资源由国际电联（ITU）统一分配和管理，唯一识别移动用户所属的国家，共3位，中国为460;
     public final static String MCC = "mcc";
@@ -101,5 +100,24 @@ public class JsonKeys {
     public final static String LONG = "long";
 
     public final static String ON_OFF = "switch";
+
+
+    /******************************
+     * 新协议中的Json关键字
+     **************************************************/
+    public final static String CMD = "cmd";
+    public final static String RESULT = "result";
+    public final static String STATE = "state";
+    public final static String LAT = "lat";
+    public final static String LNG = "lng";
+    public final static String FENCE_ON = "FENCE_ON";
+    public final static String FENCE_OFF = "FENCE_OFF";
+    public final static String FENCE_GET = "FENCE_GET";
+    public final static String SEEK_ON = "SEEK_ON";
+    public final static String SEEK_OF = "SEEK_OF";
+    public final static String ON = "ON";
+    public final static String OFF = "OFF";
+    public final static String TIMESTAMP = "timestamp";
+    public final static String INTENSITY = "intensity";
 
 }

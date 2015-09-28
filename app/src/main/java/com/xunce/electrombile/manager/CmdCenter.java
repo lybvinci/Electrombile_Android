@@ -22,8 +22,11 @@ import android.util.Log;
 
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.CoordinateConverter;
-import com.xunce.electrombile.data.JsonKeys;
+import com.xunce.electrombile.bean.JsonKeys;
 import com.xunce.electrombile.utils.useful.ByteUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -237,11 +240,7 @@ public class CmdCenter {
         //xpgWifiDevice.write(data);
     }
 
-    //example
-//	public byte[] cFenceAdd(byte[] serial){
-//		byte[] data = packetOrder(new byte[]{ 0x00,0x01},serial,JsonKeys.FENCE_SET_1,"");
-//		return data;
-//	}
+
     //6 、设置 SOS 管理员 m命令字是 5
     public byte[] cSOSManagerAdd(byte[] serial, String phoneNumber) {
         phoneNumber = phoneNumber + "#";
@@ -338,7 +337,6 @@ public class CmdCenter {
     }
 
 
-
     //测试报警
     public byte[] cTest(byte[] serial) {
         byte[] data = packetOrder(new byte[]{0x00, -1}, serial, "AA", "");
@@ -371,4 +369,39 @@ public class CmdCenter {
         }
         return new byte[]{firstByte, secondByte};
     }
+
+    /**************************************
+     * 新协议
+     ************************************************************/
+    public byte[] cmdFenceOn() {
+        return getCmdString(JsonKeys.FENCE_ON).getBytes();
+    }
+
+    public byte[] cmdFenceOff() {
+        return getCmdString(JsonKeys.FENCE_OFF).getBytes();
+    }
+
+    public byte[] cmdFenceGet() {
+        return getCmdString(JsonKeys.FENCE_GET).getBytes();
+    }
+
+    public byte[] cmdSeekOn() {
+        return getCmdString(JsonKeys.SEEK_ON).getBytes();
+    }
+
+    public byte[] cmdSeekOff() {
+        return getCmdString(JsonKeys.SEEK_OF).getBytes();
+    }
+
+    private String getCmdString(String fenceOn) {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put(JsonKeys.CMD, fenceOn);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return obj.toString();
+    }
+
+
 }

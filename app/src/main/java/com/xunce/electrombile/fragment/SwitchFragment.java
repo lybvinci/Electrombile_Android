@@ -36,7 +36,7 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.FragmentActivity;
-import com.xunce.electrombile.data.WeatherData;
+import com.xunce.electrombile.bean.WeatherBean;
 import com.xunce.electrombile.utils.device.VibratorUtil;
 import com.xunce.electrombile.utils.system.ToastUtils;
 import com.xunce.electrombile.utils.useful.JSONUtils;
@@ -272,11 +272,11 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                     public void onSuccess(ResponseInfo<String> responseInfo) {
                         Log.i(TAG, StringUtils.decodeUnicode(responseInfo.result));
                         String originData = StringUtils.decodeUnicode(responseInfo.result);
-                        WeatherData data = new WeatherData();
+                        WeatherBean data = new WeatherBean();
                         parseWeatherErr(data, originData);
                     }
 
-                    private void parseWeatherErr(WeatherData data, String originData) {
+                    private void parseWeatherErr(WeatherBean data, String originData) {
                         data.errNum = JSONUtils.ParseJSON(originData, "errNum");
                         data.errMsg = JSONUtils.ParseJSON(originData, "errMsg");
                         if ("0".equals(data.errNum) && "success".equals(data.errMsg)) {
@@ -287,7 +287,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                         }
                     }
 
-                    private void parseRetData(String originData, WeatherData data) {
+                    private void parseRetData(String originData, WeatherBean data) {
                         data.city = JSONUtils.ParseJSON(originData, "city");
                         data.time = JSONUtils.ParseJSON(originData, "time");
                         data.weather = JSONUtils.ParseJSON(originData, "weather");
@@ -299,7 +299,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                         setWeather(data);
                     }
 
-                    private void setWeather(WeatherData data) {
+                    private void setWeather(WeatherBean data) {
                         tvWeather.setText("城市：" + data.city +
                                 "更新时间：" + data.time +
                                 "天气状况：" + data.weather +
