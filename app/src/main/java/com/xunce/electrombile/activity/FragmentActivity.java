@@ -514,6 +514,9 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                 if (cmd[3] == 0x01) {
                     switchFragment.cancelDialog();
                     // DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
+                    //修改协议时 需要增加此功能，如果设置成功，就显示保存alalrmFlag的状态信息，如果设置了电子围栏成功，就设置其为true，
+                    //如果设置电子围栏失败，就将其设置为false.
+                    //同时删除电子围栏成功也为false，删除失败则为true。
                     if (setManager.getAlarmFlag())
                         ToastUtils.showShort(FragmentActivity.this, "防盗开启成功");
                     else

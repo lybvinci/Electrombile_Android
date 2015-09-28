@@ -12,13 +12,10 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.avos.avoscloud.LogUtil;
 import com.baidu.location.BDLocation;
@@ -37,32 +34,26 @@ import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
-import com.xunce.electrombile.utils.useful.StringUtils;
-import com.xunce.electrombile.data.WeatherData;
 import com.xunce.electrombile.R;
-import com.xunce.electrombile.utils.device.VibratorUtil;
 import com.xunce.electrombile.activity.FragmentActivity;
+import com.xunce.electrombile.data.WeatherData;
+import com.xunce.electrombile.utils.device.VibratorUtil;
+import com.xunce.electrombile.utils.system.ToastUtils;
 import com.xunce.electrombile.utils.useful.JSONUtils;
 import com.xunce.electrombile.utils.useful.NetworkUtils;
-import com.xunce.electrombile.utils.system.ToastUtils;
+import com.xunce.electrombile.utils.useful.StringUtils;
 
 public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultListener {
 
     private static String TAG = "SwitchFragment";
-    private final int IS_FINISH = 1;
     public LocationClient mLocationClient = null;
     public BDLocationListener myListener = new MyLocationListener();
     GeoCoder mSearch = null; // 搜索模块，也可去掉地图模块独立使用
     private Context m_context;
-    private boolean systemState = false;
     private boolean alarmState = false;
-    private boolean ToggleButtonState;
     //缓存view
     private View rootView;
-    private Button btnAlarm;
-    private ToggleButton btnSystem;
-    private Button btnTest;
-    private ImageView iv_SystemState;
+    private Button btnAlarmState;
     //textview 设置当前位置
     private TextView switch_fragment_tvLocation;
     private LocationTVClickedListener locationTVClickedListener;
@@ -116,7 +107,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        btnSystem = (ToggleButton) getActivity().findViewById(R.id.btn_SystemState);
+        btnAlarmState = (Button) getActivity().findViewById(R.id.btn_AlarmState);
 
         tvWeather = (TextView) getActivity().findViewById(R.id.weather);
 
@@ -127,97 +118,62 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                 locationTVClickedListener.locationTVClicked();
             }
         });
-        iv_SystemState = (ImageView) getActivity().findViewById(R.id.iv_SystemState);
         if (setManager.getAlarmFlag()) {
             showNotification("安全宝防盗系统已启动");
-            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-            btnSystem.setChecked(false);
-            ToggleButtonState = false;
+            openStateAlarmBtn();
         } else {
-            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-            btnSystem.setChecked(true);
-            ToggleButtonState = true;
+            closeStateAlarmBtn();
         }
-        btnSystem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        btnAlarmState.setOnClickListener(new OnClickListener() {
             byte firstByteAdd = 0x00;
             byte secondByteAdd = 0x00;
             byte firstByteDelete = 0x00;
             byte secondByteDelete = 0x00;
-
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (!b) {
-                    // Log.i("SBBBBBBBBBBB","sbbbbbbbbbbbbbbbbbbbb");
-                    //按下以后，isChecked 就是true 就是已经按下了。
-                    //如果有网络
+            public void onClick(View view) {
+                if (alarmState) {
+                    if (!setManager.getIMEI().isEmpty()) {
+                        if (NetworkUtils.isNetworkConnected(m_context)) {
+                            //关闭报警
+                            //等状态设置成功之后再改变按钮的显示状态，并且再更改标志位等的保存。
+                            cancelNotification();
+                            byte[] serial = mCenter.getSerial(firstByteDelete, secondByteDelete);
+                            FragmentActivity.pushService.sendMessage1(mCenter.cFenceDelete(serial));
+                            setAlarmDialog.show();
+                        } else {
+                            ToastUtils.showShort(m_context, "网络连接失败");
+                        }
+                    } else {
+                        ToastUtils.showShort(m_context, "请等待设备绑定");
+                    }
+                } else {
                     if (NetworkUtils.isNetworkConnected(m_context)) {
                         //打开报警
                         if (!setManager.getIMEI().isEmpty()) {
-                            //     Log.d(TAG, "device success!");
-                            setManager.setAlarmFlag(true);
+                            //等状态设置成功之后再改变按钮的显示状态，并且再更改标志位等的保存。
                             cancelNotification();
                             VibratorUtil.Vibrate(getActivity(), 700);
                             byte[] serial = mCenter.getSerial(firstByteAdd, secondByteAdd);
                             FragmentActivity.pushService.sendMessage1(mCenter.cFenceAdd(serial));
-                            ToggleButtonState = true;
-                            setManager.setAlarmFlag(true);
                             setAlarmDialog.show();
                         } else {
                             ToastUtils.showShort(m_context, "请先绑定设备");
-                            btnSystem.setChecked(true);
-                            ToggleButtonState = true;
-                            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
                         }
                     } else {
                         ToastUtils.showShort(m_context, "网络连接失败");
-                        btnSystem.setChecked(true);
-                        ToggleButtonState = true;
-                        iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-                    }
-                } else {
-                    //  Log.d(TAG, "compoundButton notChecked()");
-                    if (!setManager.getIMEI().isEmpty()) {
-                        if (NetworkUtils.isNetworkConnected(m_context)) {
-                            //关闭报警
-                            cancelNotification();
-                            setManager.setAlarmFlag(false);
-                            byte[] serial = mCenter.getSerial(firstByteDelete, secondByteDelete);
-                            FragmentActivity.pushService.sendMessage1(mCenter.cFenceDelete(serial));
-                            ToggleButtonState = false;
-                            setManager.setAlarmFlag(false);
-                            setAlarmDialog.show();
-
-                        } else {
-                            ToastUtils.showShort(m_context, "网络连接失败");
-                            btnSystem.setChecked(true);
-                            ToggleButtonState = true;
-                            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-                        }
-                    } else {
-                        btnSystem.setChecked(true);
-                        ToggleButtonState = true;
-                        iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-                        ToastUtils.showShort(m_context, "请等待设备绑定");
                     }
                 }
             }
         });
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        //   Log.i("BAOJING","CHAKAN");
         if (setManager.getAlarmFlag()) {
-            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-            //false
-            //  btnSystem.setChecked(true);
-            alarmState = true;
+            openStateAlarmBtn();
         } else {
-            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-            // btnSystem.setChecked(false);
-            alarmState = false;
+            closeStateAlarmBtn();
         }
 
     }
@@ -277,13 +233,11 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         setAlarmDialog.dismiss();
         if (setManager.getAlarmFlag()) {
             showNotification("安全宝防盗系统已启动");
-            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai1);
-            setManager.setAlarmFlag(true);
+            openStateAlarmBtn();
         } else {
             showNotification("安全宝防盗系统已关闭");
             VibratorUtil.Vibrate(getActivity(), 500);
-            iv_SystemState.setBackgroundResource(R.drawable.switch_fragment_zhuangtai2);
-            setManager.setAlarmFlag(false);
+            closeStateAlarmBtn();
         }
     }
 
@@ -368,6 +322,19 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                 });
     }
 
+    //点击打开报警按钮时按钮样式的响应操作
+    private void openStateAlarmBtn() {
+        alarmState = true;
+        btnAlarmState.setText("关闭小安保");
+        btnAlarmState.setBackgroundResource(R.drawable.btn_switch_selector_2);
+    }
+
+    //点击关闭报警按钮时按钮样式的响应操作
+    private void closeStateAlarmBtn() {
+        alarmState = false;
+        btnAlarmState.setText("开启小安保");
+        btnAlarmState.setBackgroundResource(R.drawable.btn_switch_selector_1);
+    }
 
     public interface LocationTVClickedListener {
         void locationTVClicked();
@@ -377,8 +344,6 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
 
         @Override
         public void onReceiveLocation(BDLocation location) {
-
-
             if (location.getLocType() == BDLocation.TypeGpsLocation) {// GPS定位结果
                 String city = location.getCity();
                 httpGetWeather(city);

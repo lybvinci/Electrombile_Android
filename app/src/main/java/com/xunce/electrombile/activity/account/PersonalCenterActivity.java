@@ -54,7 +54,7 @@ public class PersonalCenterActivity extends BaseActivity {
 
     private void loadAndSetImg() {
         com.lidroid.xutils.BitmapUtils bitmapUtils = new com.lidroid.xutils.BitmapUtils(this);
-        bitmapUtils.configDefaultLoadFailedImage(R.drawable.logo);//加载失败图片
+        bitmapUtils.configDefaultLoadFailedImage(R.drawable.person_center_left);//加载失败图片
         bitmapUtils.configDefaultBitmapConfig(Bitmap.Config.RGB_565);//设置图片压缩类型
         bitmapUtils.configDefaultCacheExpiry(0);
         bitmapUtils.configDefaultAutoRotation(true);
