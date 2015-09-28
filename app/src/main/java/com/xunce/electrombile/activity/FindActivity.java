@@ -39,10 +39,10 @@ public class FindActivity extends Activity {
     private ProgressDialog progressDialog;
     private CmdCenter mCenter;
     private MyReceiver receiver;
-    private byte firstByteSearch = 0x00;
-    private byte secondByteSearch = 0x00;
-    private byte firstByteStop = 0x00;
-    private byte secondByteStop = 0x00;
+    //    private byte firstByteSearch = 0x00;
+//    private byte secondByteSearch = 0x00;
+//    private byte firstByteStop = 0x00;
+//    private byte secondByteStop = 0x00;
     private Animation operatingAnim;
 
 
@@ -84,8 +84,7 @@ public class FindActivity extends Activity {
         Button button = (Button) view;
         if (!isFinding) {
             if (FragmentActivity.pushService != null) {
-                byte[] serial = mCenter.getSerial(firstByteSearch, secondByteSearch);
-                FragmentActivity.pushService.sendMessage1(mCenter.cFindEle(serial));
+                FragmentActivity.pushService.sendMessage1(mCenter.cmdSeekOn());
                 progressDialog.show();
             }
             if (operatingAnim != null) {
@@ -94,8 +93,7 @@ public class FindActivity extends Activity {
             button.setText("停止找车");
         } else {
             if (FragmentActivity.pushService != null) {
-                byte[] serial = mCenter.getSerial(firstByteStop, secondByteStop);
-                FragmentActivity.pushService.sendMessage1(mCenter.cStopFindEle(serial));
+                FragmentActivity.pushService.sendMessage1(mCenter.cmdSeekOff());
                 progressDialog.show();
             }
             //radarView.stop();
@@ -112,7 +110,7 @@ public class FindActivity extends Activity {
     }
 
     //取消等待框，并且刷新界面
-    private void cancelDialog(int data) {
+    private void cancelDialog(float data) {
         progressDialog.dismiss();
         float rating = (float) (data / 200.0);
         ratingBar.setRating(rating);
@@ -123,7 +121,7 @@ public class FindActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "find接收调用");
             Bundle bundle = intent.getExtras();
-            int data = bundle.getInt("data");
+            float data = bundle.getInt("intensity");
             Log.i(TAG, data + "");
             cancelDialog(data);
         }

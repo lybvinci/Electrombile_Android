@@ -64,9 +64,6 @@ public class MaptabFragment extends BaseFragment {
     public TrackPoint currentTrack;
     //正在播放轨迹标志
     public boolean isPlaying = false;
-    //命令字计数器
-    byte firstByteWhere = 0x00;
-    byte secondByteWhere = 0x00;
     TextView btnLocation;
     TextView btnRecord;
     TextView tvFindEle;
@@ -521,9 +518,8 @@ public class MaptabFragment extends BaseFragment {
     public void updateLocation() {
 
         //透传
-        byte[] serial = mCenter.getSerial(firstByteWhere, secondByteWhere);
         if (FragmentActivity.pushService != null) {
-            FragmentActivity.pushService.sendMessage1(mCenter.cWhere(serial));
+            FragmentActivity.pushService.sendMessage1(mCenter.cmdWhere());
 
         } else {
             ToastUtils.showShort(getActivity().getApplicationContext(), "请稍后...");

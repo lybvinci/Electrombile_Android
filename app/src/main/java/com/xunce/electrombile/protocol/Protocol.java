@@ -36,8 +36,8 @@ public class Protocol implements Serializable {
 
     ;
 
-    public String getResult() {
-        return "";
+    public int getResult() {
+        return 0;
     }
 
     ;

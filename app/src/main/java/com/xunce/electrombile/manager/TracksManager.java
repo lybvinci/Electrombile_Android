@@ -6,7 +6,6 @@ import android.util.Log;
 import com.avos.avoscloud.AVObject;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
-import com.xunce.electrombile.manager.CmdCenter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -72,7 +71,9 @@ public class TracksManager {
             double lon = thisObject.getDouble(KET_LONG);
 
             //百度地图的LatLng类对输入有限制，如果longitude过大，则会导致结果不正确
-            LatLng oldPoint = new LatLng(mCenter.parseGPSData((float)lat), mCenter.parseGPSData((float)lon));
+            //lybvinci 修改 @date 9.28
+//            LatLng oldPoint = new LatLng(mCenter.parseGPSData((float)lat), mCenter.parseGPSData((float)lon));
+            LatLng oldPoint = new LatLng(lat, lon);
             LatLng bdPoint = mCenter.convertPoint(oldPoint);
 
             //如果本次循环数据跟上一个已保存的数据坐标相同，则跳过

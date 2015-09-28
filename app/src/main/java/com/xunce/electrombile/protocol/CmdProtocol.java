@@ -7,7 +7,7 @@ import com.xunce.electrombile.bean.JsonKeys;
  */
 public class CmdProtocol extends Protocol {
     protected String cmd;
-    protected String result;
+    protected int result;
     protected String state;
 
     public CmdProtocol(String tmp) {
@@ -21,8 +21,8 @@ public class CmdProtocol extends Protocol {
     }
 
     @Override
-    public String getResult() {
-        result = keyForValue(JsonKeys.RESULT);
+    public int getResult() {
+        result = Integer.parseInt(keyForValue(JsonKeys.RESULT));
         return result;
     }
 

@@ -14,8 +14,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.xunce.electrombile.manager.CmdCenter;
 import com.xunce.electrombile.R;
+import com.xunce.electrombile.manager.CmdCenter;
 import com.xunce.electrombile.utils.system.ToastUtils;
 
 import java.util.ArrayList;
@@ -30,12 +30,12 @@ public class AddSosActivity extends Activity {
     private ListView lv_SOS;
     private CmdCenter mCenter;
     //发送命令所需要的命令序
-    private byte firstByteSOSAdd = 0x00;
-    private byte secondByteSOSAdd = 0x00;
-    private byte firstByteSOSDelete = 0x00;
-    private byte secondByteSOSDelete = 0x00;
-    private byte firstByteSearch = 0x00;
-    private byte secondByteSearch = 0x00;
+//    private byte firstByteSOSAdd = 0x00;
+//    private byte secondByteSOSAdd = 0x00;
+//    private byte firstByteSOSDelete = 0x00;
+//    private byte secondByteSOSDelete = 0x00;
+//    private byte firstByteSearch = 0x00;
+//    private byte secondByteSearch = 0x00;
 
     //取消等待框，并且刷新界面
     public static void cancelDialog(String data) {
@@ -65,8 +65,8 @@ public class AddSosActivity extends Activity {
         mCenter = CmdCenter.getInstance(this);
         initView();
         if(FragmentActivity.pushService != null){
-            byte[] serial = mCenter.getSerial(firstByteSearch, secondByteSearch);
-            FragmentActivity.pushService.sendMessage1(mCenter.cSOSSearch(serial));
+            //byte[] serial = mCenter.getSerial(firstByteSearch, secondByteSearch);
+            //FragmentActivity.pushService.sendMessage1(mCenter.cSOSSearch(serial));
             SOSWaitDialog.show();
         }
 
@@ -105,11 +105,11 @@ public class AddSosActivity extends Activity {
             sb.append("-");
         }
 
-        byte[] serial = mCenter.getSerial(firstByteSOSAdd, secondByteSOSAdd);
+        //byte[] serial = mCenter.getSerial(firstByteSOSAdd, secondByteSOSAdd);
         for(int i=1;i< arrayListSOS.size();i++){
             phone = "," + phone;
         }
-        FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerAdd(serial, phone));
+        // FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerAdd(serial, phone));
         SOSWaitDialog.show();
         mAdapter.notifyDataSetChanged();
     }
@@ -138,8 +138,8 @@ public class AddSosActivity extends Activity {
                                 sb.append("-");
                             }
                         }
-                        byte[] serial = mCenter.getSerial(firstByteSOSDelete, secondByteSOSDelete);
-                        FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerDelete(serial,phone));
+                        //byte[] serial = mCenter.getSerial(firstByteSOSDelete, secondByteSOSDelete);
+                        //FragmentActivity.pushService.sendMessage1(mCenter.cSOSManagerDelete(serial,phone));
                         SOSWaitDialog.show();
                         mAdapter.notifyDataSetChanged();
                     }

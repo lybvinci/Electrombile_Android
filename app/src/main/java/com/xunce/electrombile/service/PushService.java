@@ -31,12 +31,13 @@ import com.xunce.electrombile.bean.CmdModeSelect;
 import com.xunce.electrombile.bean.ConnectionLog;
 import com.xunce.electrombile.manager.CmdCenter;
 import com.xunce.electrombile.manager.SettingManager;
-import com.xunce.electrombile.utils.useful.ByteUtils;
+import com.xunce.electrombile.protocol.CmdFactory;
+import com.xunce.electrombile.protocol.GPSFactory;
+import com.xunce.electrombile.protocol.Protocol;
+import com.xunce.electrombile.protocol.ProtocolFactoryInterface;
+import com.xunce.electrombile.protocol._433Factory;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.TimeZone;
 
 /* 
  * PushService that does all of the work.
@@ -117,7 +118,7 @@ public class PushService extends Service {
 
             log("Connectivity changed: connected=" + hasConnectivity);
             if (mqttClient != null && hasConnectivity)
-                sendMessage1(mCenter.cFenceSearch(new byte[]{0x00, 0x01}));
+                sendMessage1(mCenter.cmdFenceGet());
             if (hasConnectivity) {
                 reconnectIfNecessary();
             } else if (mConnection != null) {
@@ -133,51 +134,12 @@ public class PushService extends Service {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case 0x01:
-                    LogUtil.log.d("收到CMD");
-                    byte[] cmd = (byte[]) msg.obj;
-                    String data = new String(cmd);
-
-                    if (cmd[3] == 0x06) {
-                        handArrivedCmd(cmd);
-                        break;
-                    }
-                    if (cmd[3] == 0x03) {
-                        handArrivedCmd(cmd);
-                        //GPS数据到达
-                    } else if (data.contains("Lat:")) {
-                        cmd[3] = 0x04;
-                        handArrivedGPSString(cmd);
-                        //围栏信息到达
-                    } else if (data.contains("FENCE")) {
-                        cmd[3] = 0x01;
-                        handArrivedCmd(cmd);
-                        //管理员信息到达
-                    } else if (data.contains("SOS")) {
-                        cmd[3] = 0x05;
-                        handArrivedCmd(cmd);
-                        //找车信息到达
-                    }
-                    break;
-                case 0x02:
-                    LogUtil.log.d("收到GPS");
-                    byte[] payload = (byte[]) msg.obj;
-                    ByteUtils.printHexString("GPS", payload);
-                    handArrivedGPS(payload);
-                    break;
-                case 0x03:
-                    LogUtil.log.d("收到找车信息");
-                    byte[] findInfo = (byte[]) msg.obj;
-                    handArrivedFindInfo(findInfo);
-                    break;
-
-            }
+            String jsonString = new String((byte[]) msg.obj);
+            createFactory(msg, jsonString);
         }
 
 
     };
-
 
     // Static method to start the service
     public static void actionStart(Context ctx) {
@@ -198,6 +160,41 @@ public class PushService extends Service {
         Intent i = new Intent(ctx, PushService.class);
         i.setAction(ACTION_KEEPALIVE);
         ctx.startService(i);
+    }
+
+    private void createFactory(Message msg, String jsonString) {
+        ProtocolFactoryInterface factory;
+        Protocol protocol;
+        switch (msg.what) {
+            case 0x01:
+                LogUtil.log.d("收到CMD");
+                factory = new CmdFactory();
+                protocol = factory.createProtocol(jsonString);
+                sendToAct(protocol, CmdModeSelect.SELECT_MODE_CMD);
+                break;
+            case 0x02:
+                LogUtil.log.d("收到GPS");
+                factory = new GPSFactory();
+                protocol = factory.createProtocol(jsonString);
+                sendToAct(protocol, CmdModeSelect.SELECT_MODE_GPS);
+                break;
+            case 0x03:
+                LogUtil.log.d("收到找车信息");
+                factory = new _433Factory();
+                protocol = factory.createProtocol(jsonString);
+                sendToAct(protocol, CmdModeSelect.SELECT_MODE_433);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void sendToAct(Protocol protocol, String selectModeCmd) {
+        Intent intent = new Intent();
+        intent.putExtra(CmdModeSelect.SELECT_MODE, selectModeCmd);
+        intent.putExtra("protocol", protocol);
+        intent.setAction("com.xunce.electrombile.service");
+        sendBroadcast(intent);
     }
 
     @Override
@@ -504,72 +501,72 @@ public class PushService extends Service {
         return info != null && info.isConnected();
     }
 
-    private void handArrivedGPSString(byte[] cmd) {
-        byte[] newData = Arrays.copyOfRange(cmd, 8, cmd.length - 1);
-        String data = new String(newData);
-        LogUtil.log.i("收到的包：" + data);
-        if (data.contains("Lat") && data.contains("Lon")
-                && data.contains("Course") && data.contains("Speed")
-                && data.contains("DateTime")) {
-            String[] strArray = data.split(",");
-            float lat = Float.parseFloat(strArray[0].substring(5));
-            float longitude = Float.parseFloat(strArray[1].substring(5));
-            String dateTime = strArray[4].substring(9);
-            Intent intent = new Intent();
-            intent.putExtra("CMD", cmd);
-            intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_CMD);
-            intent.putExtra("LAT", lat);
-            intent.putExtra("LONG", longitude);
-            intent.putExtra("DATE", dateTime);
-            LogUtil.log.i("解析到的数据：LAT=" + lat + "  Long=" + longitude + "  date=" + dateTime);
-            intent.setAction("com.xunce.electrombile.service");
-            sendBroadcast(intent);
-        } else {
-            LogUtil.log.i("收到错误的包");
-            //return ;
-        }
-    }
+//    private void handArrivedGPSString(byte[] cmd) {
+//        byte[] newData = Arrays.copyOfRange(cmd, 8, cmd.length - 1);
+//        String data = new String(newData);
+//        LogUtil.log.i("收到的包：" + data);
+//        if (data.contains("Lat") && data.contains("Lon")
+//                && data.contains("Course") && data.contains("Speed")
+//                && data.contains("DateTime")) {
+//            String[] strArray = data.split(",");
+//            float lat = Float.parseFloat(strArray[0].substring(5));
+//            float longitude = Float.parseFloat(strArray[1].substring(5));
+//            String dateTime = strArray[4].substring(9);
+//            Intent intent = new Intent();
+//            intent.putExtra("CMD", cmd);
+//            intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_CMD);
+//            intent.putExtra("LAT", lat);
+//            intent.putExtra("LONG", longitude);
+//            intent.putExtra("DATE", dateTime);
+//            LogUtil.log.i("解析到的数据：LAT=" + lat + "  Long=" + longitude + "  date=" + dateTime);
+//            intent.setAction("com.xunce.electrombile.service");
+//            sendBroadcast(intent);
+//        } else {
+//            LogUtil.log.i("收到错误的包");
+//            //return ;
+//        }
+//    }
 
-    private void handArrivedCmd(byte[] b) {
-        Intent intent = new Intent();
-        intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_CMD);
-        intent.putExtra("CMD", b);
-        intent.setAction("com.xunce.electrombile.service");
-        sendBroadcast(intent);
-//		}
-    }
+//    private void handArrivedCmd(byte[] b) {
+//        Intent intent = new Intent();
+//        intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_CMD);
+//        intent.putExtra("CMD", b);
+//        intent.setAction("com.xunce.electrombile.service");
+//        sendBroadcast(intent);
+////		}
+//    }
 
-    private void handArrivedFindInfo(byte[] findInfo) {
-        Intent intent = new Intent();
-        intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_433);
-        intent.putExtra("findInfo", findInfo);
-        intent.setAction("com.xunce.electrombile.service");
-        sendBroadcast(intent);
-    }
-    private void handArrivedGPS(byte[] payload) {
-
-//        float lat = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLat(payload)) / (float) 30000.0;
-//        float longitude = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLong(payload)) / (float) 30000.0;
-        float lat = mCenter.parsePushServiceLat3(payload);
-        float longitude = mCenter.parsePushServiceLong3(payload);
-        Log.i(TAG, "lat=" + lat);
-        Log.i(TAG, "longitude=" + longitude);
-        String direction = mCenter.parsePushServiceDirection(payload);
-        int speed = mCenter.parsePushServiceSpeed(payload);
-        boolean isGPS = mCenter.parsePushServiceIsGPS(payload);
-        long time = mCenter.parsePushServiceTime(payload);
-        Log.i(TAG, "time=" + time);
-        SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-        String date = sdfWithSecond.format(time * 1000);
-        Intent intent = new Intent();
-        intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_GPS);
-        intent.putExtra("LAT", lat);
-        intent.putExtra("LONG", longitude);
-        intent.putExtra("DATE", date);
-        intent.setAction("com.xunce.electrombile.service");
-        sendBroadcast(intent);
-    }
+//    private void handArrivedFindInfo(byte[] findInfo) {
+//        Intent intent = new Intent();
+//        intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_433);
+//        intent.putExtra("findInfo", findInfo);
+//        intent.setAction("com.xunce.electrombile.service");
+//        sendBroadcast(intent);
+//    }
+//    private void handArrivedGPS(byte[] payload) {
+//
+////        float lat = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLat(payload)) / (float) 30000.0;
+////        float longitude = mCenter.parseGPSDataToInt(mCenter.parsePushServiceLong(payload)) / (float) 30000.0;
+//        float lat = mCenter.parsePushServiceLat3(payload);
+//        float longitude = mCenter.parsePushServiceLong3(payload);
+//        Log.i(TAG, "lat=" + lat);
+//        Log.i(TAG, "longitude=" + longitude);
+//        String direction = mCenter.parsePushServiceDirection(payload);
+//        int speed = mCenter.parsePushServiceSpeed(payload);
+//        boolean isGPS = mCenter.parsePushServiceIsGPS(payload);
+//        long time = mCenter.parsePushServiceTime(payload);
+//        Log.i(TAG, "time=" + time);
+//        SimpleDateFormat sdfWithSecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        sdfWithSecond.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+//        String date = sdfWithSecond.format(time * 1000);
+//        Intent intent = new Intent();
+//        intent.putExtra(CmdModeSelect.SELECT_MODE, CmdModeSelect.SELECT_MODE_GPS);
+//        intent.putExtra("LAT", lat);
+//        intent.putExtra("LONG", longitude);
+//        intent.putExtra("DATE", date);
+//        intent.setAction("com.xunce.electrombile.service");
+//        sendBroadcast(intent);
+//    }
 
     //lybvinci
     public void sendMessage1(byte[] message) {

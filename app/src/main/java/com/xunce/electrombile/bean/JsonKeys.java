@@ -68,7 +68,7 @@ public class JsonKeys {
     public final static String RESET = "RESET#";
 
     //25 、查询经纬度  设备会回复：Lat:N22.55787,Lon:E113.93509,Course:0.00,Speed:0.00km/h,DateTime:2014-12-12 07:32:133426
-    public final static String WHERE = "WHERE#";
+//    public final static String GET_GPS = "GET_GPS#";
 
     // GPS定位状态，0表示未定位，1表示已定位
     public final static String GPSSTATUS = "GPSStatus";
@@ -119,5 +119,6 @@ public class JsonKeys {
     public final static String OFF = "OFF";
     public final static String TIMESTAMP = "timestamp";
     public final static String INTENSITY = "intensity";
+    public final static String GET_GPS = "GET_GPS";
 
 }

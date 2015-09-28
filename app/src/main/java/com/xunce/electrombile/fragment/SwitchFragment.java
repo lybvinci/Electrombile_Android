@@ -125,10 +125,6 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             closeStateAlarmBtn();
         }
         btnAlarmState.setOnClickListener(new OnClickListener() {
-            byte firstByteAdd = 0x00;
-            byte secondByteAdd = 0x00;
-            byte firstByteDelete = 0x00;
-            byte secondByteDelete = 0x00;
             @Override
             public void onClick(View view) {
                 if (alarmState) {
@@ -137,8 +133,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                             //关闭报警
                             //等状态设置成功之后再改变按钮的显示状态，并且再更改标志位等的保存。
                             cancelNotification();
-                            byte[] serial = mCenter.getSerial(firstByteDelete, secondByteDelete);
-                            FragmentActivity.pushService.sendMessage1(mCenter.cFenceDelete(serial));
+                            FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOff());
                             setAlarmDialog.show();
                         } else {
                             ToastUtils.showShort(m_context, "网络连接失败");
@@ -153,8 +148,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                             //等状态设置成功之后再改变按钮的显示状态，并且再更改标志位等的保存。
                             cancelNotification();
                             VibratorUtil.Vibrate(getActivity(), 700);
-                            byte[] serial = mCenter.getSerial(firstByteAdd, secondByteAdd);
-                            FragmentActivity.pushService.sendMessage1(mCenter.cFenceAdd(serial));
+                            FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOn());
                             setAlarmDialog.show();
                         } else {
                             ToastUtils.showShort(m_context, "请先绑定设备");
@@ -323,14 +317,14 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     }
 
     //点击打开报警按钮时按钮样式的响应操作
-    private void openStateAlarmBtn() {
+    public void openStateAlarmBtn() {
         alarmState = true;
         btnAlarmState.setText("关闭小安保");
         btnAlarmState.setBackgroundResource(R.drawable.btn_switch_selector_2);
     }
 
     //点击关闭报警按钮时按钮样式的响应操作
-    private void closeStateAlarmBtn() {
+    public void closeStateAlarmBtn() {
         alarmState = false;
         btnAlarmState.setText("开启小安保");
         btnAlarmState.setBackgroundResource(R.drawable.btn_switch_selector_1);

@@ -31,6 +31,7 @@ import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.applicatoin.Historys;
 import com.xunce.electrombile.bean.CmdModeSelect;
+import com.xunce.electrombile.bean.JsonKeys;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
@@ -38,10 +39,10 @@ import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 import com.xunce.electrombile.manager.CmdCenter;
 import com.xunce.electrombile.manager.SettingManager;
 import com.xunce.electrombile.manager.TracksManager;
+import com.xunce.electrombile.protocol.Protocol;
 import com.xunce.electrombile.service.PushService;
 import com.xunce.electrombile.service.UpdateAppService;
 import com.xunce.electrombile.utils.system.ToastUtils;
-import com.xunce.electrombile.utils.useful.ByteUtils;
 import com.xunce.electrombile.utils.useful.NetworkUtils;
 import com.xunce.electrombile.view.viewpager.CustomViewPager;
 
@@ -57,12 +58,9 @@ import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import io.yunba.android.manager.YunBaManager;
 
@@ -79,10 +77,6 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
     private static String TAG = "FragmentActivity:";
     protected CmdCenter mCenter;
     boolean isupde;
-    int a = 0;
-    //    //查询电子围栏
-//    byte firstByteSearch = 0x00;
-//    byte secondByteSearch = 0x00;
     //my service
     ServiceConnection conn = new ServiceConnection() {
         @Override
@@ -325,19 +319,14 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
 
     @Override
     protected void onResume() {
-        //IS_STARTED = true;
         super.onResume();
         if (pushService != null) {
-//            byte[] serial = mCenter.getSerial(firstByteSearch, secondByteSearch);
-//            pushService.sendMessage1(mCenter.cFenceSearch(serial));
-
             pushService.sendMessage1(mCenter.cmdFenceGet());
         }
     }
 
     @Override
     protected void onDestroy() {
-        //    IS_STARTED = false;
         unregisterReceiver(receiver);
         if (!setManager.getIMEI().isEmpty()) {
             pushService.actionStop(this);
@@ -480,122 +469,108 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             Bundle bundle = intent.getExtras();
             String MODE = bundle.getString(CmdModeSelect.SELECT_MODE);
             Log.i(TAG, "MODE:" + MODE);
-            Log.i(TAG, CmdModeSelect.SELECT_MODE_GPS);
-            Log.i(TAG, (CmdModeSelect.SELECT_MODE_GPS == MODE) + "");
-
+            Protocol protocol;
+            protocol = (Protocol) bundle.get("protocol");
             if (CmdModeSelect.SELECT_MODE_GPS.equals(MODE)) {
-                Log.i(TAG, "GPS？");
-                float Flat = bundle.getFloat("LAT");
-                float Flong = bundle.getFloat("LONG");
-                String date = bundle.getString("DATE");
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-                TracksManager.TrackPoint trackPoint = null;
-                try {
-                    trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                LogUtil.log.i("保存数据1");
-                setManager.setInitLocation(Flat + "", Flong + "");
-                if (trackPoint != null) {
-                    if (!maptabFragment.isPlaying) {
-                        maptabFragment.locateMobile(trackPoint);
-                    }
-                    switchFragment.reverserGeoCedec(trackPoint.point);
-                }
+                Log.i(TAG, "得到GPS");
+                onGPSArrived(protocol);
             } else if (CmdModeSelect.SELECT_MODE_CMD.equals(MODE)) {
-                Log.i(TAG, "弹不出来？？？");
-                byte[] cmd = bundle.getByteArray("CMD");
-                //test用
-                // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
-                // pushService.sendMessage1(mCenter.cTestGPS(new byte[]{0x00,0x12}));
-                //pushService.sendMessage1(mCenter.cTest(new byte[]{0x00,0x11}));
-                //  ToastUtils.showShort(FragmentActivity.this,"命令字是"+cmd[3]);
-                //开启围栏
-                if (cmd[3] == 0x01) {
-                    switchFragment.cancelDialog();
-                    // DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
-                    //修改协议时 需要增加此功能，如果设置成功，就显示保存alalrmFlag的状态信息，如果设置了电子围栏成功，就设置其为true，
-                    //如果设置电子围栏失败，就将其设置为false.
-                    //同时删除电子围栏成功也为false，删除失败则为true。
-                    if (setManager.getAlarmFlag())
-                        ToastUtils.showShort(FragmentActivity.this, "防盗开启成功");
-                    else
-                        ToastUtils.showShort(FragmentActivity.this, "防盗关闭成功");
-                    //关闭围栏
-                } else if (cmd[3] == 0x02) {
-                    switchFragment.cancelDialog();
-                    // DeviceUtils.showNotifation(FragmentActivity.this, "安全宝", "设置成功");
-                    if (setManager.getAlarmFlag())
-                        ToastUtils.showShort(FragmentActivity.this, "防盗开启成功");
-                    else
-                        ToastUtils.showShort(FragmentActivity.this, "防盗关闭成功");
-                    //查询围栏
-                } else if (cmd[3] == 0x03) {
-                    String cmdString = new String(cmd);
-                    Log.i(TAG, cmdString);
-                    if (cmdString.contains("NONE")) {
-                        setManager.setAlarmFlag(false);
-                    } else {
-                        setManager.setAlarmFlag(true);
-                    }
-                    ToastUtils.showShort(FragmentActivity.this, "同步设置成功");
-                } else if (cmd[3] == 0x06) {
-                    Log.i(TAG, "查询所得到的结果");
-                    float Flat = bundle.getFloat("LAT");
-                    float Flong = bundle.getFloat("LONG");
-                    String date = bundle.getString("DATE");
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    sdf.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
-                    Date curDate = new Date(System.currentTimeMillis());//获取当前时间
-
-                    TracksManager.TrackPoint trackPoint = null;
-                    try {
-
-                        Date mDate = sdf.parse(sdf.format(curDate));
-                        trackPoint = new TracksManager.TrackPoint(mDate, mCenter.convertPoint(new LatLng(Flat, Flong)));
-                        LogUtil.log.i("保存数据2");
-                        setManager.setInitLocation(Flat + "", Flong + "");
-                        // trackPoint = new TracksManager.TrackPoint(sdf.parse(date), mCenter.convertPoint(new LatLng(Flat, Flong)));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    //LatLng point = mCenter.convertPoint(new LatLng(Flat, Flong));
-                    if (trackPoint != null) {
-                        if (!maptabFragment.isPlaying) {
-                            maptabFragment.locateMobile(trackPoint);
-                        }
-                        maptabFragment.cancelWaitDialog();
-                        switchFragment.reverserGeoCedec(trackPoint.point);
-                        ToastUtils.showShort(FragmentActivity.this, "查询位置成功");
-                    }
-                    //取消设置管理员功能
-//                } else if (cmd[3] == 0x05) {
-//                    AddSosActivity.cancelDialog();
-//                    ToastUtils.showShort(FragmentActivity.this, "设置管理员成功");
-//                } else if (cmd[3] == 0x06) {
-//                    String data = new String(cmd);
-//                    LogUtil.log.i(data);
-//                    AddSosActivity.cancelDialog(data);
-//
-//                }
-
-                }
+                Log.i(TAG, "得到命令字");
+                onCmdArrived(protocol);
             } else if (CmdModeSelect.SELECT_MODE_433.equals(MODE)) {
                 // 找车
-                byte[] findInfo = bundle.getByteArray("findInfo");
-                //开始找车
-                Intent intent7 = new Intent();
-                intent7.putExtra("data", mCenter.parseFindInt(findInfo));
-                ByteUtils.printHexString("findinfo:", findInfo);
-                LogUtil.log.i(mCenter.parseFindInt(findInfo) + "");
-                intent7.setAction("com.xunce.electrombile.find");
-                sendBroadcast(intent7);
-                //停止找车
-
+                on433Arrived(protocol);
             }
 
+        }
+
+        private void on433Arrived(Protocol protocol) {
+            float intensity = protocol.getIntensity();
+            Intent intent7 = new Intent();
+            intent7.putExtra("intensity", intensity);
+            intent7.setAction("com.xunce.electrombile.find");
+            sendBroadcast(intent7);
+        }
+
+        private void onCmdArrived(Protocol protocol) {
+            String cmd = protocol.getCmd();
+            int result = protocol.getResult();
+            switch (cmd) {
+                //如果是设置围栏的命令
+                case JsonKeys.FENCE_ON:
+                    caseFence(result, true, "防盗开启成功", "防盗开启失败");
+                    break;
+                //如果是设置关闭围栏的命令
+                case JsonKeys.FENCE_OFF:
+                    caseFence(result, false, "防盗关闭成功", "防盗关闭失败");
+                    break;
+                //如果是获取围栏的命令
+                case JsonKeys.FENCE_GET:
+                    caseFenceGet(protocol, result);
+                    break;
+                //如果是开始找车的命令
+                case JsonKeys.SEEK_ON:
+                    caseSeek(result, "开始找车", "开始找车初始化失败");
+                    break;
+                //如果是停止找车的命令
+                case JsonKeys.SEEK_OF:
+                    caseSeek(result, "停止找车", "停止找车失败");
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void caseSeek(int result, String success, String failed) {
+            if (0 == result) {
+                ToastUtils.showShort(FragmentActivity.this, success);
+            } else {
+                ToastUtils.showShort(FragmentActivity.this, failed);
+            }
+        }
+
+        private void caseFenceGet(Protocol protocol, int result) {
+            String state = protocol.getState();
+            if (0 == result) {
+                if (JsonKeys.ON.equals(state)) {
+                    setManager.setAlarmFlag(true);
+                    switchFragment.openStateAlarmBtn();
+                } else if (JsonKeys.OFF.equals(state)) {
+                    setManager.setAlarmFlag(false);
+                    switchFragment.closeStateAlarmBtn();
+                }
+                ToastUtils.showShort(FragmentActivity.this, "查询状态成功");
+            } else {
+                ToastUtils.showShort(FragmentActivity.this, "查询状态失败");
+            }
+        }
+
+        private void caseFence(int result, boolean successAlarmFlag, String success, String failed) {
+            if (0 == result) {
+                setManager.setAlarmFlag(successAlarmFlag);
+                switchFragment.cancelDialog();
+                ToastUtils.showShort(FragmentActivity.this, success);
+            } else {
+                setManager.setAlarmFlag(!successAlarmFlag);
+                switchFragment.cancelDialog();
+                ToastUtils.showShort(FragmentActivity.this, failed);
+            }
+        }
+
+        private void onGPSArrived(Protocol protocol) {
+            float Flat = protocol.getLat();
+            float Flong = protocol.getLng();
+            Date curDate = new Date(System.currentTimeMillis());//获取当前时间
+            TracksManager.TrackPoint trackPoint = null;
+            trackPoint = new TracksManager.TrackPoint(curDate, mCenter.convertPoint(new LatLng(Flat, Flong)));
+            LogUtil.log.i("保存数据1");
+            setManager.setInitLocation(Flat + "", Flong + "");
+            if (trackPoint != null) {
+                if (!maptabFragment.isPlaying) {
+                    maptabFragment.locateMobile(trackPoint);
+                }
+                switchFragment.reverserGeoCedec(trackPoint.point);
+            }
         }
     }
 
