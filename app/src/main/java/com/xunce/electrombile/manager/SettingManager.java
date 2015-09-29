@@ -64,6 +64,7 @@ public class SettingManager {
     // 用户名
     //did
     private final String IMEI = "imie";
+    private final String PHOTO_FLAG = "photoFlag";
     //TracksBean
     private final String TRACKSDATA = "tracksData";
     //用户的初始位置
@@ -201,6 +202,14 @@ public class SettingManager {
 
     public void setIMEI(String did) {
         spf.edit().putString(IMEI, did).commit();
+    }
+
+    public int getPersonCenterImage() {
+        return spf.getInt(PHOTO_FLAG, 0);
+    }
+
+    public void setPersonCenterImage(int did) {
+        spf.edit().putInt(PHOTO_FLAG, did).commit();
     }
 
 }

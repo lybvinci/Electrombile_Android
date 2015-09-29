@@ -21,7 +21,7 @@ import android.content.Context;
 
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.CoordinateConverter;
-import com.xunce.electrombile.bean.JsonKeys;
+import com.xunce.electrombile.protocol.JsonKeys;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -389,7 +389,7 @@ public class CmdCenter {
     }
 
     public byte[] cmdSeekOff() {
-        return getCmdString(JsonKeys.SEEK_OF).getBytes();
+        return getCmdString(JsonKeys.SEEK_OFF).getBytes();
     }
 
     private String getCmdString(String fenceOn) {

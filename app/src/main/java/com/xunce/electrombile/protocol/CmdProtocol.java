@@ -1,7 +1,5 @@
 package com.xunce.electrombile.protocol;
 
-import com.xunce.electrombile.bean.JsonKeys;
-
 /**
  * Created by lybvinci on 2015/9/28.
  */

@@ -110,7 +110,7 @@ public class FindActivity extends Activity {
     }
 
     //取消等待框，并且刷新界面
-    private void cancelDialog(float data) {
+    private void cancelDialog(int data) {
         progressDialog.dismiss();
         float rating = (float) (data / 200.0);
         ratingBar.setRating(rating);
@@ -121,7 +121,7 @@ public class FindActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "find接收调用");
             Bundle bundle = intent.getExtras();
-            float data = bundle.getInt("intensity");
+            int data = bundle.getInt("intensity");
             Log.i(TAG, data + "");
             cancelDialog(data);
         }

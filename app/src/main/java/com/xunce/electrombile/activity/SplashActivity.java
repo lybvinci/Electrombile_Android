@@ -36,22 +36,6 @@ public class SplashActivity extends BaseActivity {
                 @Override
                 public void run() {
                     if (currentUser != null) {
-                        /*if(currentUser.isMobilePhoneVerified()) {
-                            Intent intent = new Intent(SplashActivity.this, FragmentActivity.class);
-                            startActivity(intent);
-                            SplashActivity.this.finish();
-                        }else{
-                            currentUser.deleteInBackground(new DeleteCallback() {
-                                @Override
-                                public void done(AVException e) {
-                                    if(e == null){
-                                        Intent intent = new Intent(SplashActivity.this, RegisterActivity.class);
-                                        startActivity(intent);
-                                        SplashActivity.this.finish();
-                                    }
-                                }
-                            });
-                        }*/
                         FIR.addCustomizeValue("user", currentUser.getUsername());
                         Intent intent = new Intent(SplashActivity.this, FragmentActivity.class);
                         startActivity(intent);

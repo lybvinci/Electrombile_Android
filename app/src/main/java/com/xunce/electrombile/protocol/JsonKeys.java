@@ -15,7 +15,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.xunce.electrombile.bean;
+package com.xunce.electrombile.protocol;
 
 /**
  * ClassName: Class JsonKeys. <br/>
@@ -114,7 +114,7 @@ public class JsonKeys {
     public final static String FENCE_OFF = "FENCE_OFF";
     public final static String FENCE_GET = "FENCE_GET";
     public final static String SEEK_ON = "SEEK_ON";
-    public final static String SEEK_OF = "SEEK_OF";
+    public final static String SEEK_OFF = "SEEK_OFF";
     public final static String ON = "ON";
     public final static String OFF = "OFF";
     public final static String TIMESTAMP = "timestamp";

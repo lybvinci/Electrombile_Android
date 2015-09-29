@@ -27,11 +27,11 @@ import com.ibm.mqtt.MqttPersistenceException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.activity.FragmentActivity;
-import com.xunce.electrombile.bean.CmdModeSelect;
 import com.xunce.electrombile.bean.ConnectionLog;
 import com.xunce.electrombile.manager.CmdCenter;
 import com.xunce.electrombile.manager.SettingManager;
 import com.xunce.electrombile.protocol.CmdFactory;
+import com.xunce.electrombile.protocol.CmdModeSelect;
 import com.xunce.electrombile.protocol.GPSFactory;
 import com.xunce.electrombile.protocol.Protocol;
 import com.xunce.electrombile.protocol.ProtocolFactoryInterface;
@@ -579,7 +579,7 @@ public class PushService extends Service {
             // mqttClient.publish(MQTT_CLIENT_ID + "/keepalive",
             // message.getBytes(), 0, false);
             Log.d(TAG, " settingManager.getIMEI():" + settingManager.getIMEI());
-            mqttClient.publish("app2dev/" + settingManager.getIMEI() + "/simcom/cmd",
+            mqttClient.publish("app2dev/" + settingManager.getIMEI() + "/cmd",
                     message, 0, false);
         } catch (MqttException e) {
             Log.d(TAG, e.getCause() + "");
@@ -636,15 +636,15 @@ public class PushService extends Service {
 
             // Subscribe to an initial topic, which is combination of client ID and device ID.
             //订阅命令字
-            String initTopic1 = "dev2app/" + initTopic + "/simcom/cmd";
+            String initTopic1 = "dev2app/" + initTopic + "/cmd";
             subscribeToTopic(initTopic1);
             log("Connection established to " + brokerHostName + " on topic " + initTopic1);
             //订阅GPS数据
-            String initTopic2 = "dev2app/" + initTopic + "/simcom/gps";
+            String initTopic2 = "dev2app/" + initTopic + "/gps";
             subscribeToTopic(initTopic2);
             log("Connection established to " + brokerHostName + " on topic " + initTopic2);
             //订阅上报的信号强度
-            String initTopic3 = "dev2app/" + initTopic + "/simcom/433";
+            String initTopic3 = "dev2app/" + initTopic + "/433";
             subscribeToTopic(initTopic3);
             log("Connection established to " + brokerHostName + " on topic " + initTopic3);
             // Save start time
@@ -717,6 +717,7 @@ public class PushService extends Service {
             Log.i(TAG, "topicName=" + topicName);
             if (payload != null) {
                 String s = new String(payload);
+                Log.e("pushService payload:", s);
                 //showNotification(s);
                 //如果返回的是自己发送的命令的回答
                 if (topicName.contains("cmd")) {

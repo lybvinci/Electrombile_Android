@@ -32,36 +32,56 @@ public class PersonalCenterActivity extends BaseActivity {
     private static final int RESULT_REQUEST_CODE = 2;
     private String[] items = new String[]{"选择本地图片", "拍照"};
     private String imgFilePath = Environment.getExternalStorageDirectory().toString()
-            + "/safeGuard/faceImage.png";
+            + "/safeGuard";
     private ImageView faceImage;
+    private ImageView carView1;
+    private ImageView carView2;
+    private ImageView carView3;
+    private ImageView carView4;
+    private int photoNumber = 0;
+    private ImageView[] iv;
+    private String[] path = {"/faceImage.png", "/car1Image.png", "/car2Image.png", "/car3Image.png", "/car4Image.png"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_personal_center);
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public void initViews() {
         faceImage = (ImageView) findViewById(R.id.head_portrait);
+        carView1 = (ImageView) findViewById(R.id.car1View);
+        carView2 = (ImageView) findViewById(R.id.car2View);
+        carView3 = (ImageView) findViewById(R.id.car3View);
+        carView4 = (ImageView) findViewById(R.id.car4View);
+        iv = new ImageView[]{faceImage, carView1, carView2, carView3, carView4};
     }
 
     @Override
     public void initEvents() {
-        loadAndSetImg();
+        loadAndSetImg(faceImage, "/faceImage.png");
+        int ImageState = setManager.getPersonCenterImage();
+        for (int i = 1; i <= ImageState; i++) {
+            iv[i].setVisibility(View.VISIBLE);
+            loadAndSetImg(iv[i], path[i]);
+            if (i == ImageState && ImageState != 4) {
+                iv[i + 1].setVisibility(View.VISIBLE);
+            }
+        }
     }
 
-    private void loadAndSetImg() {
+    private void loadAndSetImg(ImageView imageView, String nameImg) {
         com.lidroid.xutils.BitmapUtils bitmapUtils = new com.lidroid.xutils.BitmapUtils(this);
         bitmapUtils.configDefaultLoadFailedImage(R.drawable.person_center_left);//加载失败图片
         bitmapUtils.configDefaultBitmapConfig(Bitmap.Config.RGB_565);//设置图片压缩类型
         bitmapUtils.configDefaultCacheExpiry(0);
         bitmapUtils.configDefaultAutoRotation(true);
-        bitmapUtils.display(faceImage, imgFilePath);
+        bitmapUtils.display(imageView, imgFilePath + nameImg);
     }
 
     public void changeHeadPortrait(View view) {
+        photoNumber = 0;
         showDialog();
     }
 
@@ -122,16 +142,15 @@ public class PersonalCenterActivity extends BaseActivity {
                     break;
                 case CAMERA_REQUEST_CODE:
                     if (SDCardUtils.hasSdcard()) {
-                        File tempFile = new File(imgFilePath);
+                        File tempFile = new File(imgFilePath + "/tempImg.png");
                         startPhotoZoom(Uri.fromFile(tempFile));
                     } else {
                         ToastUtils.showShort(this, "未找到存储卡，无法存储照片！");
                     }
-
                     break;
                 case RESULT_REQUEST_CODE:
                     if (data != null) {
-                        getImageToView(data);
+                        getImageToView(iv[photoNumber], data, path[photoNumber]);
                     }
                     break;
             }
@@ -165,25 +184,51 @@ public class PersonalCenterActivity extends BaseActivity {
      *
      * @param
      */
-    private void getImageToView(Intent data) {
+    private void getImageToView(ImageView imageView, Intent data, String path) {
         Bundle extras = data.getExtras();
         if (extras != null) {
             Bitmap photo = extras.getParcelable("data");
             Drawable drawable = new BitmapDrawable(photo);
-            faceImage.setImageDrawable(drawable);
-            saveFaceImg(photo);
+            imageView.setImageDrawable(drawable);
+            saveFaceImg(photo, path);
         }
     }
 
-    private void saveFaceImg(Bitmap photo) {
+    private void saveFaceImg(Bitmap photo, String path) {
         try {
-            BitmapUtils.saveBitmapToFile(photo, imgFilePath);
+            BitmapUtils.saveBitmapToFile(photo, imgFilePath + path);
             ToastUtils.showShort(this, "设置成功！");
+            setNextImageDisplay();
         } catch (IOException e) {
             e.printStackTrace();
             ToastUtils.showShort(this, "保存失败，请重试。");
         }
     }
 
+    private void setNextImageDisplay() {
+        if (photoNumber < 4)
+            iv[photoNumber + 1].setVisibility(View.VISIBLE);
+        setManager.setPersonCenterImage(photoNumber);
+    }
+
+    public void addDevice1Photo(View view) {
+        photoNumber = 1;
+        showDialog();
+    }
+
+    public void addDevice2Photo(View view) {
+        photoNumber = 2;
+        showDialog();
+    }
+
+    public void addDevice3Photo(View view) {
+        photoNumber = 3;
+        showDialog();
+    }
+
+    public void addDevice4Photo(View view) {
+        photoNumber = 4;
+        showDialog();
+    }
 
 }

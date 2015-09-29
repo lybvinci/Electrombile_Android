@@ -30,8 +30,6 @@ import com.avos.avoscloud.LogUtil;
 import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.applicatoin.Historys;
-import com.xunce.electrombile.bean.CmdModeSelect;
-import com.xunce.electrombile.bean.JsonKeys;
 import com.xunce.electrombile.fragment.MaptabFragment;
 import com.xunce.electrombile.fragment.SettingsFragment;
 import com.xunce.electrombile.fragment.SwitchFragment;
@@ -39,6 +37,8 @@ import com.xunce.electrombile.fragment.SwitchFragment.LocationTVClickedListener;
 import com.xunce.electrombile.manager.CmdCenter;
 import com.xunce.electrombile.manager.SettingManager;
 import com.xunce.electrombile.manager.TracksManager;
+import com.xunce.electrombile.protocol.CmdModeSelect;
+import com.xunce.electrombile.protocol.JsonKeys;
 import com.xunce.electrombile.protocol.Protocol;
 import com.xunce.electrombile.service.PushService;
 import com.xunce.electrombile.service.UpdateAppService;
@@ -485,11 +485,8 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }
 
         private void on433Arrived(Protocol protocol) {
-            float intensity = protocol.getIntensity();
-            Intent intent7 = new Intent();
-            intent7.putExtra("intensity", intensity);
-            intent7.setAction("com.xunce.electrombile.find");
-            sendBroadcast(intent7);
+            int intensity = protocol.getIntensity();
+            caseSeekSendToFindAct(intensity);
         }
 
         private void onCmdArrived(Protocol protocol) {
@@ -513,7 +510,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
                     caseSeek(result, "开始找车", "开始找车初始化失败");
                     break;
                 //如果是停止找车的命令
-                case JsonKeys.SEEK_OF:
+                case JsonKeys.SEEK_OFF:
                     caseSeek(result, "停止找车", "停止找车失败");
                     break;
                 default:
@@ -524,9 +521,18 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         private void caseSeek(int result, String success, String failed) {
             if (0 == result) {
                 ToastUtils.showShort(FragmentActivity.this, success);
+                caseSeekSendToFindAct(0);
             } else {
                 ToastUtils.showShort(FragmentActivity.this, failed);
+                caseSeekSendToFindAct(0);
             }
+        }
+
+        private void caseSeekSendToFindAct(int value) {
+            Intent intent7 = new Intent();
+            intent7.putExtra("intensity", value);
+            intent7.setAction("com.xunce.electrombile.find");
+            sendBroadcast(intent7);
         }
 
         private void caseFenceGet(Protocol protocol, int result) {

@@ -135,6 +135,15 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                             cancelNotification();
                             FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOff());
                             setAlarmDialog.show();
+
+                            //test
+//                            FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOff());
+//                            FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOn());
+//                            FragmentActivity.pushService.sendMessage1(mCenter.cmdSeekOn());
+//                            FragmentActivity.pushService.sendMessage1(mCenter.cmdSeekOff());
+//                            FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceGet());
+//                            FragmentActivity.pushService.sendMessage1(mCenter.cmdWhere());
+
                         } else {
                             ToastUtils.showShort(m_context, "网络连接失败");
                         }
@@ -159,6 +168,8 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                 }
             }
         });
+
+
     }
 
     @Override
