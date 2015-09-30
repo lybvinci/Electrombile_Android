@@ -4,7 +4,6 @@ package com.xunce.electrombile.fragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -83,9 +82,9 @@ public class MaptabFragment extends BaseFragment {
     //dialogs
     Dialog networkDialog;
     Dialog didDialog;
-    private Context m_context;
+    //private Context m_context;
     private BaiduMap mBaiduMap;
-    private ProgressDialog watiDialog;
+    //    private ProgressDialog watiDialog;
     //缓存布局
     private View rootView;
     private Handler playHandler = new Handler() {
@@ -102,7 +101,7 @@ public class MaptabFragment extends BaseFragment {
                     break;
                 case LOCATEMESSAGE: {
 
-                    watiDialog.dismiss();
+                    waitDialog.dismiss();
 
                     if (msg.obj != null) {
                         locateMobile((TrackPoint) msg.obj);
@@ -162,8 +161,7 @@ public class MaptabFragment extends BaseFragment {
                     }
                 }).create();
 
-        watiDialog = new ProgressDialog(m_context);
-        watiDialog.setMessage("正在查询位置信息，请稍后……");
+        waitDialog.setMessage("正在查询位置信息，请稍后……");
     }
 
     @Override
@@ -181,7 +179,7 @@ public class MaptabFragment extends BaseFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        m_context = activity;
+//        m_context = activity;
     }
 
     private void initView(View v) {
@@ -250,7 +248,8 @@ public class MaptabFragment extends BaseFragment {
 
                 if (mBaiduMap != null) {
                     //LatLng point = getLatestLocation();
-                    watiDialog.show();
+                    waitDialog.show();
+                    timeHandler.sendEmptyMessageDelayed(TIME_OUT, 5000);
                     updateLocation();
                 }
             }
@@ -510,7 +509,7 @@ public class MaptabFragment extends BaseFragment {
 
         //更新当前轨迹
         currentTrack = track;
-        watiDialog.dismiss();
+        waitDialog.dismiss();
     }
 
 
@@ -551,9 +550,6 @@ public class MaptabFragment extends BaseFragment {
             m_playThread.PAUSE = false;
     }
 
-    public void cancelWaitDialog() {
-        watiDialog.dismiss();
-    }
 
     //播放线程消息类型
     enum handleKey {

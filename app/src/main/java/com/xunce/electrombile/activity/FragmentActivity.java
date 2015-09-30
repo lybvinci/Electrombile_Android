@@ -473,6 +473,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             protocol = (Protocol) bundle.get("protocol");
             if (CmdModeSelect.SELECT_MODE_GPS.equals(MODE)) {
                 Log.i(TAG, "得到GPS");
+                maptabFragment.cancelWaitTimeOut();
                 onGPSArrived(protocol);
             } else if (CmdModeSelect.SELECT_MODE_CMD.equals(MODE)) {
                 Log.i(TAG, "得到命令字");
@@ -495,10 +496,12 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
             switch (cmd) {
                 //如果是设置围栏的命令
                 case JsonKeys.FENCE_ON:
+                    switchFragment.cancelWaitTimeOut();
                     caseFence(result, true, "防盗开启成功", "防盗开启失败");
                     break;
                 //如果是设置关闭围栏的命令
                 case JsonKeys.FENCE_OFF:
+                    switchFragment.cancelWaitTimeOut();
                     caseFence(result, false, "防盗关闭成功", "防盗关闭失败");
                     break;
                 //如果是获取围栏的命令
@@ -554,16 +557,18 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         private void caseFence(int result, boolean successAlarmFlag, String success, String failed) {
             if (0 == result) {
                 setManager.setAlarmFlag(successAlarmFlag);
-                switchFragment.cancelDialog();
+
+                switchFragment.msgSuccessArrived();
                 ToastUtils.showShort(FragmentActivity.this, success);
             } else {
                 setManager.setAlarmFlag(!successAlarmFlag);
-                switchFragment.cancelDialog();
+                switchFragment.msgSuccessArrived();
                 ToastUtils.showShort(FragmentActivity.this, failed);
             }
         }
 
         private void onGPSArrived(Protocol protocol) {
+
             float Flat = protocol.getLat();
             float Flong = protocol.getLng();
             Date curDate = new Date(System.currentTimeMillis());//获取当前时间

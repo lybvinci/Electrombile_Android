@@ -20,11 +20,13 @@ import android.widget.RatingBar;
 
 import com.xunce.electrombile.R;
 import com.xunce.electrombile.manager.CmdCenter;
+import com.xunce.electrombile.utils.system.ToastUtils;
 
 
 public class FindActivity extends Activity {
 
     private static final String TAG = "FindActivity";
+    private final int TIME_OUT = 0;
     private boolean isFinding = false;
     private RatingBar ratingBar;
     Handler refreshRatingBar = new Handler() {
@@ -39,12 +41,15 @@ public class FindActivity extends Activity {
     private ProgressDialog progressDialog;
     private CmdCenter mCenter;
     private MyReceiver receiver;
-    //    private byte firstByteSearch = 0x00;
-//    private byte secondByteSearch = 0x00;
-//    private byte firstByteStop = 0x00;
-//    private byte secondByteStop = 0x00;
     private Animation operatingAnim;
-
+    private Handler timeHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            progressDialog.dismiss();
+            ToastUtils.showShort(FindActivity.this, "指令下发失败，请检查网络和设备工作是否正常。");
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +71,7 @@ public class FindActivity extends Activity {
         LinearInterpolator lin = new LinearInterpolator();
         operatingAnim.setInterpolator(lin);
         progressDialog.setMessage("正在配置...");
+        progressDialog.setCancelable(false);
         registerBroadCast();
     }
 
@@ -82,6 +88,7 @@ public class FindActivity extends Activity {
 
     public void startFind(View view) {
         Button button = (Button) view;
+        timeHandler.sendEmptyMessageDelayed(TIME_OUT, 5000);
         if (!isFinding) {
             if (FragmentActivity.pushService != null) {
                 FragmentActivity.pushService.sendMessage1(mCenter.cmdSeekOn());
@@ -111,6 +118,7 @@ public class FindActivity extends Activity {
 
     //取消等待框，并且刷新界面
     private void cancelDialog(int data) {
+        timeHandler.removeMessages(TIME_OUT);
         progressDialog.dismiss();
         float rating = (float) (data / 200.0);
         ratingBar.setRating(rating);
@@ -126,6 +134,5 @@ public class FindActivity extends Activity {
             cancelDialog(data);
         }
     }
-
 
 }

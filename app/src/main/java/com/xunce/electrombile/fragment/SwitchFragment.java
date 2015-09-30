@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -58,8 +57,9 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
     private TextView switch_fragment_tvLocation;
     private LocationTVClickedListener locationTVClickedListener;
     //设置时出现的进度框
-    private ProgressDialog setAlarmDialog;
+    // private ProgressDialog setAlarmDialog;
     private TextView tvWeather;
+
 
     @Override
     public void onAttach(Activity activity) {
@@ -85,8 +85,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         initLocation();
         mLocationClient.start();
         //设置报警进度框初始化
-        setAlarmDialog = new ProgressDialog(m_context);
-        setAlarmDialog.setMessage("正在设置，请稍后......");
+        waitDialog.setMessage("正在设置，请稍后......");
     }
 
     private void initLocation() {
@@ -134,8 +133,8 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                             //等状态设置成功之后再改变按钮的显示状态，并且再更改标志位等的保存。
                             cancelNotification();
                             FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOff());
-                            setAlarmDialog.show();
-
+                            waitDialog.show();
+                            timeHandler.sendEmptyMessageDelayed(TIME_OUT, 5000);
                             //test
 //                            FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOff());
 //                            FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOn());
@@ -158,7 +157,8 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
                             cancelNotification();
                             VibratorUtil.Vibrate(getActivity(), 700);
                             FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOn());
-                            setAlarmDialog.show();
+                            waitDialog.show();
+                            timeHandler.sendEmptyMessageDelayed(TIME_OUT, 5000);
                         } else {
                             ToastUtils.showShort(m_context, "请先绑定设备");
                         }
@@ -234,8 +234,7 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
         notificationManager.cancel(R.string.app_name);
     }
 
-    public void cancelDialog() {
-        setAlarmDialog.dismiss();
+    public void msgSuccessArrived() {
         if (setManager.getAlarmFlag()) {
             showNotification("安全宝防盗系统已启动");
             openStateAlarmBtn();
@@ -364,4 +363,6 @@ public class SwitchFragment extends BaseFragment implements OnGetGeoCoderResultL
             }
         }
     }
+
+
 }

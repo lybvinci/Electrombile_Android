@@ -721,17 +721,17 @@ public class PushService extends Service {
                 //showNotification(s);
                 //如果返回的是自己发送的命令的回答
                 if (topicName.contains("cmd")) {
-                    Message msg = new Message();
+                    Message msg = Message.obtain();
                     msg.what = 0x01;
                     msg.obj = payload;
                     mHandler.sendMessage(msg);
                 } else if (topicName.contains("gps")) {
-                    Message msg = new Message();
+                    Message msg = Message.obtain();
                     msg.what = 0x02;
                     msg.obj = payload;
                     mHandler.sendMessage(msg);
                 } else if (topicName.contains("433")) {
-                    Message msg = new Message();
+                    Message msg = Message.obtain();
                     msg.what = 0x03;
                     msg.obj = payload;
                     mHandler.sendMessage(msg);

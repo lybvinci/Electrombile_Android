@@ -53,7 +53,8 @@
         android:layout_below="@+id/rl_container"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:clickable="false" />
+        android:clickable="false"
+        android:focusable="false" />
 
     <Button
         android:id="@+id/button"

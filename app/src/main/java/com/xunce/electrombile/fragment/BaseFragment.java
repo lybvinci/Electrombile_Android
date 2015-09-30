@@ -1,7 +1,11 @@
 package com.xunce.electrombile.fragment;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -10,6 +14,7 @@ import com.baidu.mapapi.model.LatLng;
 import com.xunce.electrombile.manager.CmdCenter;
 import com.xunce.electrombile.manager.SettingManager;
 import com.xunce.electrombile.manager.TracksManager;
+import com.xunce.electrombile.utils.system.ToastUtils;
 
 
 /**
@@ -25,18 +30,32 @@ import com.xunce.electrombile.manager.TracksManager;
 public class BaseFragment extends Fragment{
 
     private static String TAG = "BaseFragmet";
+    //timeOut
+    public final int TIME_OUT = 0;
     //判断是否关闭页面
     public boolean close = false;
     protected CmdCenter mCenter;
     protected SettingManager setManager;
     protected GPSDataChangeListener mGpsChangedListener;
+    protected ProgressDialog waitDialog;
+    protected Context m_context;
+    protected Handler timeHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            waitDialog.dismiss();
+            ToastUtils.showShort(m_context, "指令下发失败，请检查网络和设备工作是否正常。");
+        }
+    };
 
     @Override
     public void onCreate(Bundle saveInstanceState){
         super.onCreate(saveInstanceState);
         setManager = new SettingManager(getActivity().getApplicationContext());
         mCenter = CmdCenter.getInstance(getActivity().getApplicationContext());
-
+        waitDialog = new ProgressDialog(m_context);
+        waitDialog.setMessage("正在查询位置信息，请稍后……");
+        waitDialog.setCancelable(false);
     }
 
     @Override
@@ -57,6 +76,7 @@ public class BaseFragment extends Fragment{
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + "must implement GPSDataChangeListener");
         }
+        m_context = activity;
     }
 
     @Override
@@ -76,6 +96,10 @@ public class BaseFragment extends Fragment{
         close = true;
     }
 
+    public void cancelWaitTimeOut() {
+        waitDialog.dismiss();
+        timeHandler.removeMessages(TIME_OUT);
+    }
     public interface GPSDataChangeListener {
         void gpsCallBack(LatLng desLat, TracksManager.TrackPoint trackPoint);
     }
