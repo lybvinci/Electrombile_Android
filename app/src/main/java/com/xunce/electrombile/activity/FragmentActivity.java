@@ -69,14 +69,16 @@ import io.yunba.android.manager.YunBaManager;
  * Created by heyukun on 2015/3/24.
  */
 
-public class FragmentActivity extends android.support.v4.app.FragmentActivity implements SwitchFragment.GPSDataChangeListener, LocationTVClickedListener {
+public class FragmentActivity extends android.support.v4.app.FragmentActivity
+        implements SwitchFragment.GPSDataChangeListener,
+        LocationTVClickedListener {
     //推送通知用的
     public static PushService pushService;
     //保存自己的实例
     public static FragmentActivity fragmentActivity;
     private static String TAG = "FragmentActivity:";
     protected CmdCenter mCenter;
-    boolean isupde;
+    boolean isUpdate;
     //my service
     ServiceConnection conn = new ServiceConnection() {
         @Override
@@ -95,10 +97,10 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             Bundle bundle = msg.getData();
-            isupde = bundle.getBoolean("isupdate");
-            if (isupde) {
+            isUpdate = bundle.getBoolean("isupdate");
+            if (isUpdate) {
                 upData();
-                isupde = false;
+                isUpdate = false;
             }
 
         }
@@ -491,7 +493,7 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }
 
         private void onCmdArrived(Protocol protocol) {
-            String cmd = protocol.getCmd();
+            int cmd = protocol.getCmd();
             int result = protocol.getResult();
             switch (cmd) {
                 //如果是设置围栏的命令
@@ -539,12 +541,12 @@ public class FragmentActivity extends android.support.v4.app.FragmentActivity im
         }
 
         private void caseFenceGet(Protocol protocol, int result) {
-            String state = protocol.getState();
+            int state = protocol.getState();
             if (0 == result) {
-                if (JsonKeys.ON.equals(state)) {
+                if (JsonKeys.ON == state) {
                     setManager.setAlarmFlag(true);
                     switchFragment.openStateAlarmBtn();
-                } else if (JsonKeys.OFF.equals(state)) {
+                } else if (JsonKeys.OFF == state) {
                     setManager.setAlarmFlag(false);
                     switchFragment.closeStateAlarmBtn();
                 }

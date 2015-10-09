@@ -1,6 +1,5 @@
 package com.xunce.electrombile.activity;
 
-import android.app.Activity;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -14,7 +13,7 @@ import com.xunce.electrombile.utils.device.VibratorUtil;
 /**
  * Created by heyukun on 2015/4/3.
  */
-public class AlarmActivity extends Activity{
+public class AlarmActivity extends BaseActivity {
     public static AlarmActivity instance = null;
     ToggleButton btnWarmComfirm = null;
     AudioManager aManager = null;
@@ -41,6 +40,7 @@ public class AlarmActivity extends Activity{
                     mPlayer.stop();
                     AlarmActivity.this.finish();
                     AlarmActivity.instance = null;
+                    FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOff());
                 }
             }
         });
