@@ -14,7 +14,7 @@ import com.xunce.electrombile.utils.device.VibratorUtil;
  * Created by heyukun on 2015/4/3.
  */
 public class AlarmActivity extends BaseActivity {
-    public static AlarmActivity instance = null;
+    //public static AlarmActivity instance = null;
     ToggleButton btnWarmComfirm = null;
     AudioManager aManager = null;
     MediaPlayer mPlayer;
@@ -39,12 +39,12 @@ public class AlarmActivity extends BaseActivity {
                     VibratorUtil.VibrateCancle(AlarmActivity.this);
                     mPlayer.stop();
                     AlarmActivity.this.finish();
-                    AlarmActivity.instance = null;
+                    //AlarmActivity.instance = null;
                     FragmentActivity.pushService.sendMessage1(mCenter.cmdFenceOff());
                 }
             }
         });
-        instance = this;
+        // instance = this;
 
     }
 
@@ -58,7 +58,7 @@ public class AlarmActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        instance = null;
+        //instance = null;
         super.onDestroy();
     }
 }
